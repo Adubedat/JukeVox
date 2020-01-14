@@ -1,17 +1,17 @@
-'use strict';
+'use strict'
 
-var mysql = require('mysql');
+var mysql = require('mysql')
 
-//local mysql db connection
+// local mysql db connection
 var connection = mysql.createConnection({
-    host     : 'localhost',
-    user     : 'root',
-    password : '',
-    database : 'mydb'
-});
+  host: 'localhost',
+  user: 'root',
+  password: '',
+  database: 'JukeVox'
+})
 
-connection.connect(function(err) {
-    if (err) throw err;
-});
+connection.connect(function (err) {
+  if (err) throw err
+})
 
-module.exports = connection;
+module.exports = connection
