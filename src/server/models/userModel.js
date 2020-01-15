@@ -1,9 +1,8 @@
-'use strict'
 
-exports.createUser = function (user) {
-  return new Promise(function (resolve, reject) {
+exports.createUser = function createUser(user) {
+  return new Promise(((resolve, reject) => {
     setTimeout(() => {
-      resolve('New user created, took me only 1 sec')
-    }, 1000)
-  })
-}
+      resolve('New user created, took me only 1 sec');
+    }, 1000);
+  }));
+};

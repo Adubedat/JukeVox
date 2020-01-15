@@ -1,6 +1,4 @@
-module.exports = {
-	"extends": "standard",
-    "rules":{
-        "indent": ["error", 2],
-	}
-};
+module.exports = 
+	{ 
+		"extends": "airbnb-base"
+	};

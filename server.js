@@ -1,34 +1,33 @@
-'use strict'
 
-const express = require('express')
-const params = require('./params')
-const routes = require('./src/server/routes')
+const express = require('express');
+const mysql = require('mysql');
+const params = require('./params');
+const routes = require('./src/server/routes');
 
-const mysql = require('mysql')
 
 // local mysql db connection
 const connection = mysql.createConnection({
   host: 'localhost',
   user: 'root',
-  password: ''
-})
+  password: '',
+});
 
-connection.connect(function (err) {
-  if (err) throw err
-  console.log('Connected!')
-  const query = 'CREATE DATABASE IF NOT EXISTS JukeVox'
-  connection.query(query, function (err, result) {
-    if (err) throw err
-    console.log('Database created')
-  })
-})
+connection.connect((err) => {
+  if (err) throw err;
+  console.log('Connected!');
+  const query = 'CREATE DATABASE IF NOT EXISTS JukeVox';
+  connection.query(query, (err, result) => {
+    if (err) throw err;
+    console.log('Database created');
+  });
+});
 
-connection.destroy()
+connection.destroy();
 
-const port = process.env.PORT || params.port
-const app = express()
+const port = process.env.PORT || params.port;
+const app = express();
 
-app.listen(port)
-routes(app)
+app.listen(port);
+routes(app);
 
-console.log('Music Room RESTful API server started on port: ' + port)
+console.log(`Music Room RESTful API server started on port: ${port}`);
