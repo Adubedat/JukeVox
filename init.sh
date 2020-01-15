@@ -1,3 +1,3 @@
 set -x;
 
-mysql -h localhost -u root -p"" < createTables.sql;
+mysql -h localhost -u root < createDatabase.sql;

@@ -15,20 +15,24 @@ CREATE TABLE IF NOT EXISTS `UserAccounts` (
   `Password` varchar(100),
   `EmailConfirmationPin` smallint NOT NULL,
   `EmailConfirmed` boolean DEFAULT false,
-  `AccountExpiration` datetime DEFAULT (now())
+  `AccountExpiration` datetime,
+  FOREIGN KEY (`UserProfileId`) REFERENCES `UserProfiles` (`Id`)
 );
 
 CREATE TABLE IF NOT EXISTS `ProviderAccounts` (
   `UserProfileId` int NOT NULL,
   `Provider` ENUM ('Facebook', 'Google', 'Deezer') NOT NULL,
   `ProviderId` varchar(100) NOT NULL,
-  PRIMARY KEY (`UserProfileId`, `Provider`)
+  PRIMARY KEY (`UserProfileId`, `Provider`),
+  FOREIGN KEY (`UserProfileId`) REFERENCES `UserProfiles` (`Id`)
 );
 
 CREATE TABLE IF NOT EXISTS `Friendships` (
   `RequesterId` int NOT NULL,
   `AddresseeId` int NOT NULL,
-  PRIMARY KEY (`RequesterId`, `AddresseeId`)
+  PRIMARY KEY (`RequesterId`, `AddresseeId`),
+  FOREIGN KEY (`RequesterId`) REFERENCES `UserProfiles` (`Id`),
+  FOREIGN KEY (`AddresseeId`) REFERENCES `UserProfiles` (`Id`)
 );
 
 CREATE TABLE IF NOT EXISTS `Events` (
@@ -42,20 +46,8 @@ CREATE TABLE IF NOT EXISTS `Events` (
   `Latitude` float NOT NULL,
   `Longitude` float NOT NULL,
   `StreamerDevice` varchar(100),
-  `IsPrivate` boolean DEFAULT true
-);
-
-CREATE TABLE IF NOT EXISTS `Votes` (
-  `TrackId` int NOT NULL,
-  `UserId` int NOT NULL,
-  `Vote` tinyint NOT NULL,
-  PRIMARY KEY (`TrackId`, `UserId`)
-);
-
-CREATE TABLE IF NOT EXISTS `TrackHistory` (
-  `TrackId` int UNIQUE PRIMARY KEY NOT NULL,
-  `EventId` int NOT NULL,
-  `PlayedAt` datetime DEFAULT (now())
+  `IsPrivate` boolean DEFAULT true,
+  FOREIGN KEY (`CreatorId`) REFERENCES `UserProfiles` (`Id`)
 );
 
 CREATE TABLE IF NOT EXISTS `Tracks` (
@@ -68,7 +60,26 @@ CREATE TABLE IF NOT EXISTS `Tracks` (
   `ArtistName` varchar(100) NOT NULL,
   `PictureSmall` varchar(150),
   `PictureBig` varchar(150),
-  `AddedAt` datetime NOT NULL DEFAULT (now())
+  `AddedAt` datetime NOT NULL,
+  FOREIGN KEY (`EventId`) REFERENCES `Events` (`Id`),
+  FOREIGN KEY (`UserId`) REFERENCES `UserProfiles` (`Id`)
+);
+
+CREATE TABLE IF NOT EXISTS `Votes` (
+  `TrackId` int NOT NULL,
+  `UserId` int NOT NULL,
+  `Vote` tinyint NOT NULL,
+  PRIMARY KEY (`TrackId`, `UserId`),
+  FOREIGN KEY (`TrackId`) REFERENCES `Tracks` (`Id`),
+  FOREIGN KEY (`UserId`) REFERENCES `UserProfiles` (`Id`)
+);
+
+CREATE TABLE IF NOT EXISTS `TrackHistory` (
+  `TrackId` int UNIQUE PRIMARY KEY NOT NULL,
+  `EventId` int NOT NULL,
+  `PlayedAt` timestamp NOT NULL,
+  FOREIGN KEY (`TrackId`) REFERENCES `Tracks` (`Id`),
+  FOREIGN KEY (`EventId`) REFERENCES `Events` (`Id`)
 );
 
 CREATE TABLE IF NOT EXISTS `Logs` (
@@ -76,7 +87,8 @@ CREATE TABLE IF NOT EXISTS `Logs` (
   `EventType` char(1) NOT NULL,
   `UserId` int,
   `Description` varchar(254),
-  `EventDate` datetime NOT NULL
+  `EventDate` datetime NOT NULL,
+  FOREIGN KEY (`UserId`) REFERENCES `UserProfiles` (`Id`)
 );
 
 CREATE TABLE IF NOT EXISTS `EventGuests` (
@@ -84,33 +96,7 @@ CREATE TABLE IF NOT EXISTS `EventGuests` (
   `GuestId` int NOT NULL,
   `HasPlayerControl` boolean DEFAULT false,
   `Status` ENUM ('Going', 'NotGoing', 'Invited') NOT NULL,
-  PRIMARY KEY (`EventId`, `GuestId`)
+  PRIMARY KEY (`EventId`, `GuestId`),
+  FOREIGN KEY (`EventId`) REFERENCES `Events` (`Id`),
+  FOREIGN KEY (`GuestId`) REFERENCES `UserProfiles` (`Id`)
 );
-
-ALTER TABLE `UserAccounts` ADD FOREIGN KEY (`UserProfileId`) REFERENCES `UserProfiles` (`Id`);
-
-ALTER TABLE `ProviderAccounts` ADD FOREIGN KEY (`UserProfileId`) REFERENCES `UserProfiles` (`Id`);
-
-ALTER TABLE `Friendships` ADD FOREIGN KEY (`RequesterId`) REFERENCES `UserProfiles` (`Id`);
-
-ALTER TABLE `Friendships` ADD FOREIGN KEY (`AddresseeId`) REFERENCES `UserProfiles` (`Id`);
-
-ALTER TABLE `Events` ADD FOREIGN KEY (`CreatorId`) REFERENCES `UserProfiles` (`Id`);
-
-ALTER TABLE `Votes` ADD FOREIGN KEY (`TrackId`) REFERENCES `Tracks` (`Id`);
-
-ALTER TABLE `Votes` ADD FOREIGN KEY (`UserId`) REFERENCES `UserProfiles` (`Id`);
-
-ALTER TABLE `TrackHistory` ADD FOREIGN KEY (`TrackId`) REFERENCES `Tracks` (`Id`);
-
-ALTER TABLE `TrackHistory` ADD FOREIGN KEY (`EventId`) REFERENCES `Events` (`Id`);
-
-ALTER TABLE `Tracks` ADD FOREIGN KEY (`EventId`) REFERENCES `Events` (`Id`);
-
-ALTER TABLE `Tracks` ADD FOREIGN KEY (`UserId`) REFERENCES `UserProfiles` (`Id`);
-
-ALTER TABLE `Logs` ADD FOREIGN KEY (`UserId`) REFERENCES `UserProfiles` (`Id`);
-
-ALTER TABLE `EventGuests` ADD FOREIGN KEY (`EventId`) REFERENCES `Events` (`Id`);
-
-ALTER TABLE `EventGuests` ADD FOREIGN KEY (`GuestId`) REFERENCES `UserProfiles` (`Id`);
