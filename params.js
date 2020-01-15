@@ -3,10 +3,10 @@ const params = {
   port: 5000,
   database: {
     host: 'localhost',
-    name: 'MusicRoom',
     user: 'root',
     password: '',
+    database: 'JukeVox',
   },
 };
 
-module.exports = params;
+export default params;
