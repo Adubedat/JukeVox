@@ -24,4 +24,19 @@ User.createUser = function createUser(user) {
   }));
 };
 
+User.getUserProfileByEmail = function getUserProfileByEmail(email) {
+  return new Promise(((resolve, reject) => {
+    const query = 'SELECT * FROM `UserProfiles` WHERE `email` = ?';
+    sql.query(query, email, (err, res) => {
+      if (err) {
+        console.log(`getUserProfileByEmail query error : ${err}`);
+        reject(err);
+      } else {
+        console.log(res);
+        resolve(res);
+      }
+    });
+  }));
+};
+
 export default User;

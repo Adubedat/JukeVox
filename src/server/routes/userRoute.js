@@ -1,5 +1,4 @@
-
-import createUser from '../controller/userController';
+import { createUser, registerUser } from '../controller/userController';
 
 export default function (app) {
   app.route('/user')
@@ -8,4 +7,11 @@ export default function (app) {
       next();
     })
     .post(createUser);
+
+  app.route('/user/register')
+    .all((req, res, next) => {
+      console.log('New user registration request');
+      next();
+    })
+    .post(registerUser);
 }
