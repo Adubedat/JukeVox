@@ -13,13 +13,23 @@ export function createUser(req, res) {
     });
 }
 
+async function getAccountTypes(Id) {
+  Promise.all([User.getUserAccountById(Id), User.getProviderAccountsById(Id)])
+    .then((response) => ('test'));
+}
+
 export function registerUser(req, res) {
   const { email } = req.body;
   // TODO : verify valid email
   User.getUserProfileByEmail(email)
-    .then((response) => {
-      console.log(response);
-      res.send(response);
+    .then(async (response) => {
+      const { Id } = response[0];
+      if (!Id) {
+        res.send('UserProfile does not exists');
+      } else {
+        const accountTypes = await Promise.all([User.getUserAccountById(Id), User.getProviderAccountsById(Id)]);
+        console.log(accountTypes);
+      }
     })
     .catch((error) => {
       console.log(error);

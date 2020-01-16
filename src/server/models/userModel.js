@@ -32,6 +32,35 @@ User.getUserProfileByEmail = function getUserProfileByEmail(email) {
         console.log(`getUserProfileByEmail query error : ${err}`);
         reject(err);
       } else {
+        resolve(res);
+      }
+    });
+  }));
+};
+
+User.getUserAccountById = function getUserAccountById(id) {
+  return new Promise(((resolve, reject) => {
+    const query = 'SELECT * FROM `UserAccounts` WHERE `UserProfileId` = ?';
+    sql.query(query, id, (err, res) => {
+      if (err) {
+        console.log(`getUserAccountById query error : ${err}`);
+        reject(err);
+      } else {
+        console.log(`getUserAccountById query success: ${res}`);
+        resolve(res);
+      }
+    });
+  }));
+};
+
+User.getProviderAccountsById = function getProviderAccountsById(id) {
+  return new Promise(((resolve, reject) => {
+    const query = 'SELECT * FROM `ProviderAccounts` WHERE `UserProfileId` = ?';
+    sql.query(query, id, (err, res) => {
+      if (err) {
+        console.log(`getProviderAccountsById query error : ${err}`);
+        reject(err);
+      } else {
         console.log(res);
         resolve(res);
       }
