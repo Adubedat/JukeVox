@@ -14,8 +14,19 @@ export function createUser(req, res) {
 }
 
 async function getAccountTypes(Id) {
-  Promise.all([User.getUserAccountById(Id), User.getProviderAccountsById(Id)])
-    .then((response) => ('test'));
+  try {
+    const accountTypes = [];
+    const results = await Promise.all([User.getUserAccountById(Id),
+      User.getProviderAccountsById(Id)]);
+    if (results[0].length > 0) {
+      accountTypes.push('Classic');
+    }
+    results[1].forEach((result) => accountTypes.push(result.Provider));
+    return accountTypes;
+  } catch (error) {
+    console.log(error);
+    return (null);
+  }
 }
 
 export function registerUser(req, res) {
@@ -27,8 +38,8 @@ export function registerUser(req, res) {
       if (!Id) {
         res.send('UserProfile does not exists');
       } else {
-        const accountTypes = await Promise.all([User.getUserAccountById(Id), User.getProviderAccountsById(Id)]);
-        console.log(accountTypes);
+        const accountTypes = await getAccountTypes(Id);
+        console.log(`The account types are: ${accountTypes}`);
       }
     })
     .catch((error) => {

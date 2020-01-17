@@ -46,7 +46,7 @@ User.getUserAccountById = function getUserAccountById(id) {
         console.log(`getUserAccountById query error : ${err}`);
         reject(err);
       } else {
-        console.log(`getUserAccountById query success: ${res}`);
+        console.log(res);
         resolve(res);
       }
     });
