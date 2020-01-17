@@ -29,20 +29,28 @@ async function getAccountTypes(Id) {
   }
 }
 
-export function registerUser(req, res) {
-  const { email } = req.body;
+export function getUserAccountsTypes(req, res) {
+  const { email } = req.params;
   // TODO : verify valid email
   User.getUserProfileByEmail(email)
     .then(async (response) => {
       const { Id } = response[0];
       if (!Id) {
-        res.send('UserProfile does not exists');
+        res.send({
+          message: 'Email does not match any account',
+          data: [],
+        });
       } else {
         const accountTypes = await getAccountTypes(Id);
         console.log(`The account types are: ${accountTypes}`);
+        res.send({
+          message: 'Email matches these account types',
+          data: accountTypes,
+        });
       }
     })
     .catch((error) => {
       console.log(error);
+      res.status(500).send(error);
     });
 }

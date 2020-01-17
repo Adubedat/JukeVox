@@ -1,4 +1,4 @@
-import { createUser, registerUser } from '../controller/userController';
+import { createUser, registerUser, getUserAccountsTypes } from '../controller/userController';
 
 export default function (app) {
   app.route('/user')
@@ -8,10 +8,18 @@ export default function (app) {
     })
     .post(createUser);
 
-  app.route('/user/register')
+  app.route('/user/:email/accounts')
     .all((req, res, next) => {
-      console.log('New user registration request');
+      console.log('/user/:email/accounts route called');
       next();
     })
-    .post(registerUser);
+    .get(getUserAccountsTypes);
+
+
+//   app.route('/user/register')
+//     .all((req, res, next) => {
+//       console.log('New user registration request');
+//       next();
+//     })
+//     .post(registerUser);
 }
