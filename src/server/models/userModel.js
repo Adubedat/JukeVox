@@ -29,7 +29,6 @@ User.getUserProfileByEmail = function getUserProfileByEmail(email) {
     const query = 'SELECT * FROM `UserProfiles` WHERE `email` = ?';
     sql.query(query, email, (err, res) => {
       if (err) {
-        console.log(`getUserProfileByEmail query error : ${err}`);
         reject(err);
       } else {
         resolve(res);
@@ -43,10 +42,8 @@ User.getUserAccountById = function getUserAccountById(id) {
     const query = 'SELECT * FROM `UserAccounts` WHERE `UserProfileId` = ?';
     sql.query(query, id, (err, res) => {
       if (err) {
-        console.log(`getUserAccountById query error : ${err}`);
         reject(err);
       } else {
-        console.log(res);
         resolve(res);
       }
     });
@@ -58,10 +55,8 @@ User.getProviderAccountsById = function getProviderAccountsById(id) {
     const query = 'SELECT * FROM `ProviderAccounts` WHERE `UserProfileId` = ?';
     sql.query(query, id, (err, res) => {
       if (err) {
-        console.log(`getProviderAccountsById query error : ${err}`);
         reject(err);
       } else {
-        console.log(res);
         resolve(res);
       }
     });
