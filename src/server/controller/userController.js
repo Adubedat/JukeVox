@@ -28,7 +28,7 @@ export async function getUserAccountsTypes(req, res) {
   const { email } = req.params;
 
   try {
-    const response = await User.getUserProfileByEmail(email);
+    const response = await User.getUserProfile('email', email);
     const id = response[0].Id;
     const accountTypes = await getAccountTypes(id);
 
@@ -41,4 +41,21 @@ export async function getUserAccountsTypes(req, res) {
   }
 }
 
-// id exists, but
+export async function searchForUser(req, res) {
+  const existingFilters = ['Username', 'Email'].filter((field) => req.query[field]);
+  const values = existingFilters.map((filter) => (req.query[filter]));
+
+  try {
+    const response = await User.getUserProfile(existingFilters, values);
+
+    const user = response;
+
+    console.log(response[0]);
+    res.send({
+      message: 'The user matching this username is',
+      data: user,
+    });
+  } catch (error) {
+    res.status(500).send(error);
+  }
+}

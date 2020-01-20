@@ -24,10 +24,16 @@ User.createUser = function createUser(user) {
   }));
 };
 
-User.getUserProfileByEmail = function getUserProfileByEmail(email) {
+User.getUserProfile = function getUserProfile(filters, values) {
   return new Promise(((resolve, reject) => {
-    const query = 'SELECT * FROM `UserProfiles` WHERE `email` = ?';
-    sql.query(query, email, (err, res) => {
+    let query = 'SELECT * FROM `UserProfiles` WHERE 1 = 1';
+    filters.forEach((filter) => {
+      query += ` AND '${filter}' = ?`;
+    });
+    query += ';';
+
+    sql.query(query, values, (err, res) => {
+      console.log(query, values, err, res);
       if (err) {
         reject(err);
       } else {
