@@ -13,12 +13,14 @@ export function createUser(req, res) {
 
 async function getAccountTypes(Id) {
   const accountTypes = [];
-  const results = await Promise.all([User.getUserAccountById(Id),
-    User.getProviderAccountsById(Id)]);
-  if (results[0].length > 0) {
-    accountTypes.push('Classic');
+  if (Id) {
+    const results = await Promise.all([User.getUserAccountById(Id),
+      User.getProviderAccountsById(Id)]);
+    if (results[0].length > 0) {
+      accountTypes.push('Classic');
+    }
+    results[1].forEach((result) => accountTypes.push(result.Provider));
   }
-  results[1].forEach((result) => accountTypes.push(result.Provider));
   return accountTypes;
 }
 
@@ -28,19 +30,15 @@ export async function getUserAccountsTypes(req, res) {
   try {
     const response = await User.getUserProfileByEmail(email);
     const id = response[0].Id;
-    if (!id) {
-      res.send({
-        message: 'Email does not match any account',
-        data: [],
-      });
-    } else {
-      const accountTypes = await getAccountTypes(id);
-      res.send({
-        message: 'Email matches these account types',
-        data: accountTypes,
-      });
-    }
+    const accountTypes = await getAccountTypes(id);
+
+    res.send({
+      message: 'Email matches these account types',
+      data: accountTypes,
+    });
   } catch (error) {
     res.status(500).send(error);
   }
 }
+
+// id exists, but
