@@ -45,7 +45,7 @@ User.getUserProfile = function getUserProfile(filters, values) {
 
 User.getUserAccountById = function getUserAccountById(id) {
   return new Promise(((resolve, reject) => {
-    const query = 'SELECT * FROM `UserAccounts` WHERE `UserProfileId` = ?';
+    const query = 'SELECT * FROM UserAccounts WHERE UserProfileId = ?';
     sql.query(query, id, (err, res) => {
       if (err) {
         reject(err);
@@ -58,7 +58,7 @@ User.getUserAccountById = function getUserAccountById(id) {
 
 User.getProviderAccountsById = function getProviderAccountsById(id) {
   return new Promise(((resolve, reject) => {
-    const query = 'SELECT * FROM `ProviderAccounts` WHERE `UserProfileId` = ?';
+    const query = 'SELECT * FROM ProviderAccounts WHERE UserProfileId = ?';
     sql.query(query, id, (err, res) => {
       if (err) {
         reject(err);
