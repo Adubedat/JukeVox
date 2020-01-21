@@ -42,7 +42,7 @@ export async function getUserAccountsTypes(req, res) {
 }
 
 export async function searchForUser(req, res) {
-  const existingFilters = ['Username', 'Email'].filter((field) => req.query[field]);
+  const existingFilters = ['username', 'email'].filter((field) => req.query[field]);
   const values = existingFilters.map((filter) => (req.query[filter]));
 
   try {

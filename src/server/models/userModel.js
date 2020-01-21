@@ -26,9 +26,9 @@ User.createUser = function createUser(user) {
 
 User.getUserProfile = function getUserProfile(filters, values) {
   return new Promise(((resolve, reject) => {
-    let query = 'SELECT * FROM `UserProfiles` WHERE 1 = 1';
+    let query = 'SELECT * FROM UserProfiles WHERE 1 = 1';
     filters.forEach((filter) => {
-      query += ` AND '${filter}' = ?`;
+      query += ` AND ${filter} = ?`;
     });
     query += ';';
 
