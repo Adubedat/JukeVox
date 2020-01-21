@@ -47,20 +47,28 @@ function validateInput(username, email, password) {
   error = validatePassword(password);
   return error;
 }
-export function createUser(req, res) {
+export async function createUser(req, res) {
   const { username, email, password } = req.body;
   const error = validateInput(username, email, password);
 
   if (error) {
     res.status(400).send(error);
   }
-  User.createUser({ username: 'Bob' })
-    .then((response) => {
-      res.send(response);
-    })
-    .catch((err) => {
-      console.log(err);
-    });
+  try {
+    const userProfile = await User.createUserProfile(username, email);
+    console.log(userProfile);
+    const userAccount = await User.createUserAccount(userProfile.Id, email, password);
+    console.log(userAccount);
+  } catch (err) {
+    console.log(err);
+  }
+  // User.createUserProfile(username, email, password)
+  //   .then((response) => {
+  //     res.send(response);
+  //   })
+  //   .catch((err) => {
+  //     console.log(err);
+  //   });
 }
 
 async function getAccountTypes(Id) {

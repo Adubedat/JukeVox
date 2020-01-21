@@ -6,9 +6,27 @@ const User = function () {
 
 };
 
-User.createUser = function createUser(user) {
+User.createUserProfile = function createUserProfile(username, email) {
   return new Promise(((resolve, reject) => {
     const query = 'INSERT INTO UserProfiles (Username, Email, CreatedAt) \
+    VALUES ?';
+    const values = [['adubedat', 'adubedat@student.42.fr', moment().format(DATETIME_FORMAT)]];
+
+    sql.query(query, [values], (err, res) => {
+      if (err) {
+        console.log(err);
+        reject(err);
+      } else {
+        console.log(res);
+        resolve(res);
+      }
+    });
+  }));
+};
+
+User.createUserAccount = function createUserAccount(userProfileId, email, password) {
+  return new Promise(((resolve, reject) => {
+    const query = 'INSERT INTO UserAccounts (Username, Email, CreatedAt) \
     VALUES ?';
     const values = [['adubedat', 'adubedat@student.42.fr', moment().format(DATETIME_FORMAT)]];
 
