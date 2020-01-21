@@ -4,8 +4,8 @@ echo "INSERT INTO UserProfiles (Username, Email, CreatedAt) VALUES ('"$i"', '"$i
 
 if [ $i -lt 5 ]
 then
-echo "INSERT INTO UserAccounts (UserProfileId, Email, EmailConfirmationPin) "
-echo "SELECT id, email, $i FROM UserProfiles WHERE Username = '"$i"';"
+echo "INSERT INTO UserAccounts (UserProfileId, Email) "
+echo "SELECT id, email FROM UserProfiles WHERE Username = '"$i"';"
 fi
 
 if [ $i = 1 ] || [ $i = 2 ] || [ $i = 5 ] || [ $i = 7 ]
