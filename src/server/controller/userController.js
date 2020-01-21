@@ -1,13 +1,65 @@
-
+import validator from 'validator';
 import User from '../models/userModel';
 
+async function validateUsername(username) {
+  if (!validator.isAlphanumeric(username)) {
+    return ('Username must only contain numbers or letters');
+  }
+  try {
+    const response = await User.getUserProfile(['username'], [username]);
+    if (response.length > 0) {
+      return ('There already is an account with this username');
+    }
+  } catch (error) {
+    return (error);
+  }
+  return null;
+}
+
+async function validateEmail(email) {
+  if (!validator.isEmail(email)) {
+    return ('Email not correctly formatted');
+  }
+  try {
+    const response = await User.getUserProfile(['email'], [email]);
+    if (response.length > 0) {
+      return ('There already is an account with this email');
+    }
+  } catch (error) {
+    return (error);
+  }
+  return null;
+}
+
+function validatePassword(password) {
+  if (password.length < 10) {
+    return ('Your password must have at least 10 characters.');
+  }
+  return null;
+}
+
+function validateInput(username, email, password) {
+  let error;
+  error = validateUsername(username);
+  if (error) return error;
+  error = validateEmail(email);
+  if (error) return error;
+  error = validatePassword(password);
+  return error;
+}
 export function createUser(req, res) {
+  const { username, email, password } = req.body;
+  const error = validateInput(username, email, password);
+
+  if (error) {
+    res.status(400).send(error);
+  }
   User.createUser({ username: 'Bob' })
     .then((response) => {
       res.send(response);
     })
-    .catch((error) => {
-      console.log(error);
+    .catch((err) => {
+      console.log(err);
     });
 }
 
@@ -47,10 +99,8 @@ export async function searchForUser(req, res) {
 
   try {
     const response = await User.getUserProfile(existingFilters, values);
-
     const user = response;
 
-    console.log(response[0]);
     res.send({
       message: 'The user matching this username is',
       data: user,
