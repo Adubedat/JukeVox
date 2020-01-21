@@ -38,37 +38,31 @@ function validatePassword(password) {
   return null;
 }
 
-function validateInput(username, email, password) {
+async function validateInput(username, email, password) {
   let error;
-  error = validateUsername(username);
-  if (error) return error;
-  error = validateEmail(email);
-  if (error) return error;
+  error = await validateUsername(username);
+  if (error != null) { return error; }
+  error = await validateEmail(email);
+  if (error != null) { return error; }
   error = validatePassword(password);
   return error;
 }
+
 export async function createUser(req, res) {
   const { username, email, password } = req.body;
-  const error = validateInput(username, email, password);
+  const error = await validateInput(username, email, password);
 
   if (error) {
     res.status(400).send(error);
+    return;
   }
   try {
     const userProfile = await User.createUserProfile(username, email);
-    console.log(userProfile);
-    const userAccount = await User.createUserAccount(userProfile.Id, email, password);
-    console.log(userAccount);
+    const userAccount = await User.createUserAccount(userProfile.insertId, email, password);
+    res.status(200).send('User created. Please check your mail!');
   } catch (err) {
     console.log(err);
   }
-  // User.createUserProfile(username, email, password)
-  //   .then((response) => {
-  //     res.send(response);
-  //   })
-  //   .catch((err) => {
-  //     console.log(err);
-  //   });
 }
 
 async function getAccountTypes(Id) {

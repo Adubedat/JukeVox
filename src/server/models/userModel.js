@@ -1,4 +1,5 @@
 import moment from 'moment';
+import crypto from 'crypto';
 import sql from '../../../db';
 import DATETIME_FORMAT from '../constants';
 
@@ -10,7 +11,7 @@ User.createUserProfile = function createUserProfile(username, email) {
   return new Promise(((resolve, reject) => {
     const query = 'INSERT INTO UserProfiles (Username, Email, CreatedAt) \
     VALUES ?';
-    const values = [['adubedat', 'adubedat@student.42.fr', moment().format(DATETIME_FORMAT)]];
+    const values = [[username, email, moment().format(DATETIME_FORMAT)]];
 
     sql.query(query, [values], (err, res) => {
       if (err) {
@@ -26,9 +27,14 @@ User.createUserProfile = function createUserProfile(username, email) {
 
 User.createUserAccount = function createUserAccount(userProfileId, email, password) {
   return new Promise(((resolve, reject) => {
-    const query = 'INSERT INTO UserAccounts (Username, Email, CreatedAt) \
+    const expirationDate = moment().add(3, 'd').format(DATETIME_FORMAT);
+
+    const token = crypto.randomBytes(24).toString('hex');
+    console.log(token);
+
+    const query = 'INSERT INTO UserAccounts (UserProfileId, Email, Password, EmailConfirmationString, AccountExpiration) \
     VALUES ?';
-    const values = [['adubedat', 'adubedat@student.42.fr', moment().format(DATETIME_FORMAT)]];
+    const values = [[userProfileId, email, password, token, expirationDate]];
 
     sql.query(query, [values], (err, res) => {
       if (err) {
@@ -51,7 +57,6 @@ User.getUserProfile = function getUserProfile(filters, values) {
     query += ';';
 
     sql.query(query, values, (err, res) => {
-      console.log(query, values, err, res);
       if (err) {
         reject(err);
       } else {
