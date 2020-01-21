@@ -1,8 +1,9 @@
 
-// const routes = require('./src/server/routes');
-import bodyParser from 'body-parser';
 import routes from './src/server/routes';
 import params from './params';
+
+// TODO: Add error handler
+// TODO: Fix return codes
 
 const express = require('express');
 
