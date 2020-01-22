@@ -4,49 +4,34 @@ import User from '../models/userModel';
 
 async function validateUsername(username) {
   if (!validator.isAlphanumeric(username)) {
-    return ('Username must only contain numbers or letters');
+    throw new Error('Username must only contain numbers or letters');
   }
-  try {
-    const response = await User.getUserProfile(['username'], [username]);
-    if (response.length > 0) {
-      return ('There already is an account with this username');
-    }
-  } catch (error) {
-    return (error);
+  const response = await User.getUserProfile(['username'], [username]);
+  if (response.length > 0) {
+    throw new Error('There already is an account with this username');
   }
-  return null;
 }
 
 async function validateEmail(email) {
   if (!validator.isEmail(email)) {
-    return ('Email not correctly formatted');
+    throw new Error('Email not correctly formatted');
   }
-  try {
-    const response = await User.getUserProfile(['email'], [email]);
-    if (response.length > 0) {
-      return ('There already is an account with this email');
-    }
-  } catch (error) {
-    return (error);
+  const response = await User.getUserProfile(['email'], [email]);
+  if (response.length > 0) {
+    throw new Error('There already is an account with this email');
   }
-  return null;
 }
 
 function validatePassword(password) {
   if (password.length < 10) {
-    return ('Your password must have at least 10 characters.');
+    throw new Error('Your password must have at least 10 characters.');
   }
-  return null;
 }
 
 async function validateInput(username, email, password) {
-  let error;
-  error = await validateUsername(username);
-  if (error != null) { return error; }
-  error = await validateEmail(email);
-  if (error != null) { return error; }
-  error = validatePassword(password);
-  return error;
+  await validateUsername(username);
+  await validateEmail(email);
+  validatePassword(password);
 }
 
 function sendConfirmationEmail(email, emailConfirmationString) {
@@ -75,14 +60,14 @@ function sendConfirmationEmail(email, emailConfirmationString) {
   });
 }
 
-export async function createUser(req, res) {
+export async function createUser(req, res, next) {
   const { username, email, password } = req.body;
-  const error = await validateInput(username, email, password);
 
-  if (error) {
-    res.status(400).send(error);
-    return;
-  }
+  await validateInput(username, email, password)
+    .catch((error) => {
+      next(error.toString());
+    });
+
   try {
     const userProfile = await User.createUserProfile(username, email);
     const userAccount = await User.createUserAccount(userProfile.insertId, email, password);
@@ -90,6 +75,7 @@ export async function createUser(req, res) {
     res.status(200).send('User created. Please check your mail!');
   } catch (err) {
     console.log(err);
+    next(err.toString());
   }
 }
 
