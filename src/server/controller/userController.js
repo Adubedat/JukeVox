@@ -1,30 +1,31 @@
 import validator from 'validator';
 import nodemailer from 'nodemailer';
 import User from '../models/userModel';
+import { ErrorResponseHandler } from '../../helpers/error';
 
 async function validateUsername(username) {
   if (!validator.isAlphanumeric(username)) {
-    throw new Error('Username must only contain numbers or letters');
+    throw new ErrorResponseHandler(400, 'Username must only contain numbers or letters');
   }
   const response = await User.getUserProfile(['username'], [username]);
   if (response.length > 0) {
-    throw new Error('There already is an account with this username');
+    throw new ErrorResponseHandler(409, 'There already is an account with this username');
   }
 }
 
 async function validateEmail(email) {
   if (!validator.isEmail(email)) {
-    throw new Error('Email not correctly formatted');
+    throw new ErrorResponseHandler(400, 'Email not correctly formatted');
   }
   const response = await User.getUserProfile(['email'], [email]);
   if (response.length > 0) {
-    throw new Error('There already is an account with this email');
+    throw new ErrorResponseHandler(409, 'There already is an account with this email');
   }
 }
 
 function validatePassword(password) {
   if (password.length < 10) {
-    throw new Error('Your password must have at least 10 characters.');
+    throw new ErrorResponseHandler(400, 'Your password must have at least 10 characters.');
   }
 }
 
@@ -65,7 +66,7 @@ export async function createUser(req, res, next) {
 
   await validateInput(username, email, password)
     .catch((error) => {
-      next(error.toString());
+      next(error);
     });
 
   try {
@@ -75,7 +76,7 @@ export async function createUser(req, res, next) {
     res.status(200).send('User created. Please check your mail!');
   } catch (err) {
     console.log(err);
-    next(err.toString());
+    next(err);
   }
 }
 
