@@ -1,4 +1,5 @@
 import validator from 'validator';
+import nodemailer from 'nodemailer';
 import User from '../models/userModel';
 
 async function validateUsername(username) {
@@ -48,6 +49,32 @@ async function validateInput(username, email, password) {
   return error;
 }
 
+function sendConfirmationEmail(email, emailConfirmationString) {
+  const transporter = nodemailer.createTransport({
+    host: 'smtp.mailtrap.io',
+    port: 2525,
+    auth: {
+      user: process.env.MAILTRAP_USER,
+      pass: process.env.MAILTRAP_PASS,
+    },
+  });
+
+  const message = {
+    from: 'noreply@domain.com',
+    to: email,
+    subject: 'Confirm your email',
+    text: `Please click the following link to validate your email : https://localhost:5000/${emailConfirmationString}`,
+    html: `<p>Please click the following link to validate your email : https://localhost:5000/${emailConfirmationString}</p>`,
+  };
+
+  transporter.sendMail(message, (error, info) => {
+    if (error) {
+      return console.log(error);
+    }
+    return console.log('Message sent: %s', info.messageId);
+  });
+}
+
 export async function createUser(req, res) {
   const { username, email, password } = req.body;
   const error = await validateInput(username, email, password);
@@ -59,6 +86,7 @@ export async function createUser(req, res) {
   try {
     const userProfile = await User.createUserProfile(username, email);
     const userAccount = await User.createUserAccount(userProfile.insertId, email, password);
+    sendConfirmationEmail(email, userAccount.emailConfirmationString);
     res.status(200).send('User created. Please check your mail!');
   } catch (err) {
     console.log(err);

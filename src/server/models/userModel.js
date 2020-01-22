@@ -51,6 +51,7 @@ User.createUserAccount = async function createUserAccount(userProfileId, email, 
         reject(err);
       } else {
         console.log(res);
+        res.emailConfirmationString = token;
         resolve(res);
       }
     });
