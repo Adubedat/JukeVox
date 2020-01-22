@@ -26,9 +26,14 @@ User.createUserProfile = function createUserProfile(username, email) {
 };
 
 User.createUserAccount = function createUserAccount(userProfileId, email, password) {
+  // TODO: Hash the password
+
+  // TODO: Add salt to the password
+
   return new Promise(((resolve, reject) => {
     const expirationDate = moment().add(3, 'd').format(DATETIME_FORMAT);
 
+    // TODO: Verify function is secure if we're using the same for authenticating the user
     const token = crypto.randomBytes(24).toString('hex');
     console.log(token);
 
