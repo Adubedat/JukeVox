@@ -37,6 +37,7 @@ User.createUserAccount = function createUserAccount(userProfileId, email, passwo
     const token = crypto.randomBytes(24).toString('hex');
     console.log(token);
 
+    // TODO: update dbdiagram (emailconfirmationString)
     const query = 'INSERT INTO UserAccounts (UserProfileId, Email, Password, EmailConfirmationString, AccountExpiration) \
     VALUES ?';
     const values = [[userProfileId, email, password, token, expirationDate]];
