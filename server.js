@@ -1,10 +1,11 @@
-
+import dotenv from 'dotenv';
 import routes from './src/server/routes';
 import params from './params';
 
 // TODO: Add error handler
 // TODO: Fix return codes
 
+dotenv.config();
 const express = require('express');
 
 const port = process.env.PORT || params.port;
