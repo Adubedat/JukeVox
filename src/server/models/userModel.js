@@ -1,5 +1,6 @@
 import moment from 'moment';
 import crypto from 'crypto';
+import argon2 from 'argon2';
 import sql from '../../../db';
 import DATETIME_FORMAT from '../constants';
 
@@ -25,12 +26,14 @@ User.createUserProfile = function createUserProfile(username, email) {
   }));
 };
 
-User.createUserAccount = function createUserAccount(userProfileId, email, password) {
-  // TODO: Hash the password
+User.createUserAccount = async function createUserAccount(userProfileId, email, password) {
+  const hash = await argon2.hash(password).catch((err) => {
+    console.log(`We have a hashing error: ${err}`);
+    throw new Error(err);
+  });
+  console.log(hash);
 
-  // TODO: Add salt to the password
-
-  return new Promise(((resolve, reject) => {
+  return new Promise((resolve, reject) => {
     const expirationDate = moment().add(3, 'd').format(DATETIME_FORMAT);
 
     // TODO: Verify function is secure if we're using the same for authenticating the user
@@ -40,7 +43,7 @@ User.createUserAccount = function createUserAccount(userProfileId, email, passwo
     // TODO: update dbdiagram (emailconfirmationString)
     const query = 'INSERT INTO UserAccounts (UserProfileId, Email, Password, EmailConfirmationString, AccountExpiration) \
     VALUES ?';
-    const values = [[userProfileId, email, password, token, expirationDate]];
+    const values = [[userProfileId, email, hash, token, expirationDate]];
 
     sql.query(query, [values], (err, res) => {
       if (err) {
@@ -51,7 +54,7 @@ User.createUserAccount = function createUserAccount(userProfileId, email, passwo
         resolve(res);
       }
     });
-  }));
+  });
 };
 
 User.getUserProfile = function getUserProfile(filters, values) {
