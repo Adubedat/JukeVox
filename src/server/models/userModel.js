@@ -102,4 +102,18 @@ User.getProviderAccountsById = function getProviderAccountsById(id) {
   }));
 };
 
+User.getUserByEmailToken = function getUserByEmailToken(token) {
+  return new Promise((resolve, reject) => {
+    const query = 'SELECT * FROM UserAccounts WHERE EmailConfirmationString = ?';
+    sql.query(query, token, (err, res) => {
+      if (err) {
+        console.log('There is an error');
+        reject(err);
+      } else {
+        resolve(res);
+      }
+    });
+  });
+};
+
 export default User;

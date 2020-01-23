@@ -49,8 +49,8 @@ function sendConfirmationEmail(email, emailConfirmationString) {
     from: 'noreply@domain.com',
     to: email,
     subject: 'Confirm your email',
-    text: `Please click the following link to validate your email : https://localhost:5000/${emailConfirmationString}`,
-    html: `<p>Please click the following link to validate your email : https://localhost:5000/${emailConfirmationString}</p>`,
+    text: `Please click the following link to validate your email : http://localhost:5000/users/verify/${emailConfirmationString}`,
+    html: `<p>Please click the following link to validate your email : http://localhost:5000/users/verify/${emailConfirmationString}</p>`,
   };
 
   transporter.sendMail(message, (error, info) => {
@@ -124,5 +124,18 @@ export async function searchForUser(req, res) {
     });
   } catch (error) {
     res.status(500).send(error);
+  }
+}
+
+export async function verifyUserEmail(req, res, next) {
+  const { token } = req.params;
+
+  try {
+    const response = await User.getUserByEmailToken(token);
+    console.log('the response from getUserByEmailToken is ');
+    console.log(response);
+  } catch (error) {
+    console.log(error);
+    next(new ErrorResponseHandler(500, 'Internal server error'));
   }
 }

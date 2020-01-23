@@ -1,4 +1,6 @@
-import { createUser, getUserAccountsTypes, searchForUser } from '../controller/userController';
+import {
+  createUser, getUserAccountsTypes, searchForUser, verifyUserEmail,
+} from '../controller/userController';
 
 export default function (app) {
   app.route('/users')
@@ -22,6 +24,15 @@ export default function (app) {
       next();
     })
     .get(searchForUser);
+
+  app.route('/users/verify/:token')
+    .all((req, res, next) => {
+      console.log('user/verify route called');
+      console.log(`with param : ${req.params}`);
+      next();
+    })
+    .get(verifyUserEmail);
+
 
 //   app.route('/user/register')
 //     .all((req, res, next) => {
