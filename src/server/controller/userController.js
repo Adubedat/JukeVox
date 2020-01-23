@@ -123,15 +123,21 @@ export async function searchForUser(req, res) {
   }
 }
 
-export async function verifyUserEmail(req, res, next) {
+export async function confirmUserEmail(req, res, next) {
   const { token } = req.params;
 
   try {
-    const response = await User.getUserByEmailToken(token);
-    console.log('the response from getUserByEmailToken is ');
-    console.log(response);
+    const confirmation = await User.confirmUserEmail(token);
+    console.log('The confirmation is ');
+    console.log(confirmation);
+    if (confirmation.affectedRows > 0) {
+      // TODO: If affectedRows > 1 log "The impossible has happened"
+      res.status(200).send('User Verified');
+    } else {
+      throw new ErrorResponseHandler(400, 'Token does not exist');
+    }
   } catch (error) {
     console.log(error);
-    next(new ErrorResponseHandler(500, 'Internal server error'));
+    next(error);
   }
 }

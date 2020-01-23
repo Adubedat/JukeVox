@@ -3,6 +3,7 @@ import crypto from 'crypto';
 import argon2 from 'argon2';
 import sql from '../../../db';
 import DATETIME_FORMAT from '../constants';
+import { ErrorResponseHandler } from '../../helpers/error';
 
 const User = function () {
 
@@ -102,13 +103,14 @@ User.getProviderAccountsById = function getProviderAccountsById(id) {
   }));
 };
 
-User.getUserByEmailToken = function getUserByEmailToken(token) {
+User.confirmUserEmail = function confirmUserEmail(token) {
   return new Promise((resolve, reject) => {
-    const query = 'SELECT * FROM UserAccounts WHERE EmailConfirmationString = ?';
+    const query = 'UPDATE UserAccounts SET EmailConfirmed = true, EmailConfirmationString = NULL WHERE EmailConfirmationString = ?';
     sql.query(query, token, (err, res) => {
       if (err) {
-        console.log('There is an error');
-        reject(err);
+        console.log('Error verifying user');
+        console.log(err);
+        reject(new ErrorResponseHandler(500, 'Internal server Error'));
       } else {
         resolve(res);
       }

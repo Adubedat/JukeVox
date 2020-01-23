@@ -1,5 +1,5 @@
 import {
-  createUser, getUserAccountsTypes, searchForUser, verifyUserEmail,
+  createUser, getUserAccountsTypes, searchForUser, confirmUserEmail,
 } from '../controller/userController';
 
 export default function (app) {
@@ -31,7 +31,7 @@ export default function (app) {
       console.log(`with param : ${req.params}`);
       next();
     })
-    .get(verifyUserEmail);
+    .get(confirmUserEmail);
 
 
 //   app.route('/user/register')
