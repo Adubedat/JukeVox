@@ -64,12 +64,8 @@ function sendConfirmationEmail(email, emailConfirmationString) {
 export async function createUser(req, res, next) {
   const { username, email, password } = req.body;
 
-  await validateInput(username, email, password)
-    .catch((error) => {
-      next(error);
-    });
-
   try {
+    await validateInput(username, email, password);
     const userProfile = await User.createUserProfile(username, email);
     const userAccount = await User.createUserAccount(userProfile.insertId, email, password);
     sendConfirmationEmail(email, userAccount.emailConfirmationString);
