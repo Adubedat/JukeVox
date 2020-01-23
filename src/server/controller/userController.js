@@ -131,7 +131,6 @@ export async function confirmUserEmail(req, res, next) {
     console.log('The confirmation is ');
     console.log(confirmation);
     if (confirmation.affectedRows > 0) {
-      // TODO: If affectedRows > 1 log "The impossible has happened"
       res.status(200).send('User Verified');
     } else {
       throw new ErrorResponseHandler(400, 'Token does not exist');

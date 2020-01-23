@@ -27,19 +27,31 @@ User.createUserProfile = function createUserProfile(username, email) {
   }));
 };
 
+async function checkTokenIsUnique(token) {
+  const response = await User.getUserAccountByEmailToken(token);
+  if (response[0]) {
+    return false;
+  }
+  return true;
+}
+
+async function generateUniqueToken() {
+  const token = crypto.randomBytes(24).toString('hex');
+  if (!(await checkTokenIsUnique(token))) {
+    return generateUniqueToken(token);
+  }
+  return token;
+}
+
 User.createUserAccount = async function createUserAccount(userProfileId, email, password) {
   const hash = await argon2.hash(password).catch((err) => {
     console.log(`We have a hashing error: ${err}`);
     throw new Error(err);
   });
-  console.log(hash);
+  const token = await generateUniqueToken();
 
   return new Promise((resolve, reject) => {
     const expirationDate = moment().add(3, 'd').format(DATETIME_FORMAT);
-
-    // TODO: Verify function is secure if we're using the same for authenticating the user
-    const token = crypto.randomBytes(24).toString('hex');
-    console.log(token);
 
     // TODO: update dbdiagram (emailconfirmationString)
     const query = 'INSERT INTO UserAccounts (UserProfileId, Email, Password, EmailConfirmationString, AccountExpiration) \
@@ -75,6 +87,20 @@ User.getUserProfile = function getUserProfile(filters, values) {
       }
     });
   }));
+};
+
+User.getUserAccountByEmailToken = function getUserAccountByEmailToken(token) {
+  return new Promise((resolve, reject) => {
+    const query = 'SELECT * FROM UserAccounts WHERE EmailConfirmationString = ?';
+    sql.query(query, token, (err, res) => {
+      if (err) {
+        console.log('There is an error');
+        reject(err);
+      } else {
+        resolve(res);
+      }
+    });
+  });
 };
 
 User.getUserAccountById = function getUserAccountById(id) {
