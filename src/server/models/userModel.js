@@ -1,6 +1,4 @@
 import moment from 'moment';
-import crypto from 'crypto';
-import argon2 from 'argon2';
 import sql from '../../../db';
 import DATETIME_FORMAT from '../constants';
 import { ErrorResponseHandler } from '../../helpers/error';
@@ -27,36 +25,14 @@ User.createUserProfile = function createUserProfile(username, email) {
   }));
 };
 
-async function checkTokenIsUnique(token) {
-  const response = await User.getUserAccountByEmailToken(token);
-  if (response[0]) {
-    return false;
-  }
-  return true;
-}
-
-async function generateUniqueToken() {
-  const token = crypto.randomBytes(24).toString('hex');
-  if (!(await checkTokenIsUnique(token))) {
-    return generateUniqueToken(token);
-  }
-  return token;
-}
-
-User.createUserAccount = async function createUserAccount(userProfileId, email, password) {
-  const hash = await argon2.hash(password).catch((err) => {
-    console.log(`We have a hashing error: ${err}`);
-    throw new Error(err);
-  });
-  const token = await generateUniqueToken();
-
+User.createUserAccount = function createUserAccount(userProfileId, email, password, token) {
   return new Promise((resolve, reject) => {
     const expirationDate = moment().add(3, 'd').format(DATETIME_FORMAT);
 
     // TODO: update dbdiagram (emailconfirmationString)
     const query = 'INSERT INTO UserAccounts (UserProfileId, Email, Password, EmailConfirmationString, AccountExpiration) \
     VALUES ?';
-    const values = [[userProfileId, email, hash, token, expirationDate]];
+    const values = [[userProfileId, email, password, token, expirationDate]];
 
     sql.query(query, [values], (err, res) => {
       if (err) {
@@ -89,24 +65,15 @@ User.getUserProfile = function getUserProfile(filters, values) {
   }));
 };
 
-User.getUserAccountByEmailToken = function getUserAccountByEmailToken(token) {
-  return new Promise((resolve, reject) => {
-    const query = 'SELECT * FROM UserAccounts WHERE EmailConfirmationString = ?';
-    sql.query(query, token, (err, res) => {
-      if (err) {
-        console.log('There is an error');
-        reject(err);
-      } else {
-        resolve(res);
-      }
-    });
-  });
-};
-
-User.getUserAccountById = function getUserAccountById(id) {
+User.getUserAccount = function getUserAccount(filters, values) {
   return new Promise(((resolve, reject) => {
-    const query = 'SELECT * FROM UserAccounts WHERE UserProfileId = ?';
-    sql.query(query, id, (err, res) => {
+    let query = 'SELECT * FROM UserAccounts WHERE 1 = 1';
+    filters.forEach((filter) => {
+      query += ` AND ${filter} = ?`;
+    });
+    query += ';';
+
+    sql.query(query, values, (err, res) => {
       if (err) {
         reject(err);
       } else {

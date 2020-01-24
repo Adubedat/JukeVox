@@ -1,7 +1,25 @@
 import validator from 'validator';
 import nodemailer from 'nodemailer';
+import argon2 from 'argon2';
+import crypto from 'crypto';
 import User from '../models/userModel';
 import { ErrorResponseHandler } from '../../helpers/error';
+
+async function checkTokenIsUnique(token) {
+  const response = await User.getUserAccount(['EmailConfirmationString'], [token]);
+  if (response.length > 0) {
+    return false;
+  }
+  return true;
+}
+
+async function generateUniqueToken() {
+  const token = crypto.randomBytes(24).toString('hex');
+  if (!(await checkTokenIsUnique(token))) {
+    return generateUniqueToken();
+  }
+  return token;
+}
 
 async function validateUsername(username) {
   if (!validator.isAlphanumeric(username)) {
@@ -66,8 +84,12 @@ export async function createUser(req, res, next) {
 
   try {
     await validateInput(username, email, password);
-    const userProfile = await User.createUserProfile(username, email);
-    const userAccount = await User.createUserAccount(userProfile.insertId, email, password);
+    const [hash, token, userProfile] = await Promise.all([
+      argon2.hash(password),
+      generateUniqueToken(),
+      User.createUserProfile(username, email),
+    ]);
+    const userAccount = await User.createUserAccount(userProfile.insertId, email, hash, token);
     sendConfirmationEmail(email, userAccount.emailConfirmationString);
     res.status(200).send('User created. Please check your mail!');
   } catch (err) {
@@ -76,11 +98,11 @@ export async function createUser(req, res, next) {
   }
 }
 
-async function getAccountTypes(Id) {
+async function getAccountTypes(id) {
   const accountTypes = [];
-  if (Id) {
-    const results = await Promise.all([User.getUserAccountById(Id),
-      User.getProviderAccountsById(Id)]);
+  if (id) {
+    const results = await Promise.all([User.getUserAccount(['userProfileId'], [id]),
+      User.getProviderAccountsById(id)]);
     if (results[0].length > 0) {
       accountTypes.push('Classic');
     }
@@ -93,7 +115,7 @@ export async function getUserAccountsTypes(req, res) {
   const { email } = req.params;
 
   try {
-    const response = await User.getUserProfile('email', email);
+    const response = await User.getUserProfile(['email'], [email]);
     const id = response[0].Id;
     const accountTypes = await getAccountTypes(id);
 
@@ -138,5 +160,20 @@ export async function confirmUserEmail(req, res, next) {
   } catch (error) {
     console.log(error);
     next(error);
+  }
+}
+
+export async function loginUser(req, res, next) {
+  const { email, password } = req.body;
+
+  try {
+    const userAccount = await User.getUserAccount(['email'], [email]);
+    if (await argon2.verify(userAccount.password, password)) {
+      // password match
+    } else {
+      // password did not match
+    }
+  } catch (err) {
+    // internal failure
   }
 }
