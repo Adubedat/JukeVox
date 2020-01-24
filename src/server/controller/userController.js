@@ -91,9 +91,9 @@ async function getAccountTypes(Id) {
 
 export async function getUserAccountsTypes(req, res) {
   const { email } = req.params;
-
   try {
-    const response = await User.getUserProfile('email', email);
+    const response = await User.getUserProfile(['email'], email);
+    console.log('we got a response from getUserProfile');
     const id = response[0].Id;
     const accountTypes = await getAccountTypes(id);
 
