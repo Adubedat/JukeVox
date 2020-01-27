@@ -157,6 +157,7 @@ export async function searchForUser(req, res, next) {
     res.send({
       message: 'The user matching this username is',
       data: user,
+      statusCode: 200,
     });
   } catch (err) {
     next(err);
@@ -177,6 +178,7 @@ export async function confirmUserEmail(req, res, next) {
       res.send({
         message: 'Email successfully confirmed',
         jwt: jsonToken,
+        statusCode: 200,
       });
     }
   } catch (err) {
@@ -199,6 +201,7 @@ export async function loginUser(req, res, next) {
     res.send({
       message: 'User succesfully connected !',
       jwt: token,
+      statusCode: 200,
     });
   } catch (err) {
     next(err);
