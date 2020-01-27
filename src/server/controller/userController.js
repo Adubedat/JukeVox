@@ -155,7 +155,7 @@ export async function searchForUser(req, res, next) {
     const user = response;
 
     res.send({
-      message: 'The user matching this username is',
+      message: 'Users founded',
       data: user,
       statusCode: 200,
     });
