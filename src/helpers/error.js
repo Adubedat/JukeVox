@@ -7,7 +7,12 @@ export class ErrorResponseHandler extends Error {
 }
 
 export const handleError = (err, res) => {
-  const { statusCode, message } = err;
+  let { statusCode, message } = err;
+  if (!statusCode || !message) {
+    console.log(err);
+    statusCode = 500;
+    message = 'Internal server error';
+  }
   res.status(statusCode).send({
     status: 'error',
     statusCode,

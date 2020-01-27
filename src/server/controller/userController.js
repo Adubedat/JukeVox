@@ -80,12 +80,24 @@ function sendConfirmationEmail(email, emailConfirmationString) {
     html: `<p>Please click the following link to validate your email : http://localhost:5000/users/verify/${emailConfirmationString}</p>`,
   };
 
-  transporter.sendMail(message, (error, info) => {
-    if (error) {
-      return console.log(error);
+  transporter.sendMail(message, (err, info) => {
+    if (err) {
+      console.log(err);
+      throw new ErrorResponseHandler(500, 'Internal server Error');
     }
     return console.log('Message sent: %s', info.messageId);
   });
+}
+
+async function getAccountTypes(id) {
+  const accountTypes = [];
+  const [userAccount, providerAccounts] = await Promise.all([User.getUserAccount(['userProfileId'], [id]),
+    User.getProviderAccountsById(id)]);
+  if (userAccount.length > 0) {
+    accountTypes.push('Classic');
+  }
+  providerAccounts.forEach((result) => accountTypes.push(result.Provider));
+  return accountTypes;
 }
 
 export async function createUser(req, res, next) {
@@ -93,64 +105,61 @@ export async function createUser(req, res, next) {
 
   try {
     await validateInput(username, email, password);
-    const [hash, token, userProfile] = await Promise.all([
-      argon2.hash(password),
-      generateUniqueToken(),
-      User.createUserProfile(username, email),
-    ]);
+    const hash = await argon2.hash(password).catch((err) => {
+      console.log(err);
+      throw new ErrorResponseHandler(500, 'Internal server Error');
+    });
+    const [token, userProfile] = await Promise.all([generateUniqueToken(),
+      User.createUserProfile(username, email)]);
     const userAccount = await User.createUserAccount(userProfile.insertId, email, hash, token);
     sendConfirmationEmail(email, userAccount.emailConfirmationString);
-    res.status(200).send('User created. Please check your mail!');
+    res.send({
+      message: 'User created. Please check your mail!',
+      statusCode: 200,
+    });
   } catch (err) {
-    console.log(err);
     next(err);
   }
 }
 
-async function getAccountTypes(id) {
-  const accountTypes = [];
-  if (id) {
-    const results = await Promise.all([User.getUserAccount(['userProfileId'], [id]),
-      User.getProviderAccountsById(id)]);
-    if (results[0].length > 0) {
-      accountTypes.push('Classic');
-    }
-    results[1].forEach((result) => accountTypes.push(result.Provider));
-  }
-  return accountTypes;
-}
-
-export async function getUserAccountsTypes(req, res) {
+export async function getUserAccountsTypes(req, res, next) {
   const { email } = req.params;
 
   try {
     const response = await User.getUserProfile(['email'], [email]);
+    if (response.length === 0) {
+      throw new ErrorResponseHandler(404, 'No account found for this email');
+    }
     const id = response[0].Id;
     const accountTypes = await getAccountTypes(id);
 
     res.send({
       message: 'Email matches these account types',
-      data: accountTypes,
+      accountTypes,
+      statusCode: 200,
     });
-  } catch (error) {
-    res.status(500).send(error);
+  } catch (err) {
+    next(err);
   }
 }
 
-export async function searchForUser(req, res) {
+export async function searchForUser(req, res, next) {
   const existingFilters = ['username', 'email'].filter((field) => req.query[field]);
   const values = existingFilters.map((filter) => (req.query[filter]));
 
   try {
     const response = await User.getUserProfile(existingFilters, values);
+    if (response.length === 0) {
+      throw new ErrorResponseHandler(404, 'No user found');
+    }
     const user = response;
 
     res.send({
       message: 'The user matching this username is',
       data: user,
     });
-  } catch (error) {
-    res.status(500).send(error);
+  } catch (err) {
+    next(err);
   }
 }
 
@@ -160,20 +169,18 @@ export async function confirmUserEmail(req, res, next) {
   try {
     const userAccount = await User.getUserAccount(['EmailConfirmationString'], [token]);
     if (userAccount.length === 0) {
-      throw new ErrorResponseHandler(400, 'Token does not exist');
+      throw new ErrorResponseHandler(404, 'Token does not exist');
     }
     const confirmation = await User.confirmUserEmail(token);
     if (confirmation.affectedRows > 0) {
       const jsonToken = generateJwt(userAccount[0].UserProfileId);
       res.send({
         message: 'Email successfully confirmed',
-        data: {
-          jwt: jsonToken,
-        },
+        jwt: jsonToken,
       });
     }
-  } catch (error) {
-    next(error);
+  } catch (err) {
+    next(err);
   }
 }
 
@@ -183,7 +190,7 @@ export async function loginUser(req, res, next) {
   try {
     const userAccount = await User.getUserAccount(['email'], [email]);
     if (userAccount.length === 0) {
-      throw new ErrorResponseHandler(400, 'No account with this email');
+      throw new ErrorResponseHandler(404, 'No account found for this email');
     }
     if (!(await argon2.verify(userAccount[0].Password, password))) {
       throw new ErrorResponseHandler(400, 'Invalid password');
@@ -191,9 +198,7 @@ export async function loginUser(req, res, next) {
     const token = generateJwt(userAccount[0].UserProfileId);
     res.send({
       message: 'User succesfully connected !',
-      data: {
-        jwt: token,
-      },
+      jwt: token,
     });
   } catch (err) {
     next(err);

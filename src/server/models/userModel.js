@@ -16,9 +16,8 @@ User.createUserProfile = function createUserProfile(username, email) {
     sql.query(query, [values], (err, res) => {
       if (err) {
         console.log(err);
-        reject(err);
+        reject(new ErrorResponseHandler(500, 'Internal server Error'));
       } else {
-        console.log(res);
         resolve(res);
       }
     });
@@ -37,9 +36,8 @@ User.createUserAccount = function createUserAccount(userProfileId, email, passwo
     sql.query(query, [values], (err, res) => {
       if (err) {
         console.log(err);
-        reject(err);
+        reject(new ErrorResponseHandler(500, 'Internal server Error'));
       } else {
-        console.log(res);
         res.emailConfirmationString = token;
         resolve(res);
       }
@@ -57,7 +55,8 @@ User.getUserProfile = function getUserProfile(filters, values) {
 
     sql.query(query, values, (err, res) => {
       if (err) {
-        reject(err);
+        console.log(err);
+        reject(new ErrorResponseHandler(500, 'Internal server Error'));
       } else {
         resolve(res);
       }
@@ -75,7 +74,8 @@ User.getUserAccount = function getUserAccount(filters, values) {
 
     sql.query(query, values, (err, res) => {
       if (err) {
-        reject(err);
+        console.log(err);
+        reject(new ErrorResponseHandler(500, 'Internal server Error'));
       } else {
         resolve(res);
       }
@@ -88,7 +88,8 @@ User.getProviderAccountsById = function getProviderAccountsById(id) {
     const query = 'SELECT * FROM ProviderAccounts WHERE UserProfileId = ?';
     sql.query(query, id, (err, res) => {
       if (err) {
-        reject(err);
+        console.log(err);
+        reject(new ErrorResponseHandler(500, 'Internal server Error'));
       } else {
         resolve(res);
       }
@@ -101,7 +102,6 @@ User.confirmUserEmail = function confirmUserEmail(token) {
     const query = 'UPDATE UserAccounts SET EmailConfirmed = true, EmailConfirmationString = NULL WHERE EmailConfirmationString = ?';
     sql.query(query, token, (err, res) => {
       if (err) {
-        console.log('Error verifying user');
         console.log(err);
         reject(new ErrorResponseHandler(500, 'Internal server Error'));
       } else {
