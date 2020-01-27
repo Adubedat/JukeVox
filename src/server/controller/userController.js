@@ -113,9 +113,9 @@ export async function createUser(req, res, next) {
       User.createUserProfile(username, email)]);
     const userAccount = await User.createUserAccount(userProfile.insertId, email, hash, token);
     sendConfirmationEmail(email, userAccount.emailConfirmationString);
-    res.send({
+    res.status(201).send({
       message: 'User created. Please check your mail!',
-      statusCode: 200,
+      statusCode: 201,
     });
   } catch (err) {
     next(err);
