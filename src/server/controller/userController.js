@@ -158,16 +158,21 @@ export async function confirmUserEmail(req, res, next) {
   const { token } = req.params;
 
   try {
-    const confirmation = await User.confirmUserEmail(token);
-    console.log('The confirmation is ');
-    console.log(confirmation);
-    if (confirmation.affectedRows > 0) {
-      res.status(200).send('User Verified');
-    } else {
+    const userAccount = await User.getUserAccount(['EmailConfirmationString'], [token]);
+    if (userAccount.length === 0) {
       throw new ErrorResponseHandler(400, 'Token does not exist');
     }
+    const confirmation = await User.confirmUserEmail(token);
+    if (confirmation.affectedRows > 0) {
+      const jsonToken = generateJwt(userAccount[0].UserProfileId);
+      res.send({
+        message: 'Email successfully confirmed',
+        data: {
+          jwt: jsonToken,
+        },
+      });
+    }
   } catch (error) {
-    console.log(error);
     next(error);
   }
 }
@@ -190,7 +195,6 @@ export async function loginUser(req, res, next) {
         jwt: token,
       },
     });
-    console.log('password is good');
   } catch (err) {
     next(err);
   }
