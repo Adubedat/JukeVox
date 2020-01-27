@@ -2,6 +2,7 @@ import validator from 'validator';
 import nodemailer from 'nodemailer';
 import argon2 from 'argon2';
 import crypto from 'crypto';
+import jwt from 'jsonwebtoken';
 import User from '../models/userModel';
 import { ErrorResponseHandler } from '../../helpers/error';
 
@@ -51,6 +52,14 @@ async function validateInput(username, email, password) {
   await validateUsername(username);
   await validateEmail(email);
   validatePassword(password);
+}
+
+function generateJwt(userId) {
+  const payload = {
+    userId,
+  };
+  const expiresIn = 3600 * 24 * 365; // one year
+  return jwt.sign(payload, process.env.JWT_SECRET, { expiresIn });
 }
 
 function sendConfirmationEmail(email, emailConfirmationString) {
@@ -168,12 +177,21 @@ export async function loginUser(req, res, next) {
 
   try {
     const userAccount = await User.getUserAccount(['email'], [email]);
-    if (await argon2.verify(userAccount.password, password)) {
-      // password match
-    } else {
-      // password did not match
+    if (userAccount.length === 0) {
+      throw new ErrorResponseHandler(400, 'No account with this email');
     }
+    if (!(await argon2.verify(userAccount[0].Password, password))) {
+      throw new ErrorResponseHandler(400, 'Invalid password');
+    }
+    const token = generateJwt(userAccount[0].UserProfileId);
+    res.send({
+      message: 'User succesfully connected !',
+      data: {
+        jwt: token,
+      },
+    });
+    console.log('password is good');
   } catch (err) {
-    // internal failure
+    next(err);
   }
 }
