@@ -1,3 +1,5 @@
+/* eslint-env node, mocha */
+
 import 'core-js/stable';
 import 'regenerator-runtime/runtime';
 
@@ -26,6 +28,9 @@ describe('Users', () => {
         .get('/users/search')
         .end((err, res) => {
           res.should.have.status(200);
+          res.body.should.be.a('object');
+          res.body.should.have.property('message');
+          res.body.should.have.property('data');
           done();
         });
     });
