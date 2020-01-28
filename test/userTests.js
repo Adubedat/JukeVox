@@ -1,7 +1,8 @@
 /* eslint-env node, mocha */
-
 import 'core-js/stable';
 import 'regenerator-runtime/runtime';
+import sql from '../db';
+
 
 const chai = require('chai');
 const chaiHttp = require('chai-http');
@@ -15,6 +16,28 @@ chai.use(chaiHttp);
 describe('Users', () => {
   beforeEach((done) => {
     // TODO: Before each test, clear the DB
+
+    let query = 'DELETE FROM UserAccounts;';
+    sql.query(query, (err, res) => {
+      if (err) {
+        console.log(err);
+      }
+    });
+
+    query = 'DELETE FROM ProviderAccounts;';
+    sql.query(query, (err, res) => {
+      if (err) {
+        console.log(err);
+      }
+    });
+
+    query = 'DELETE FROM UserProfiles;';
+    sql.query(query, (err, res) => {
+      if (err) {
+        console.log(err);
+      }
+    });
+
     done();
   });
 
