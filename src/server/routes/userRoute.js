@@ -5,10 +5,13 @@ import {
 export default function (app) {
   app.route('/users')
     .all((req, res, next) => {
-      console.log("Hey ! I'm a happy Dadley");
+      console.log("/users route called");
+      console.log(`with query :`);
+      console.log(req.query);
       next();
     })
-    .post(createUser);
+    .post(createUser)
+    .get(searchForUser);
 
   app.route('/users/:email/accounts')
     .all((req, res, next) => {
@@ -16,14 +19,6 @@ export default function (app) {
       next();
     })
     .get(getUserAccountsTypes);
-
-  app.route('/users/search')
-    .all((req, res, next) => {
-      console.log('/user/search route called');
-      console.log(`with query : ${req.query}`);
-      next();
-    })
-    .get(searchForUser);
 
   app.route('/users/verify/:token')
     .all((req, res, next) => {
