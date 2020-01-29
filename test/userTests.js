@@ -1,44 +1,27 @@
 /* eslint-env node, mocha */
 import 'core-js/stable';
 import 'regenerator-runtime/runtime';
-import sql from '../db';
 import moment from 'moment';
 import DATETIME_FORMAT from '../src/server/constants';
 
+import Database from '../src/helpers/database'
 
 const chai = require('chai');
 const chaiHttp = require('chai-http');
 // const user = require('../src/server/routes/userRoute');
 const server = require('../server');
 
+const sql = new Database();
+
 const should = chai.should();
 
 chai.use(chaiHttp);
 
 describe('Users', () => {
-  beforeEach((done) => {
-    let query = 'DELETE FROM UserAccounts;';
-    sql.query(query, (err, res) => {
-      if (err) {
-        console.log(err);
-      }
-    });
-
-    query = 'DELETE FROM ProviderAccounts;';
-    sql.query(query, (err, res) => {
-      if (err) {
-        console.log(err);
-      }
-    });
-
-    query = 'DELETE FROM UserProfiles;';
-    sql.query(query, (err, res) => {
-      if (err) {
-        console.log(err);
-      }
-    });
-
-    done();
+  beforeEach(async () => {
+    await sql.query('DELETE FROM UserAccounts;')
+    await sql.query('DELETE FROM ProviderAccounts;')
+    await sql.query('DELETE FROM UserProfiles;')
   });
 
   /*
@@ -60,58 +43,42 @@ describe('Users', () => {
     });
 
 
-    it('should GET all the users', (done) => {
+    it('should GET all the users', async () => {
       const query = 'INSERT INTO UserProfiles (Username, Email, CreatedAt) VALUES ?'
       const values = [['Daniel', 'daniel@mail.com', moment().format(DATETIME_FORMAT)]];
-      sql.query(query, [values], (err, res) => {
-        if (err) {
-          console.log(err);
-        } else {
-          chai.request(server)
-          .get('/users')
-          .end((err, res) => {
-            res.should.have.status(200);
-            res.body.should.be.a('object');
-            res.body.should.have.property('message');
-            res.body.should.have.property('data');
-            res.body.data.should.be.a('array')
-            res.body.data.length.should.be.eql(1);
-            res.body.data[0].should.have.all.keys('Id', 'Username', 'Email', 'ProfilePicture', 'CreatedAt');
-            done();
-          });
-        }
-      })
+      await sql.query(query, [values]).catch((err) => console.log(err));
+      const res = await chai.request(server)
+      .get('/users');
+      res.should.have.status(200);
+      res.body.should.be.a('object');
+      res.body.should.have.property('message');
+      res.body.should.have.property('data');
+      res.body.data.should.be.a('array')
+      res.body.data.length.should.be.eql(1);
+      res.body.data[0].should.have.all.keys('Id', 'Username', 'Email', 'ProfilePicture', 'CreatedAt');
     });
 
 
-    it('should GET a user with a username as query', (done) => {
+    it('should GET a user with a username as query', async () => {
       const user = {
         username: 'Daniel',
         email: 'daniel@mail.com',
       };
       const query = 'INSERT INTO UserProfiles (Username, Email, CreatedAt) VALUES ?'
       const values = [[user.username, user.email, moment().format(DATETIME_FORMAT)]];
-      sql.query(query, [values], (err, res) => {
-        if (err) {
-          console.log(err);
-        } else {
-          chai.request(server)
-          .get('/users')
-          .query({username: user.username})
-          .end((err, res) => {
-            res.should.have.status(200);
-            res.body.should.be.a('object');
-            res.body.should.have.property('message');
-            res.body.should.have.property('data');
-            res.body.data.should.be.a('array')
-            res.body.data.length.should.be.eql(1);
-            res.body.data[0].should.have.all.keys('Id', 'Username', 'Email', 'ProfilePicture', 'CreatedAt');
-            res.body.data[0].Username.should.eql(user.username);
-            done();
-          });
-        }
-      })
-    })
+      await sql.query(query, [values]);
+      const res = await chai.request(server)
+      .get('/users')
+      .query({username: user.username});
+      res.should.have.status(200);
+      res.body.should.be.a('object');
+      res.body.should.have.property('message');
+      res.body.should.have.property('data');
+      res.body.data.should.be.a('array')
+      res.body.data.length.should.be.eql(1);
+      res.body.data[0].should.have.all.keys('Id', 'Username', 'Email', 'ProfilePicture', 'CreatedAt');
+      res.body.data[0].Username.should.eql(user.username);
+    });
 
       //TODO: GET /users with a wrong username as query
       //TODO: GET /users with an email address as query
