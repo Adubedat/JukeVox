@@ -76,18 +76,43 @@ describe('Users', () => {
             res.body.should.have.property('data');
             res.body.data.should.be.a('array')
             res.body.data.length.should.be.eql(1);
-            res.body.data[0].should.have.property('Id');
-            res.body.data[0].should.have.property('Username');
-            res.body.data[0].should.have.property('Email');
-            res.body.data[0].should.have.property('ProfilePicture');
-            console.log(res.body.data[0]);
-            res.body.data[0].should.have.all.keys('Id', 'Username', 'Email', 'ProfilePicture');
+            res.body.data[0].should.have.all.keys('Id', 'Username', 'Email', 'ProfilePicture', 'CreatedAt');
             done();
           });
         }
       })
+    });
 
-      //TODO: GET /users with a username as query
+
+    it('should GET a user with a username as query', (done) => {
+      const user = {
+        username: 'Daniel',
+        email: 'daniel@mail.com',
+      };
+      const query = 'INSERT INTO UserProfiles (Username, Email, CreatedAt) VALUES ?'
+      const values = [[user.username, user.email, moment().format(DATETIME_FORMAT)]];
+      sql.query(query, [values], (err, res) => {
+        if (err) {
+          console.log(err);
+        } else {
+          chai.request(server)
+          .get('/users')
+          .query({username: user.username})
+          .end((err, res) => {
+            res.should.have.status(200);
+            res.body.should.be.a('object');
+            res.body.should.have.property('message');
+            res.body.should.have.property('data');
+            res.body.data.should.be.a('array')
+            res.body.data.length.should.be.eql(1);
+            res.body.data[0].should.have.all.keys('Id', 'Username', 'Email', 'ProfilePicture', 'CreatedAt');
+            res.body.data[0].Username.should.eql(user.username);
+            done();
+          });
+        }
+      })
+    })
+
       //TODO: GET /users with a wrong username as query
       //TODO: GET /users with an email address as query
       //TODO: GET /users with a wrong email address as query
@@ -96,8 +121,6 @@ describe('Users', () => {
       //TODO: GET /users with BOTH a right username and wrong email address as query
       //TODO: GET /users with BOTH a wrong username and right email address as query
       //TODO: GET /users with a non existant query
-
-    });
   });
 
   /*
