@@ -122,6 +122,13 @@ export async function createUser(req, res, next) {
   }
 }
 
+export async function deleteUser(req, res, next) {
+  res.send({
+    message: 'User deleted',
+    statusCode: 200,
+  });
+}
+
 export async function getUserAccountsTypes(req, res, next) {
   const { email } = req.params;
   try {

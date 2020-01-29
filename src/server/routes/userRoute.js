@@ -1,43 +1,31 @@
+import express from 'express';
 import {
-  createUser, getUserAccountsTypes, searchForUser, confirmUserEmail, loginUser,
+  createUser, deleteUser, getUserAccountsTypes, searchForUser, confirmUserEmail, loginUser,
 } from '../controller/userController';
 
-export default function (app) {
-  app.route('/users')
-    .all((req, res, next) => {
-      console.log("Hey ! I'm a happy Dadley");
-      next();
-    })
-    .post(createUser);
+const router = express.Router();
 
-  app.route('/users/:email/accounts')
-    .all((req, res, next) => {
-      console.log('/users/:email/accounts route called');
-      next();
-    })
-    .get(getUserAccountsTypes);
+router.use((req, res, next) => {
+  console.log('%s %s %s', req.method, req.url, req.path);
+  next();
+});
 
-  app.route('/users/search')
-    .all((req, res, next) => {
-      console.log('/user/search route called');
-      console.log(`with query : ${req.query}`);
-      next();
-    })
-    .get(searchForUser);
+router.route('/users')
+  .post(createUser);
 
-  app.route('/users/verify/:token')
-    .all((req, res, next) => {
-      console.log('user/verify route called');
-      console.log(`with param : ${req.params}`);
-      next();
-    })
-    .get(confirmUserEmail);
+router.route('/users/me')
+  .delete(deleteUser);
 
-  app.route('/users/login')
-    .all((req, res, next) => {
-      console.log('/users/login route called');
-      console.log(`with params :${req.params}`);
-      next();
-    })
-    .post(loginUser);
-}
+router.route('/users/:email/accounts')
+  .get(getUserAccountsTypes);
+
+router.route('/users/search')
+  .get(searchForUser);
+
+router.route('/users/verify/:token')
+  .get(confirmUserEmail);
+
+router.route('/users/login')
+  .post(loginUser);
+
+export default router;
