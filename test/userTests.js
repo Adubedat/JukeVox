@@ -8,7 +8,6 @@ import Database from '../src/helpers/database'
 
 const chai = require('chai');
 const chaiHttp = require('chai-http');
-// const user = require('../src/server/routes/userRoute');
 const server = require('../server');
 
 const sql = new Database();
@@ -38,6 +37,7 @@ describe('Users', () => {
           res.body.should.have.property('status').eql('error');
           res.body.should.have.property('statusCode');
           res.body.should.have.property('message');
+          res.body.message.should.eql('No user found');
           done();
         });
     });
@@ -52,6 +52,7 @@ describe('Users', () => {
       res.should.have.status(200);
       res.body.should.be.a('object');
       res.body.should.have.property('message');
+      res.body.message.should.eql('Users found');
       res.body.should.have.property('data');
       res.body.data.should.be.a('array')
       res.body.data.length.should.be.eql(1);
@@ -73,6 +74,7 @@ describe('Users', () => {
       res.should.have.status(200);
       res.body.should.be.a('object');
       res.body.should.have.property('message');
+      res.body.message.should.eql('Users found');
       res.body.should.have.property('data');
       res.body.data.should.be.a('array')
       res.body.data.length.should.be.eql(1);
@@ -80,14 +82,163 @@ describe('Users', () => {
       res.body.data[0].Username.should.eql(user.username);
     });
 
-      //TODO: GET /users with a wrong username as query
-      //TODO: GET /users with an email address as query
-      //TODO: GET /users with a wrong email address as query
-      //TODO: GET /users with BOTH a username and email address as query
-      //TODO: GET /users with BOTH a wrong username and wrong email address as query
-      //TODO: GET /users with BOTH a right username and wrong email address as query
-      //TODO: GET /users with BOTH a wrong username and right email address as query
-      //TODO: GET /users with a non existant query
+    it('should not GET a user with a non existant username as query', async () => {
+      const user = {
+        username: 'Daniel',
+        email: 'daniel@mail.com',
+      };
+      const query = 'INSERT INTO UserProfiles (Username, Email, CreatedAt) VALUES ?'
+      const values = [[user.username, user.email, moment().format(DATETIME_FORMAT)]];
+      await sql.query(query, [values]);
+      const res = await chai.request(server)
+      .get('/users')
+      .query({username: 'NonExistantUsername'});
+      res.should.have.status(404);
+      res.body.should.be.a('object');
+      res.body.should.have.property('status').eql('error');
+      res.body.should.have.property('statusCode');
+      res.body.should.have.property('message');
+      res.body.message.should.eql('No user found');
+    });
+
+    it('should GET a user with an email as query', async () => {
+      const user = {
+        username: 'Daniel',
+        email: 'daniel@mail.com',
+      };
+      const query = 'INSERT INTO UserProfiles (Username, Email, CreatedAt) VALUES ?'
+      const values = [[user.username, user.email, moment().format(DATETIME_FORMAT)]];
+      await sql.query(query, [values]);
+      const res = await chai.request(server)
+      .get('/users')
+      .query({email: user.email});
+      res.should.have.status(200);
+      res.body.should.be.a('object');
+      res.body.should.have.property('message');
+      res.body.message.should.eql('Users found');
+      res.body.should.have.property('data');
+      res.body.data.should.be.a('array')
+      res.body.data.length.should.be.eql(1);
+      res.body.data[0].should.have.all.keys('Id', 'Username', 'Email', 'ProfilePicture', 'CreatedAt');
+      res.body.data[0].Email.should.eql(user.email);
+    });
+
+    it('should not GET a user with a non existant email as query', async () => {
+      const user = {
+        username: 'Daniel',
+        email: 'daniel@mail.com',
+      };
+      const query = 'INSERT INTO UserProfiles (Username, Email, CreatedAt) VALUES ?'
+      const values = [[user.username, user.email, moment().format(DATETIME_FORMAT)]];
+      await sql.query(query, [values]);
+      const res = await chai.request(server)
+      .get('/users')
+      .query({email: 'NonExistantEmail@mail.com'});
+      res.should.have.status(404);
+      res.body.should.be.a('object');
+      res.body.should.have.property('status').eql('error');
+      res.body.should.have.property('statusCode');
+      res.body.should.have.property('message');
+      res.body.message.should.eql('No user found');
+    });
+
+    it('should GET a user with a username and an email as query', async () => {
+      const user = {
+        username: 'Daniel',
+        email: 'daniel@mail.com',
+      };
+      const query = 'INSERT INTO UserProfiles (Username, Email, CreatedAt) VALUES ?'
+      const values = [[user.username, user.email, moment().format(DATETIME_FORMAT)]];
+      await sql.query(query, [values]);
+      const res = await chai.request(server)
+      .get('/users')
+      .query({username: user.username, email: user.email});
+      res.should.have.status(200);
+      res.body.should.be.a('object');
+      res.body.should.have.property('message');
+      res.body.message.should.eql('Users found');
+      res.body.should.have.property('data');
+      res.body.data.should.be.a('array')
+      res.body.data.length.should.be.eql(1);
+      res.body.data[0].should.have.all.keys('Id', 'Username', 'Email', 'ProfilePicture', 'CreatedAt');
+      res.body.data[0].Email.should.eql(user.email);
+    });
+
+    it('should not GET a user with a wrong username and a wrong email as query', async () => {
+      const user = {
+        username: 'Daniel',
+        email: 'daniel@mail.com',
+      };
+      const query = 'INSERT INTO UserProfiles (Username, Email, CreatedAt) VALUES ?'
+      const values = [[user.username, user.email, moment().format(DATETIME_FORMAT)]];
+      await sql.query(query, [values]);
+      const res = await chai.request(server)
+      .get('/users')
+      .query({username: 'WrongUsername', email: 'WrongUsername@mail.com'});
+      res.should.have.status(404);
+      res.body.should.be.a('object');
+      res.body.should.have.property('status').eql('error');
+      res.body.should.have.property('statusCode');
+      res.body.should.have.property('message');
+      res.body.message.should.eql('No user found');
+    });
+
+    it('should not GET a user with a right username and a wrong email as query', async () => {
+      const user = {
+        username: 'Daniel',
+        email: 'daniel@mail.com',
+      };
+      const query = 'INSERT INTO UserProfiles (Username, Email, CreatedAt) VALUES ?'
+      const values = [[user.username, user.email, moment().format(DATETIME_FORMAT)]];
+      await sql.query(query, [values]);
+      const res = await chai.request(server)
+      .get('/users')
+      .query({username: user.username, email: 'WrongUsername@mail.com'});
+      res.should.have.status(404);
+      res.body.should.be.a('object');
+      res.body.should.have.property('status').eql('error');
+      res.body.should.have.property('statusCode');
+      res.body.should.have.property('message');
+      res.body.message.should.eql('No user found');
+    });
+
+    it('should not GET a user with a wrong username and a right email as query', async () => {
+      const user = {
+        username: 'Daniel',
+        email: 'daniel@mail.com',
+      };
+      const query = 'INSERT INTO UserProfiles (Username, Email, CreatedAt) VALUES ?'
+      const values = [[user.username, user.email, moment().format(DATETIME_FORMAT)]];
+      await sql.query(query, [values]);
+      const res = await chai.request(server)
+      .get('/users')
+      .query({username: 'WrongUsername', email: user.email});
+      res.should.have.status(404);
+      res.body.should.be.a('object');
+      res.body.should.have.property('status').eql('error');
+      res.body.should.have.property('statusCode');
+      res.body.should.have.property('message');
+      res.body.message.should.eql('No user found');
+    });
+
+    it('should not GET a user with an unknown query', async () => {
+      const user = {
+        username: 'Daniel',
+        email: 'daniel@mail.com',
+      };
+      const query = 'INSERT INTO UserProfiles (Username, Email, CreatedAt) VALUES ?'
+      const values = [[user.username, user.email, moment().format(DATETIME_FORMAT)]];
+      await sql.query(query, [values]);
+      const res = await chai.request(server)
+      .get('/users')
+      .query({unknown: 'unknown'});
+      res.should.have.status(404);
+      res.body.should.be.a('object');
+      res.body.should.have.property('status').eql('error');
+      res.body.should.have.property('statusCode');
+      res.body.should.have.property('message');
+      res.body.message.should.eql('No user found');
+    });
   });
 
   /*
