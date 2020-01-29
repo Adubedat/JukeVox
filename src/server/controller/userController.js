@@ -124,7 +124,6 @@ export async function createUser(req, res, next) {
 
 export async function getUserAccountsTypes(req, res, next) {
   const { email } = req.params;
-
   try {
     const response = await User.getUserProfile(['email'], [email]);
     if (response.length === 0) {

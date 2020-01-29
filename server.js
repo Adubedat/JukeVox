@@ -20,4 +20,6 @@ app.use((err, req, res, next) => { // eslint-disable-line no-unused-vars
   handleError(err, res);
 });
 
+module.exports = app;
+
 console.log(`Music Room RESTful API server started on port: ${port}`);
