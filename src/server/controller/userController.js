@@ -38,6 +38,9 @@ async function validateUsername(username) {
 }
 
 async function validateEmail(email) {
+  if (email == null) {
+    throw new ErrorResponseHandler(400, 'No email was supplied');
+  }
   if (!validator.isEmail(email)) {
     throw new ErrorResponseHandler(400, 'Email not correctly formatted');
   }
