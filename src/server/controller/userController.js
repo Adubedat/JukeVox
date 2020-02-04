@@ -147,6 +147,10 @@ export async function getUserAccountsTypes(req, res, next) {
     const id = response[0].Id;
     const accountTypes = await getAccountTypes(id);
 
+    if (accountTypes.length === 0) {
+      throw new ErrorResponseHandler(404, 'Please contact an administrator');
+    }
+
     res.send({
       message: 'Email matches these account types',
       accountTypes,

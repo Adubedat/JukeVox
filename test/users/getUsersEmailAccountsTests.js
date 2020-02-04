@@ -228,7 +228,7 @@ describe('Users', () => {
       res.body.should.have.property('status').eql('error');
       res.body.should.have.property('statusCode');
       res.body.should.have.property('message');
-      res.body.message.should.eql('Please contact an administator');
+      res.body.message.should.eql('Please contact an administrator');
     });
   });
 });
