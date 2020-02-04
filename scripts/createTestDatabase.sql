@@ -4,7 +4,7 @@ USE JukeVoxTest;
 CREATE TABLE IF NOT EXISTS  `UserProfiles` (
   `Id` int UNIQUE PRIMARY KEY NOT NULL AUTO_INCREMENT,
   `Username` varchar(20) UNIQUE,
-  `Email` varchar(50) NOT NULL,
+  `Email` varchar(50),
   `ProfilePicture` varchar(100),
   `CreatedAt` timestamp NOT NULL DEFAULT (now())
 );
