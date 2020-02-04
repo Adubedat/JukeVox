@@ -38,20 +38,43 @@ User.createUserAccount = function createUserAccount(userProfileId, email, passwo
   });
 };
 
-// User.deleteUserAccount = function deleteUserAccount(userId) {
-//   return new Promise(async (resolve, reject) => {
-//     const query = 'DELETE FROM UserAccounts WHERE UserProfileId = ?';
-//     await
-//   })
-// }
+User.deleteUserAccount = function deleteUserAccount(userId) {
+  return new Promise((resolve, reject) => {
+    const query = 'DELETE FROM UserAccounts WHERE UserProfileId = ?';
+    sql.query(query, userId)
+      .then((res) => resolve(res))
+      .catch((err) => reject(err));
+  });
+};
 
-// User.deleteUserProviders = function deleteUserProviders(userId) {
-//   return new Promise(());
-// }
+User.deleteUserProviders = function deleteUserProviders(userId) {
+  return new Promise((resolve, reject) => {
+    const query = 'DELETE FROM ProviderAccounts WHERE UserProfileId = ?';
+    sql.query(query, userId)
+      .then((res) => resolve(res))
+      .catch((err) => reject(err));
+  });
+};
 
-// User.updateUserProfile = function updateUserProfile(userId, username, email, profilePicture) {
-//   return new Promise(());
-// }
+User.updateUserProfile = function updateUserProfile(userId, username, email, profilePicture) {
+  return new Promise((resolve, reject) => {
+    const query = 'UPDATE UserProfiles SET Username = ?, Email = ?, ProfilePicture = ? WHERE Id = ?';
+    const values = [username, email, profilePicture, userId];
+    sql.query(query, values)
+      .then((res) => resolve(res))
+      .catch((err) => reject(err));
+  });
+};
+
+User.deleteAllUserFriendships = function deleteAllUserFriendships(userId) {
+  return new Promise((resolve, reject) => {
+    const query = 'DELETE FROM Friendships WHERE RequesterId = ? OR AddresseeId = ?';
+    const values = [userId, userId];
+    sql.query(query, values)
+      .then((res) => resolve(res))
+      .catch((err) => reject(err));
+  });
+};
 
 User.getUserProfile = function getUserProfile(filters, values) {
   return new Promise((resolve, reject) => {

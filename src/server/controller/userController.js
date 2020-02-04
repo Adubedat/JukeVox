@@ -127,7 +127,12 @@ export async function deleteUser(req, res, next) {
   const { userId } = req.decoded;
 
   try {
-    await User.deleteUser(userId);
+    await Promise.all([
+      User.deleteUserAccount(userId),
+      User.deleteUserProviders(userId),
+      User.deleteAllUserFriendships(userId),
+      User.updateUserProfile(userId, null, null, null),
+    ]);
     res.send({
       message: 'User deleted',
       statusCode: 200,
