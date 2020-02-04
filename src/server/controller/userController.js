@@ -48,10 +48,12 @@ function validatePassword(password) {
   }
 }
 
-async function validateInput(username, email, password) {
-  await validateUsername(username);
-  await validateEmail(email);
-  validatePassword(password);
+function checkUnknownFields(allowedFields, fields) {
+  Object.keys(fields).forEach((field) => {
+    if (!(allowedFields.includes(field))) {
+      throw new ErrorResponseHandler(400, `Unknown field: ${field}`);
+    }
+  });
 }
 
 function generateJwt(userId) {
@@ -104,7 +106,9 @@ export async function createUser(req, res, next) {
   const { username, email, password } = req.body;
 
   try {
-    await validateInput(username, email, password);
+    await validateUsername(username);
+    await validateEmail(email);
+    validatePassword(password);
     const hash = await argon2.hash(password).catch((err) => {
       console.log(err);
       throw new ErrorResponseHandler(500, 'Internal server Error');
@@ -120,6 +124,13 @@ export async function createUser(req, res, next) {
   } catch (err) {
     next(err);
   }
+}
+
+export async function deleteUser(req, res, next) {
+  res.send({
+    message: 'User deleted',
+    statusCode: 200,
+  });
 }
 
 export async function getUserAccountsTypes(req, res, next) {
@@ -143,16 +154,12 @@ export async function getUserAccountsTypes(req, res, next) {
 }
 
 export async function searchForUser(req, res, next) {
-  const possibleFilters = ['username', 'email'];
-
-  const existingFilters = possibleFilters.filter((field) => req.query[field]);
-  const values = existingFilters.map((filter) => (req.query[filter]));
-
   try {
-    for (const query in req.query) {
-      if (!(possibleFilters.includes(query)))
-        throw new ErrorResponseHandler(404, `Unknown query: ${query}`);
-    }
+    const possibleFilters = ['username', 'email'];
+    checkUnknownFields(possibleFilters, req.query);
+
+    const existingFilters = possibleFilters.filter((field) => req.query[field]);
+    const values = existingFilters.map((filter) => (req.query[filter]));
 
     const response = await User.getUserProfile(existingFilters, values);
     if (response.length === 0) {
