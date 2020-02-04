@@ -227,7 +227,7 @@ describe('Users', () => {
       const res = await chai.request(server)
         .get('/users')
         .query({ unknown: 'unknown' });
-      res.should.have.status(404);
+      res.should.have.status(400);
       res.body.should.be.a('object');
       res.body.should.have.property('status').eql('error');
       res.body.should.have.property('statusCode');
