@@ -406,6 +406,7 @@ describe('Users', () => {
             res.body.message.should.eql('Email already exists')
           });
 
+    // TODO: Actually check that a user was added to the DB and UserAccount was made
     it('should POST a user', (done) => {
       const user = {
         username: 'Daniel',
@@ -627,14 +628,12 @@ describe('Users', () => {
       await addUserProfile(email);
 
       const res = await chai.request(server).get(`/users/${email}/accounts`);
-
-      console.log(res.body);
       res.should.have.status(404);
       res.body.should.be.a('object');
       res.body.should.have.property('status').eql('error');
       res.body.should.have.property('statusCode');
       res.body.should.have.property('message');
-      res.body.message.should.eql('No account found for this email')
+      res.body.message.should.eql('Please contact an administator')
     });
 
   });
