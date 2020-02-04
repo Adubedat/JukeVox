@@ -193,9 +193,9 @@ describe('/POST users', () => {
         .post('/users')
         .send(user)
         .end((err, res) => {
-          res.should.have.status(200);
+          res.should.have.status(201);
           res.body.should.be.a('object');
-          res.body.should.have.property('message').eql('User successfully added!');
+          res.body.should.have.property('message').eql('User created. Please check your mail!');
           done();
         });
     });

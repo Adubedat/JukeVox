@@ -75,6 +75,8 @@ function generateJwt(userId) {
   return jwt.sign(payload, process.env.JWT_SECRET, { expiresIn });
 }
 
+//TODO: sending the email is async. We should wait for it in order to catch errors before 
+// returning the 200 status code.
 function sendConfirmationEmail(email, emailConfirmationString) {
   const transporter = nodemailer.createTransport({
     host: 'smtp.mailtrap.io',
