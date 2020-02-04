@@ -24,6 +24,10 @@ async function generateUniqueToken() {
 
 async function validateUsername(username) {
 
+  if (username == null) {
+    throw new ErrorResponseHandler(400, 'No username was supplied');
+  }
+
   if (!validator.isAlphanumeric(username)) {
     throw new ErrorResponseHandler(400, 'Username must only contain numbers or letters');
   }
