@@ -96,7 +96,7 @@ describe('/POST users', () => {
           res.body.should.have.property('status').eql('error');
           res.body.should.have.property('statusCode');
           res.body.should.have.property('message');
-          res.body.message.should.eql('Username is invalid');
+          res.body.message.should.eql('Username must only contain numbers or letters');
           done();
         });
     });
@@ -116,7 +116,7 @@ describe('/POST users', () => {
           res.body.should.have.property('status').eql('error');
           res.body.should.have.property('statusCode');
           res.body.should.have.property('message');
-          res.body.message.should.eql('Password is too short');
+          res.body.message.should.eql('Your password must have at least 10 characters');
           done();
         });
     });
@@ -136,7 +136,7 @@ describe('/POST users', () => {
           res.body.should.have.property('status').eql('error');
           res.body.should.have.property('statusCode');
           res.body.should.have.property('message');
-          res.body.message.should.eql('Email is invalid');
+          res.body.message.should.eql('Email not correctly formatted');
           done();
         });
     });
@@ -153,12 +153,12 @@ describe('/POST users', () => {
       };
 
       const res = await chai.request(server).post('/users').send(user);
-      res.should.have.status(400);
+      res.should.have.status(409);
       res.body.should.be.a('object');
       res.body.should.have.property('status').eql('error');
       res.body.should.have.property('statusCode');
       res.body.should.have.property('message');
-      res.body.message.should.eql('Username already exists');
+      res.body.message.should.eql('There already is an account with this username');
     });
 
     // TODO: Add two extra test to see if existing email still passes when email exists in useraccounts or provideraccounts
@@ -174,12 +174,12 @@ describe('/POST users', () => {
       };
 
       const res = await chai.request(server).post('/users').send(user);
-      res.should.have.status(400);
+      res.should.have.status(409);
       res.body.should.be.a('object');
       res.body.should.have.property('status').eql('error');
       res.body.should.have.property('statusCode');
       res.body.should.have.property('message');
-      res.body.message.should.eql('Email already exists');
+      res.body.message.should.eql('There already is an account with this email');
     });
 
     // TODO: Actually check that a user was added to the DB and UserAccount was made

@@ -55,7 +55,7 @@ function validatePassword(password) {
     throw new ErrorResponseHandler(400, 'No password was supplied')
   }
   if (password.length < 10) {
-    throw new ErrorResponseHandler(400, 'Your password must have at least 10 characters.');
+    throw new ErrorResponseHandler(400, 'Your password must have at least 10 characters');
   }
 }
 
