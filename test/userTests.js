@@ -429,20 +429,30 @@ describe('Users', () => {
   */
   describe('GET /users/:email/accounts', () => {
 
-    it('should GET a user account by a given email address', async () => {
-
-      const email = 'daniel@mail.com';
-      const password = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
-      const token = crypto.randomBytes(24).toString('hex');
-      const expirationDate = moment().add(3, 'd').format(DATETIME_FORMAT);
+    async function addUserProfile(email) {
       const userProfileQuery = 'INSERT INTO UserProfiles (Username, Email, CreatedAt) VALUES ?';
       const userProfileValues = [['Daniel', email, moment().format(DATETIME_FORMAT)]];
       const userProfile = await sql.query(userProfileQuery, [userProfileValues]).catch((err) => console.log(err));
-      
+      return userProfile;
+    }
+    
+    async function addUserAccount(id, email) {
+      const password = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
+      const token = crypto.randomBytes(24).toString('hex');
+      const expirationDate = moment().add(3, 'd').format(DATETIME_FORMAT);
+
       const userAccountQuery = 'INSERT INTO UserAccounts (UserProfileId, Email, Password, EmailConfirmationString, AccountExpiration) \
       VALUES ?';
-      const userAccountValues = [[userProfile.insertId, email, password, token, expirationDate]]
+      const userAccountValues = [[id, email, password, token, expirationDate]]
       const userAccount = await sql.query(userAccountQuery, [userAccountValues]).catch((err) => console.log(err));
+
+      return userAccount;
+    }
+
+    it('should GET a user account by a given email address', async () => {  
+      const email = 'daniel@mail.com';    
+      const userProfile = await addUserProfile(email);
+      await addUserAccount(userProfile.insertId, email);
 
       const res = await chai.request(server).get(`/users/${email}/accounts`);
       res.should.have.status(200);
@@ -454,7 +464,6 @@ describe('Users', () => {
       res.body.accountTypes[0].should.be.eql('Classic');
     });
 
-    // TODO: user has only user account 
     // TODO: user has only provider google
     // TODO: user has only provider facebook
     // TODO: user has useraccount + providers
