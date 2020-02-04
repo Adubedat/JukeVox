@@ -3,14 +3,14 @@ import 'core-js/stable';
 import 'regenerator-runtime/runtime';
 import moment from 'moment';
 import crypto from 'crypto';
-import DATETIME_FORMAT from '../src/server/constants';
+import DATETIME_FORMAT from '../../src/server/constants';
 
-import Database from '../src/helpers/database';
+import Database from '../../src/helpers/database';
 
 const sql = new Database();
 const chai = require('chai');
 const chaiHttp = require('chai-http');
-const server = require('../server');
+const server = require('../../server');
 
 const should = chai.should();
 
