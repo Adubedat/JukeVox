@@ -248,6 +248,9 @@ describe('Users', () => {
         .send(body);
 
       res.should.have.status(200);
+      res.body.should.be.a('object');
+      res.body.should.have.property('statusCode');
+      res.body.should.have.property('message');
       const userAccounts = await sql.query('SELECT * FROM UserAccounts');
       userAccounts.should.have.lengthOf(0);
     });
