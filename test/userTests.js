@@ -2,6 +2,7 @@
 import 'core-js/stable';
 import 'regenerator-runtime/runtime';
 import moment from 'moment';
+import crypto from 'crypto';
 import DATETIME_FORMAT from '../src/server/constants';
 
 import Database from '../src/helpers/database'
@@ -424,26 +425,44 @@ describe('Users', () => {
   });
 
   /*
-  * Test the /GET/users/:email/accounts route
+  * Test the GET/users/:email/accounts route
   */
-  describe('/GET/users/:email/accounts', () => {
-    it('should GET a user accounts by a given email address', (done) => {
-      const user = {
-        username: 'Daniel',
-        email: 'daniel@mail.com',
-        password: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
-      };
-      // TODO add user to db and in callback
-      chai.request(server)
-        .get(`/users/${user.email}/accounts`)
-        .end((err, res) => {
-          res.should.have.status(200);
-          res.body.should.be.a('object');
-          res.body.should.have.property('data');
-          // TODO: Add tests to check just UserAccount is returned
-          done();
-        });
+  describe('GET /users/:email/accounts', () => {
+
+    it('should GET a user account by a given email address', async () => {
+
+      const email = 'daniel@mail.com';
+      const password = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
+      const token = crypto.randomBytes(24).toString('hex');
+      const expirationDate = moment().add(3, 'd').format(DATETIME_FORMAT);
+      const userProfileQuery = 'INSERT INTO UserProfiles (Username, Email, CreatedAt) VALUES ?';
+      const userProfileValues = [['Daniel', email, moment().format(DATETIME_FORMAT)]];
+      const userProfile = await sql.query(userProfileQuery, [userProfileValues]).catch((err) => console.log(err));
+      
+      const userAccountQuery = 'INSERT INTO UserAccounts (UserProfileId, Email, Password, EmailConfirmationString, AccountExpiration) \
+      VALUES ?';
+      const userAccountValues = [[userProfile.insertId, email, password, token, expirationDate]]
+      const userAccount = await sql.query(userAccountQuery, [userAccountValues]).catch((err) => console.log(err));
+
+      const res = await chai.request(server).get(`/users/${email}/accounts`);
+      res.should.have.status(200);
+      res.body.should.be.a('object');
+      res.body.should.have.property('message').eql('Email matches these account types');  
+      res.body.should.have.property('accountTypes');
+      res.body.accountTypes.should.be.a('array');
+      res.body.accountTypes.length.should.be.eql(1);
+      res.body.accountTypes[0].should.be.eql('Classic');
     });
+
+    // TODO: user has only user account 
+    // TODO: user has only provider google
+    // TODO: user has only provider facebook
+    // TODO: user has useraccount + providers
+    // TODO: user email invalid 
+    // TODO: user email inexistant 
+
+
+
   });
 
 
