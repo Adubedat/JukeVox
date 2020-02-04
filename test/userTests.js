@@ -622,6 +622,21 @@ describe('Users', () => {
       res.body.message.should.eql('No account found for this email')
     });
 
+    it('should not GET a user account with a non existant providerAccount or userAccount', async () => {  
+      const email = 'daniel@mail.com';
+      await addUserProfile(email);
+
+      const res = await chai.request(server).get(`/users/${email}/accounts`);
+
+      console.log(res.body);
+      res.should.have.status(404);
+      res.body.should.be.a('object');
+      res.body.should.have.property('status').eql('error');
+      res.body.should.have.property('statusCode');
+      res.body.should.have.property('message');
+      res.body.message.should.eql('No account found for this email')
+    });
+
   });
 
 
