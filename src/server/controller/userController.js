@@ -109,10 +109,7 @@ export async function createUser(req, res, next) {
     await validateUsername(username);
     await validateEmail(email);
     validatePassword(password);
-    const hash = await argon2.hash(password).catch((err) => {
-      console.log(err);
-      throw new ErrorResponseHandler(500, 'Internal server Error');
-    });
+    const hash = await argon2.hash(password);
     const [token, userProfile] = await Promise.all([generateUniqueToken(),
       User.createUserProfile(username, email)]);
     const userAccount = await User.createUserAccount(userProfile.insertId, email, hash, token);
@@ -127,10 +124,17 @@ export async function createUser(req, res, next) {
 }
 
 export async function deleteUser(req, res, next) {
-  res.send({
-    message: 'User deleted',
-    statusCode: 200,
-  });
+  const { userId } = req.decoded;
+
+  try {
+    await User.deleteUser(userId);
+    res.send({
+      message: 'User deleted',
+      statusCode: 200,
+    });
+  } catch (err) {
+    next(err);
+  }
 }
 
 export async function getUserAccountsTypes(req, res, next) {
