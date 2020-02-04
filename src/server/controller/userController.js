@@ -150,10 +150,17 @@ export async function getUserAccountsTypes(req, res, next) {
 }
 
 export async function searchForUser(req, res, next) {
-  const existingFilters = ['username', 'email'].filter((field) => req.query[field]);
+  const possibleFilters = ['username', 'email'];
+
+  const existingFilters = possibleFilters.filter((field) => req.query[field]);
   const values = existingFilters.map((filter) => (req.query[filter]));
 
   try {
+    for (const query in req.query) {
+      if (!(possibleFilters.includes(query)))
+        throw new ErrorResponseHandler(404, `Unknown query: ${query}`);
+    }
+
     const response = await User.getUserProfile(existingFilters, values);
     if (response.length === 0) {
       throw new ErrorResponseHandler(404, 'No user found');
@@ -161,7 +168,7 @@ export async function searchForUser(req, res, next) {
     const user = response;
 
     res.send({
-      message: 'Users founded',
+      message: 'Users found',
       data: user,
       statusCode: 200,
     });
