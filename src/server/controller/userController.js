@@ -23,6 +23,7 @@ async function generateUniqueToken() {
 }
 
 async function validateUsername(username) {
+
   if (!validator.isAlphanumeric(username)) {
     throw new ErrorResponseHandler(400, 'Username must only contain numbers or letters');
   }
@@ -43,6 +44,9 @@ async function validateEmail(email) {
 }
 
 function validatePassword(password) {
+  if (password == null) {
+    throw new ErrorResponseHandler(400, 'No password was supplied')
+  }
   if (password.length < 10) {
     throw new ErrorResponseHandler(400, 'Your password must have at least 10 characters.');
   }
