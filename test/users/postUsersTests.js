@@ -2,7 +2,6 @@
 import 'core-js/stable';
 import 'regenerator-runtime/runtime';
 import moment from 'moment';
-import crypto from 'crypto';
 import DATETIME_FORMAT from '../../src/server/constants';
 
 import Database from '../../src/helpers/database';
@@ -17,13 +16,13 @@ const should = chai.should();
 chai.use(chaiHttp);
 
 describe('Users', () => {
-    beforeEach(async () => {
-      await sql.query('DELETE FROM UserAccounts;');
-      await sql.query('DELETE FROM ProviderAccounts;');
-      await sql.query('DELETE FROM UserProfiles;');
-    });
+  beforeEach(async () => {
+    await sql.query('DELETE FROM UserAccounts;');
+    await sql.query('DELETE FROM ProviderAccounts;');
+    await sql.query('DELETE FROM UserProfiles;');
+  });
 
-describe('/POST users', () => {
+  describe('/POST users', () => {
     it('should not POST a user without a password field', (done) => {
       const user = {
         username: 'Daniel',

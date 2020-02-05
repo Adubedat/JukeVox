@@ -135,7 +135,7 @@ describe('Users', () => {
     const userAccounts = await sql.query('SELECT * FROM UserAccounts');
     userAccounts.should.have.lengthOf(1);
   });
-  it('should not DELETE user without jwt', async () => {
+  it('should not DELETE user with an invalid jwt', async () => {
     const body = {
       password: 'aaaaaaaaaa',
     };
@@ -154,6 +154,28 @@ describe('Users', () => {
     res.body.should.have.property('statusCode');
     res.body.should.have.property('message');
     res.body.message.should.eql('Invalid authorization token');
+    const userAccounts = await sql.query('SELECT * FROM UserAccounts');
+    userAccounts.should.have.lengthOf(1);
+  });
+  it('should not DELETE user with an unknown field', async () => {
+    const body = {
+      password: 'aaaaaaaaaa',
+      unknown: 'unknown',
+    };
+    const hash = await argon2.hash(body.password);
+    const user1 = await sql.query('INSERT INTO UserProfiles (Username, Email, CreatedAt) VALUES (\'user1\', \'test@test.test\', \'2020-12-12 12:12:12\')');
+    await sql.query(`INSERT INTO UserAccounts (UserProfileId, Email, Password) VALUES (${user1.insertId}, 'test@test.test', '${hash}')`);
+    const jwt = generateJwt(user1.insertId);
+    const res = await chai.request(server)
+      .delete('/api/users/me')
+      .set({ Authorization: `Bearer ${jwt}` })
+      .send(body);
+
+    res.should.have.status(400);
+    res.body.should.be.a('object');
+    res.body.should.have.property('statusCode');
+    res.body.should.have.property('message');
+    res.body.message.should.eql('Unknown field: unknown');
     const userAccounts = await sql.query('SELECT * FROM UserAccounts');
     userAccounts.should.have.lengthOf(1);
   });
