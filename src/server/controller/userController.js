@@ -114,6 +114,7 @@ async function getAccountTypes(id) {
   return accountTypes;
 }
 
+// TODO: Return the user instead of message
 export async function createUser(req, res, next) {
   const { username, email, password } = req.body;
 
@@ -135,6 +136,7 @@ export async function createUser(req, res, next) {
   }
 }
 
+// TODO: Do not delete friendships
 export async function deleteUser(req, res, next) {
   const { userId } = req.decoded;
   const { password } = req.body;
