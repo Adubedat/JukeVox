@@ -23,6 +23,11 @@ async function generateUniqueToken() {
 }
 
 async function validateUsername(username) {
+
+  if (username == null) {
+    throw new ErrorResponseHandler(400, 'No username was supplied');
+  }
+
   if (!validator.isAlphanumeric(username)) {
     throw new ErrorResponseHandler(400, 'Username must only contain numbers or letters');
   }
@@ -33,6 +38,9 @@ async function validateUsername(username) {
 }
 
 async function validateEmail(email) {
+  if (email == null) {
+    throw new ErrorResponseHandler(400, 'No email was supplied');
+  }
   if (!validator.isEmail(email)) {
     throw new ErrorResponseHandler(400, 'Email not correctly formatted');
   }
@@ -43,8 +51,11 @@ async function validateEmail(email) {
 }
 
 function validatePassword(password) {
+  if (password == null) {
+    throw new ErrorResponseHandler(400, 'No password was supplied')
+  }
   if (password.length < 10) {
-    throw new ErrorResponseHandler(400, 'Your password must have at least 10 characters.');
+    throw new ErrorResponseHandler(400, 'Your password must have at least 10 characters');
   }
 }
 
@@ -64,6 +75,8 @@ export function generateJwt(userId) {
   return jwt.sign(payload, process.env.JWT_SECRET, { expiresIn });
 }
 
+//TODO: sending the email is async. We should wait for it in order to catch errors before 
+// returning the 200 status code.
 function sendConfirmationEmail(email, emailConfirmationString) {
   const transporter = nodemailer.createTransport({
     host: 'smtp.mailtrap.io',
@@ -163,6 +176,10 @@ export async function getUserAccountsTypes(req, res, next) {
     }
     const id = response[0].Id;
     const accountTypes = await getAccountTypes(id);
+
+    if (accountTypes.length === 0) {
+      throw new ErrorResponseHandler(404, 'Please contact an administrator');
+    }
 
     res.send({
       message: 'Email matches these account types',
