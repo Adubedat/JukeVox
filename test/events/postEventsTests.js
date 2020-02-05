@@ -154,13 +154,196 @@ describe('Events', () => {
       createdEvents.should.have.lengthOf(0);
     });
 
+    it('should not POST an event with an unknown field', async () => {
+      const body = {
+        name: 'House warming',
+        description: 'All come over on wednesday for our housewarming!',
+        startDate,
+        endDate,
+        unknown: 'unknown',
+        latitude: 48.8915482,
+        longitude: 2.3170656,
+        streamerDevice: 'abcd',
+        isPrivate: true,
+      };
 
-    // TODO: should not POST an event with an unknown field
-    // TODO: should not POST an event with name too long
-    // TODO: should not POST an event with name = null
-    // TODO: should not POST an event with description too long
-    // TODO: should not POST an event with start date in the past
-    // TODO: should not POST an event with end date before start date
+      const user = await addUserProfile();
+      const jwt = generateJwt(user.insertId);
+
+      const res = await chai.request(server)
+        .post('/api/events')
+        .set({ Authorization: `Bearer ${jwt}` })
+        .send(body);
+
+      res.should.have.status(400);
+      res.body.should.be.a('object');
+      res.body.should.have.property('statusCode');
+      res.body.should.have.property('message');
+      res.body.message.should.eql('Unknown field: unknown');
+      const createdEvents = await sql.query('SELECT * FROM Events');
+      createdEvents.should.have.lengthOf(0);
+    });
+
+    it('should not POST an event with name too long', async () => {
+      const body = {
+        name: 'a'.repeat(101),
+        description: 'All come over on wednesday for our housewarming!',
+        startDate,
+        endDate,
+        unknown: 'unknown',
+        latitude: 48.8915482,
+        longitude: 2.3170656,
+        streamerDevice: 'abcd',
+        isPrivate: true,
+      };
+
+      const user = await addUserProfile();
+      const jwt = generateJwt(user.insertId);
+
+      const res = await chai.request(server)
+        .post('/api/events')
+        .set({ Authorization: `Bearer ${jwt}` })
+        .send(body);
+
+      res.should.have.status(400);
+      res.body.should.be.a('object');
+      res.body.should.have.property('statusCode');
+      res.body.should.have.property('message');
+      res.body.message.should.eql('Name is too long');
+      const createdEvents = await sql.query('SELECT * FROM Events');
+      createdEvents.should.have.lengthOf(0);
+    });
+
+    it('should not POST an event with name = null', async () => {
+      const body = {
+        name: null,
+        description: 'All come over on wednesday for our housewarming!',
+        startDate,
+        endDate,
+        unknown: 'unknown',
+        latitude: 48.8915482,
+        longitude: 2.3170656,
+        streamerDevice: 'abcd',
+        isPrivate: true,
+      };
+
+      const user = await addUserProfile();
+      const jwt = generateJwt(user.insertId);
+
+      const res = await chai.request(server)
+        .post('/api/events')
+        .set({ Authorization: `Bearer ${jwt}` })
+        .send(body);
+
+      res.should.have.status(400);
+      res.body.should.be.a('object');
+      res.body.should.have.property('statusCode');
+      res.body.should.have.property('message');
+      res.body.message.should.eql('Missing field: name');
+      const createdEvents = await sql.query('SELECT * FROM Events');
+      createdEvents.should.have.lengthOf(0);
+    });
+
+    it('should not POST an event with description too long', async () => {
+      const body = {
+        name: 'House warming',
+        description: 'a'.repeat(2049),
+        startDate,
+        endDate,
+        unknown: 'unknown',
+        latitude: 48.8915482,
+        longitude: 2.3170656,
+        streamerDevice: 'abcd',
+        isPrivate: true,
+      };
+
+      const user = await addUserProfile();
+      const jwt = generateJwt(user.insertId);
+
+      const res = await chai.request(server)
+        .post('/api/events')
+        .set({ Authorization: `Bearer ${jwt}` })
+        .send(body);
+
+      res.should.have.status(400);
+      res.body.should.be.a('object');
+      res.body.should.have.property('statusCode');
+      res.body.should.have.property('message');
+      res.body.message.should.eql('Description is too long');
+      const createdEvents = await sql.query('SELECT * FROM Events');
+      createdEvents.should.have.lengthOf(0);
+    });
+
+    const startDateBeforeNow = moment().subtract(1, 'd').format(DATETIME_FORMAT);
+
+    it('should not POST an event with start date in the past', async () => {
+      const body = {
+        name: 'House warming',
+        description: 'All come over on wednesday for our housewarming!',
+        startDateBeforeNow,
+        endDate,
+        unknown: 'unknown',
+        latitude: 48.8915482,
+        longitude: 2.3170656,
+        streamerDevice: 'abcd',
+        isPrivate: true,
+      };
+
+      const user = await addUserProfile();
+      const jwt = generateJwt(user.insertId);
+
+      const res = await chai.request(server)
+        .post('/api/events')
+        .set({ Authorization: `Bearer ${jwt}` })
+        .send(body);
+
+      res.should.have.status(400);
+      res.body.should.be.a('object');
+      res.body.should.have.property('statusCode');
+      res.body.should.have.property('message');
+      res.body.message.should.eql('The event cannot be in the past');
+      const createdEvents = await sql.query('SELECT * FROM Events');
+      createdEvents.should.have.lengthOf(0);
+    });
+
+    const endDateBeforeStartDate = moment().add(2, 'd').format(DATETIME_FORMAT);
+    it('should not POST an event with end date before start date', async () => {
+      const body = {
+        name: 'House warming',
+        description: 'All come over on wednesday for our housewarming!',
+        startDate,
+        endDateBeforeStartDate,
+        unknown: 'unknown',
+        latitude: 48.8915482,
+        longitude: 2.3170656,
+        streamerDevice: 'abcd',
+        isPrivate: true,
+      };
+
+      const user = await addUserProfile();
+      const jwt = generateJwt(user.insertId);
+
+      const res = await chai.request(server)
+        .post('/api/events')
+        .set({ Authorization: `Bearer ${jwt}` })
+        .send(body);
+
+      res.should.have.status(400);
+      res.body.should.be.a('object');
+      res.body.should.have.property('statusCode');
+      res.body.should.have.property('message');
+      res.body.message.should.eql('The event cannot end before it starts');
+      const createdEvents = await sql.query('SELECT * FROM Events');
+      createdEvents.should.have.lengthOf(0);
+    });
+
+
+    // COMPLETED: should not POST an event with an unknown field
+    // COMPLETED: should not POST an event with name too long
+    // COMPLETED: should not POST an event with name = null
+    // COMPLETED: should not POST an event with description too long
+    // COMPLETED: should not POST an event with start date in the past
+    // COMPLETED: should not POST an event with end date before start date
     // TODO: should not POST an event with no start date
     // TODO: should not POST an event with no end date
     // TODO: should not POST an event with unknown latitude
