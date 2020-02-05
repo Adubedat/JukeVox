@@ -56,7 +56,7 @@ function checkUnknownFields(allowedFields, fields) {
   });
 }
 
-function generateJwt(userId) {
+export function generateJwt(userId) {
   const payload = {
     userId,
   };
@@ -125,8 +125,20 @@ export async function createUser(req, res, next) {
 
 export async function deleteUser(req, res, next) {
   const { userId } = req.decoded;
+  const { password } = req.body;
 
   try {
+    if (!password) {
+      throw new ErrorResponseHandler(400, 'Missing field in body : password');
+    }
+    const userAccount = await User.getUserAccount(['UserProfileId'], [userId]);
+    if (userAccount.length === 0) {
+      throw new ErrorResponseHandler(404, 'No account found: Wrong token provided');
+    }
+    if (!(await argon2.verify(userAccount[0].Password, password))) {
+      throw new ErrorResponseHandler(400, 'Invalid password');
+    }
+    checkUnknownFields(['password'], req.body);
     await Promise.all([
       User.deleteUserAccount(userId),
       User.deleteUserProviders(userId),
