@@ -29,7 +29,7 @@ describe('Users', () => {
       };
       const hash = await argon2.hash(body.password);
       const user1 = await sql.query(`INSERT INTO UserProfiles (Username, Email, CreatedAt) VALUES ('user1', '${body.email}', '2020-12-12 12:12:12')`);
-      await sql.query(`INSERT INTO UserAccounts (UserProfileId, Email, Password) VALUES (${user1.insertId}, '${body.email}', '${hash}')`);
+      await sql.query(`INSERT INTO UserAccounts (UserProfileId, Email, Password, EmailConfirmed) VALUES (${user1.insertId}, '${body.email}', '${hash}', true)`);
       const res = await chai.request(server)
         .post('/login')
         .send(body);
@@ -46,7 +46,7 @@ describe('Users', () => {
       };
       const hash = await argon2.hash('aaaaaaaaaa');
       const user1 = await sql.query(`INSERT INTO UserProfiles (Username, Email, CreatedAt) VALUES ('user1', '${body.email}', '2020-12-12 12:12:12')`);
-      await sql.query(`INSERT INTO UserAccounts (UserProfileId, Email, Password) VALUES (${user1.insertId}, '${body.email}', '${hash}')`);
+      await sql.query(`INSERT INTO UserAccounts (UserProfileId, Email, Password, EmailConfirmed) VALUES (${user1.insertId}, '${body.email}', '${hash}', true)`);
       const res = await chai.request(server)
         .post('/login')
         .send(body);
@@ -63,7 +63,7 @@ describe('Users', () => {
       };
       const hash = await argon2.hash(body.password);
       const user1 = await sql.query('INSERT INTO UserProfiles (Username, Email, CreatedAt) VALUES (\'user1\', \'test@test.test\', \'2020-12-12 12:12:12\')');
-      await sql.query(`INSERT INTO UserAccounts (UserProfileId, Email, Password) VALUES (${user1.insertId}, 'test@test.test', '${hash}')`);
+      await sql.query(`INSERT INTO UserAccounts (UserProfileId, Email, Password, EmailConfirmed) VALUES (${user1.insertId}, 'test@test.test', '${hash}', true)`);
       const res = await chai.request(server)
         .post('/login')
         .send(body);
@@ -81,7 +81,7 @@ describe('Users', () => {
       };
       const hash = await argon2.hash('aaaaaaaaaa');
       const user1 = await sql.query(`INSERT INTO UserProfiles (Username, Email, CreatedAt) VALUES ('user1', '${body.email}', '2020-12-12 12:12:12')`);
-      await sql.query(`INSERT INTO UserAccounts (UserProfileId, Email, Password) VALUES (${user1.insertId}, '${body.email}', '${hash}')`);
+      await sql.query(`INSERT INTO UserAccounts (UserProfileId, Email, Password, EmailConfirmed) VALUES (${user1.insertId}, '${body.email}', '${hash}', true)`);
       const res = await chai.request(server)
         .post('/login')
         .send(body);
@@ -99,7 +99,7 @@ describe('Users', () => {
       };
       const hash = await argon2.hash(body.password);
       const user1 = await sql.query('INSERT INTO UserProfiles (Username, Email, CreatedAt) VALUES (\'user1\', \'test@test.test\', \'2020-12-12 12:12:12\')');
-      await sql.query(`INSERT INTO UserAccounts (UserProfileId, Email, Password) VALUES (${user1.insertId}, 'test@test.test', '${hash}')`);
+      await sql.query(`INSERT INTO UserAccounts (UserProfileId, Email, Password, EmailConfirmed) VALUES (${user1.insertId}, 'test@test.test', '${hash}', true)`);
       const res = await chai.request(server)
         .post('/login')
         .send(body);
@@ -118,7 +118,7 @@ describe('Users', () => {
       };
       const hash = await argon2.hash(body.password);
       const user1 = await sql.query(`INSERT INTO UserProfiles (Username, Email, CreatedAt) VALUES ('user1', '${body.email}', '2020-12-12 12:12:12')`);
-      await sql.query(`INSERT INTO UserAccounts (UserProfileId, Email, Password) VALUES (${user1.insertId}, '${body.email}', '${hash}')`);
+      await sql.query(`INSERT INTO UserAccounts (UserProfileId, Email, Password, EmailConfirmed) VALUES (${user1.insertId}, '${body.email}', '${hash}', true)`);
       const res = await chai.request(server)
         .post('/login')
         .send(body);
@@ -128,6 +128,24 @@ describe('Users', () => {
       res.body.should.have.property('statusCode');
       res.body.should.have.property('message');
       res.body.message.should.eql('Unknown field: unknown');
+    });
+    it('should not successfully login if email is not confirmed', async () => {
+      const body = {
+        email: 'test@test.test',
+        password: 'aaaaaaaaaa',
+      };
+      const hash = await argon2.hash(body.password);
+      const user1 = await sql.query(`INSERT INTO UserProfiles (Username, Email, CreatedAt) VALUES ('user1', '${body.email}', '2020-12-12 12:12:12')`);
+      await sql.query(`INSERT INTO UserAccounts (UserProfileId, Email, Password) VALUES (${user1.insertId}, '${body.email}', '${hash}')`);
+      const res = await chai.request(server)
+        .post('/login')
+        .send(body);
+
+      res.should.have.status(403);
+      res.body.should.be.a('object');
+      res.body.should.have.property('statusCode');
+      res.body.should.have.property('message');
+      res.body.message.should.eql('Email not confirmed');
     });
   });
 });
