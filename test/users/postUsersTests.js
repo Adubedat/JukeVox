@@ -22,6 +22,7 @@ describe('Users', () => {
     await sql.query('DELETE FROM UserProfiles;');
   });
 
+  // TODO: In all of the 'should NOT POST' check that no user was actually added
   describe('/POST users', () => {
     it('should not POST a user without a password field', (done) => {
       const user = {
@@ -160,7 +161,8 @@ describe('Users', () => {
       res.body.message.should.eql('There already is an account with this username');
     });
 
-    // TODO: Add two extra test to see if existing email still passes when email exists in useraccounts or provideraccounts
+    // TODO: Add two extra tests for edge case:
+    // If email exists in useraccounts but not in UserProfiles
     it('should not POST a user with an existing email', async () => {
       const query = 'INSERT INTO UserProfiles (Username, Email, CreatedAt) VALUES ?';
       const values = [['Daniel', 'daniel@mail.com', moment().format(DATETIME_FORMAT)]];
