@@ -21,7 +21,7 @@ describe('Users', () => {
     await sql.query('DELETE FROM UserProfiles;');
   });
 
-  describe('POST /users/login', () => {
+  describe('POST /login', () => {
     it('should successfully login and return jwt', async () => {
       const body = {
         email: 'test@test.test',
@@ -31,7 +31,7 @@ describe('Users', () => {
       const user1 = await sql.query(`INSERT INTO UserProfiles (Username, Email, CreatedAt) VALUES ('user1', '${body.email}', '2020-12-12 12:12:12')`);
       await sql.query(`INSERT INTO UserAccounts (UserProfileId, Email, Password) VALUES (${user1.insertId}, '${body.email}', '${hash}')`);
       const res = await chai.request(server)
-        .post('/users/login')
+        .post('/login')
         .send(body);
 
       res.should.have.status(200);
@@ -48,7 +48,7 @@ describe('Users', () => {
       const user1 = await sql.query(`INSERT INTO UserProfiles (Username, Email, CreatedAt) VALUES ('user1', '${body.email}', '2020-12-12 12:12:12')`);
       await sql.query(`INSERT INTO UserAccounts (UserProfileId, Email, Password) VALUES (${user1.insertId}, '${body.email}', '${hash}')`);
       const res = await chai.request(server)
-        .post('/users/login')
+        .post('/login')
         .send(body);
 
       res.should.have.status(400);
@@ -65,7 +65,7 @@ describe('Users', () => {
       const user1 = await sql.query('INSERT INTO UserProfiles (Username, Email, CreatedAt) VALUES (\'user1\', \'test@test.test\', \'2020-12-12 12:12:12\')');
       await sql.query(`INSERT INTO UserAccounts (UserProfileId, Email, Password) VALUES (${user1.insertId}, 'test@test.test', '${hash}')`);
       const res = await chai.request(server)
-        .post('/users/login')
+        .post('/login')
         .send(body);
 
       res.should.have.status(400);
@@ -83,7 +83,7 @@ describe('Users', () => {
       const user1 = await sql.query(`INSERT INTO UserProfiles (Username, Email, CreatedAt) VALUES ('user1', '${body.email}', '2020-12-12 12:12:12')`);
       await sql.query(`INSERT INTO UserAccounts (UserProfileId, Email, Password) VALUES (${user1.insertId}, '${body.email}', '${hash}')`);
       const res = await chai.request(server)
-        .post('/users/login')
+        .post('/login')
         .send(body);
 
       res.should.have.status(400);
@@ -101,7 +101,7 @@ describe('Users', () => {
       const user1 = await sql.query('INSERT INTO UserProfiles (Username, Email, CreatedAt) VALUES (\'user1\', \'test@test.test\', \'2020-12-12 12:12:12\')');
       await sql.query(`INSERT INTO UserAccounts (UserProfileId, Email, Password) VALUES (${user1.insertId}, 'test@test.test', '${hash}')`);
       const res = await chai.request(server)
-        .post('/users/login')
+        .post('/login')
         .send(body);
 
       res.should.have.status(404);
@@ -120,7 +120,7 @@ describe('Users', () => {
       const user1 = await sql.query(`INSERT INTO UserProfiles (Username, Email, CreatedAt) VALUES ('user1', '${body.email}', '2020-12-12 12:12:12')`);
       await sql.query(`INSERT INTO UserAccounts (UserProfileId, Email, Password) VALUES (${user1.insertId}, '${body.email}', '${hash}')`);
       const res = await chai.request(server)
-        .post('/users/login')
+        .post('/login')
         .send(body);
 
       res.should.have.status(400);

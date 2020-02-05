@@ -11,8 +11,4 @@ router.route('/')
 
 router.get('/:email/accounts', getUserAccountsTypes);
 
-router.get('/confirmEmail/:token', confirmUserEmail);
-
-router.post('/login', loginUser);
-
 export default router;
