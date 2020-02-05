@@ -43,6 +43,7 @@ describe('Users', () => {
         });
     });
 
+    // TODO: Write test for username too long
     it('should not POST a user without a username field', (done) => {
       const user = {
         email: 'daniel@mail.com',
