@@ -251,6 +251,9 @@ export async function login(req, res, next) {
     if (userAccount.length === 0) {
       throw new ErrorResponseHandler(404, 'No account found for this email');
     }
+    if (userAccount[0].EmailConfirmed === 0) {
+      throw new ErrorResponseHandler(403, 'Email not confirmed');
+    }
     if (!(await argon2.verify(userAccount[0].Password, password))) {
       throw new ErrorResponseHandler(400, 'Invalid password');
     }

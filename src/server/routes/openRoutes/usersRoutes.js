@@ -1,6 +1,6 @@
 import express from 'express';
 import {
-  createUser, getUserAccountsTypes, searchForUser, confirmUserEmail, loginUser,
+  createUser, getUserAccountsTypes, searchForUser,
 } from '../../controller/userController';
 
 const router = express.Router();
