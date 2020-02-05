@@ -4,7 +4,8 @@
   "description": "42 school Music Room project",
   "main": "server.js",
   "scripts": {
-    "test": "NODE_ENV=test mocha --timeout 10000 --require @babel/register ./test/*/*.js",
+    "test": "NODE_ENV=test mocha --exit --timeout 10000 --recursive --require @babel/register",
+    "coverage": "NODE_ENV=test nyc mocha --exit --timeout 10000 --recursive --require @babel/register",
     "start": "nodemon --exec babel-node ./server.js"
   },
   "repository": {
@@ -42,7 +43,8 @@
     "eslint-plugin-node": "^11.0.0",
     "eslint-plugin-promise": "^4.2.1",
     "mocha": "^7.0.1",
-    "nodemon": "^2.0.2"
+    "nodemon": "^2.0.2",
+    "nyc": "^15.0.0"
   },
   "keywords": []
 }

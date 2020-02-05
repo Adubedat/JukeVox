@@ -2,7 +2,6 @@
 import 'core-js/stable';
 import 'regenerator-runtime/runtime';
 import moment from 'moment';
-import crypto from 'crypto';
 import DATETIME_FORMAT from '../../src/server/constants';
 
 import Database from '../../src/helpers/database';

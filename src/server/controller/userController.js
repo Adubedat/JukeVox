@@ -214,7 +214,7 @@ export async function searchForUser(req, res, next) {
   }
 }
 
-export async function confirmUserEmail(req, res, next) {
+export async function confirmEmail(req, res, next) {
   const { token } = req.params;
 
   try {
@@ -236,10 +236,17 @@ export async function confirmUserEmail(req, res, next) {
   }
 }
 
-export async function loginUser(req, res, next) {
+export async function login(req, res, next) {
   const { email, password } = req.body;
 
   try {
+    if (!email) {
+      throw new ErrorResponseHandler(400, 'Missing field in body: email');
+    }
+    if (!password) {
+      throw new ErrorResponseHandler(400, 'Missing field in body: password');
+    }
+    checkUnknownFields(['email', 'password'], req.body);
     const userAccount = await User.getUserAccount(['email'], [email]);
     if (userAccount.length === 0) {
       throw new ErrorResponseHandler(404, 'No account found for this email');
