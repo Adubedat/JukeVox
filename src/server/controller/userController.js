@@ -23,7 +23,6 @@ async function generateUniqueToken() {
 }
 
 async function validateUsername(username) {
-
   if (username == null) {
     throw new ErrorResponseHandler(400, 'No username was supplied');
   }
@@ -52,7 +51,7 @@ async function validateEmail(email) {
 
 function validatePassword(password) {
   if (password == null) {
-    throw new ErrorResponseHandler(400, 'No password was supplied')
+    throw new ErrorResponseHandler(400, 'No password was supplied');
   }
   if (password.length < 10) {
     throw new ErrorResponseHandler(400, 'Your password must have at least 10 characters');
@@ -75,7 +74,7 @@ export function generateJwt(userId) {
   return jwt.sign(payload, process.env.JWT_SECRET, { expiresIn });
 }
 
-//TODO: sending the email is async. We should wait for it in order to catch errors before 
+// TODO: sending the email is async. We should wait for it in order to catch errors before
 // returning the 200 status code.
 function sendConfirmationEmail(email, emailConfirmationString) {
   const transporter = nodemailer.createTransport({

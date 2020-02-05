@@ -17,13 +17,13 @@ const should = chai.should();
 chai.use(chaiHttp);
 
 describe('Users', () => {
-    beforeEach(async () => {
-      await sql.query('DELETE FROM UserAccounts;');
-      await sql.query('DELETE FROM ProviderAccounts;');
-      await sql.query('DELETE FROM UserProfiles;');
-    });
+  beforeEach(async () => {
+    await sql.query('DELETE FROM UserAccounts;');
+    await sql.query('DELETE FROM ProviderAccounts;');
+    await sql.query('DELETE FROM UserProfiles;');
+  });
 
-describe('/POST users', () => {
+  describe('/POST users', () => {
     it('should not POST a user without a password field', (done) => {
       const user = {
         username: 'Daniel',

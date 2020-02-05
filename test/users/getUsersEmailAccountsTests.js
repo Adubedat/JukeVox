@@ -17,15 +17,15 @@ const should = chai.should();
 chai.use(chaiHttp);
 
 describe('Users', () => {
-    beforeEach(async () => {
-      await sql.query('DELETE FROM UserAccounts;');
-      await sql.query('DELETE FROM ProviderAccounts;');
-      await sql.query('DELETE FROM UserProfiles;');
-    });
+  beforeEach(async () => {
+    await sql.query('DELETE FROM UserAccounts;');
+    await sql.query('DELETE FROM ProviderAccounts;');
+    await sql.query('DELETE FROM UserProfiles;');
+  });
   /*
   * Test the GET/users/:email/accounts route
   */
- describe('GET /users/:email/accounts', () => {
+  describe('GET /users/:email/accounts', () => {
     async function addUserProfile(email) {
       const userProfileQuery = 'INSERT INTO UserProfiles (Username, Email, CreatedAt) VALUES ?';
       const userProfileValues = [['Daniel', email, moment().format(DATETIME_FORMAT)]];
@@ -193,12 +193,12 @@ describe('Users', () => {
 
       const res = await chai.request(server).get('/users/daniel/accounts');
 
-      res.should.have.status(400);
+      res.should.have.status(404);
       res.body.should.be.a('object');
       res.body.should.have.property('status').eql('error');
       res.body.should.have.property('statusCode');
       res.body.should.have.property('message');
-      res.body.message.should.eql('Email invalid');
+      res.body.message.should.eql('No account found for this email');
     });
 
     it('should not GET a user account with a non existant email address', async () => {
