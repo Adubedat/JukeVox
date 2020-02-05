@@ -214,6 +214,24 @@ export async function searchForUser(req, res, next) {
   }
 }
 
+export async function getMe(req, res, next) {
+  const { userId } = req.decoded;
+
+  try {
+    const [user] = await User.getUserProfile(['Id'], [userId]);
+    if (user === undefined) {
+      throw new ErrorResponseHandler(404, 'User not found');
+    }
+    res.send({
+      message: 'User found',
+      statusCode: 200,
+      user,
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
 export async function confirmEmail(req, res, next) {
   const { token } = req.params;
 
