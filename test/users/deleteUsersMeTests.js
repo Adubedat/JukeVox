@@ -22,7 +22,7 @@ describe('Users', () => {
     await sql.query('DELETE FROM UserProfiles;');
   });
 
-  describe('/DELETE /users/me', () => {
+  describe('/DELETE /api/users/me', () => {
     it('should DELETE personnal user account', async () => {
       const body = {
         password: 'aaaaaaaaaa',
