@@ -114,11 +114,11 @@ describe('Events', () => {
         .post('/api/events')
         .send(body);
 
-      res.should.have.status(404);
+      res.should.have.status(401);
       res.body.should.be.a('object');
       res.body.should.have.property('statusCode');
       res.body.should.have.property('message');
-      res.body.message.should.eql('Wrong token provided');
+      res.body.message.should.eql('Authorization token is missing');
       const createdEvents = await sql.query('SELECT * FROM Events');
       createdEvents.should.have.lengthOf(0);
     });
@@ -145,18 +145,16 @@ describe('Events', () => {
         .set({ Authorization: `Bearer ${jwt}` })
         .send(body);
 
-      res.should.have.status(404);
+      res.should.have.status(401);
       res.body.should.be.a('object');
       res.body.should.have.property('statusCode');
       res.body.should.have.property('message');
-      res.body.message.should.eql('Wrong token provided');
+      res.body.message.should.eql('Invalid authorization token');
       const createdEvents = await sql.query('SELECT * FROM Events');
       createdEvents.should.have.lengthOf(0);
     });
 
-    // COMPLETED: should not POST an event with a jwt that matches no user
-    // COMPLETED: should not POST an event without a jwt
-    // COMPLETED: should not POST an event with an invalid jwt
+
     // TODO: should not POST an event with an unknown field
     // TODO: should not POST an event with name too long
     // TODO: should not POST an event with name = null
