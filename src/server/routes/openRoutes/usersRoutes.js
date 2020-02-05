@@ -11,7 +11,7 @@ router.route('/')
 
 router.get('/:email/accounts', getUserAccountsTypes);
 
-router.get('/verify/:token', confirmUserEmail);
+router.get('/confirmEmail/:token', confirmUserEmail);
 
 router.post('/login', loginUser);
 
