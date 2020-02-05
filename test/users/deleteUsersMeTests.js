@@ -116,4 +116,45 @@ describe('Users', () => {
     const userAccounts = await sql.query('SELECT * FROM UserAccounts');
     userAccounts.should.have.lengthOf(1);
   });
+  it('should not DELETE user without jwt', async () => {
+    const body = {
+      password: 'aaaaaaaaaa',
+    };
+    const hash = await argon2.hash(body.password);
+    const user1 = await sql.query('INSERT INTO UserProfiles (Username, Email, CreatedAt) VALUES (\'user1\', \'test@test.test\', \'2020-12-12 12:12:12\')');
+    await sql.query(`INSERT INTO UserAccounts (UserProfileId, Email, Password) VALUES (${user1.insertId}, 'test@test.test', '${hash}')`);
+    const res = await chai.request(server)
+      .delete('/api/users/me')
+      .send(body);
+
+    res.should.have.status(401);
+    res.body.should.be.a('object');
+    res.body.should.have.property('statusCode');
+    res.body.should.have.property('message');
+    res.body.message.should.eql('Authorization token is missing');
+    const userAccounts = await sql.query('SELECT * FROM UserAccounts');
+    userAccounts.should.have.lengthOf(1);
+  });
+  it('should not DELETE user without jwt', async () => {
+    const body = {
+      password: 'aaaaaaaaaa',
+    };
+    const hash = await argon2.hash(body.password);
+    const user1 = await sql.query('INSERT INTO UserProfiles (Username, Email, CreatedAt) VALUES (\'user1\', \'test@test.test\', \'2020-12-12 12:12:12\')');
+    await sql.query(`INSERT INTO UserAccounts (UserProfileId, Email, Password) VALUES (${user1.insertId}, 'test@test.test', '${hash}')`);
+    let jwt = generateJwt(user1.insertId);
+    jwt = jwt.substring(0, jwt.length - 1);
+    const res = await chai.request(server)
+      .delete('/api/users/me')
+      .set({ Authorization: `Bearer ${jwt}` })
+      .send(body);
+
+    res.should.have.status(401);
+    res.body.should.be.a('object');
+    res.body.should.have.property('statusCode');
+    res.body.should.have.property('message');
+    res.body.message.should.eql('Invalid authorization token');
+    const userAccounts = await sql.query('SELECT * FROM UserAccounts');
+    userAccounts.should.have.lengthOf(1);
+  });
 });

@@ -4,8 +4,8 @@
   "description": "42 school Music Room project",
   "main": "server.js",
   "scripts": {
-    "test": "NODE_ENV=test mocha --exit --timeout 10000 --require @babel/register ./test/*/*.js",
-    "coverage": "NODE_ENV=test nyc mocha --exit --timeout 10000 --require @babel/register ./test/*/*.js",
+    "test": "NODE_ENV=test mocha --exit --timeout 10000 --recursive --require @babel/register",
+    "coverage": "NODE_ENV=test nyc mocha --exit --timeout 10000 --recursive --require @babel/register",
     "start": "nodemon --exec babel-node ./server.js"
   },
   "repository": {
