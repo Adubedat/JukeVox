@@ -75,16 +75,6 @@ User.updateUserAccount = function updateUserAccount(userId, userAccount) {
   });
 };
 
-User.deleteAllUserFriendships = function deleteAllUserFriendships(userId) {
-  return new Promise((resolve, reject) => {
-    const query = 'DELETE FROM Friendships WHERE RequesterId = ? OR AddresseeId = ?';
-    const values = [userId, userId];
-    sql.query(query, values)
-      .then((res) => resolve(res))
-      .catch((err) => reject(err));
-  });
-};
-
 User.getUserProfile = function getUserProfile(filters, values) {
   return new Promise((resolve, reject) => {
     let query = 'SELECT * FROM UserProfiles WHERE 1 = 1';
