@@ -520,13 +520,130 @@ describe('Events', () => {
       createdEvents.should.have.lengthOf(0);
     });
 
+    it('should not POST an event with unknown latitude', async () => {
+      const body = {
+        name: 'House warming',
+        description: 'All come over on wednesday for our housewarming!',
+        startDate,
+        endDate,
+        unknown: 'unknown',
+        latitude: 91,
+        longitude: 2.3170656,
+        streamerDevice: 'abcd',
+        isPrivate: true,
+      };
 
-    // COMPLETED: should not POST an event with start date wrong format
-    // COMPLETED: should not POST an event with end date wrong format
-    // TODO: should not POST an event with unknown latitude
-    // TODO: should not POST an event with unknown longitude
-    // TODO: should not POST an event with no latitude field (and type)
-    // TODO: should not POST an event with no longitude field (and type)
+      const user = await addUserProfile();
+      const jwt = generateJwt(user.insertId);
+
+      const res = await chai.request(server)
+        .post('/api/events')
+        .set({ Authorization: `Bearer ${jwt}` })
+        .send(body);
+
+      res.should.have.status(400);
+      res.body.should.be.a('object');
+      res.body.should.have.property('statusCode');
+      res.body.should.have.property('message');
+      res.body.message.should.eql('Unknown latitude');
+      const createdEvents = await sql.query('SELECT * FROM Events');
+      createdEvents.should.have.lengthOf(0);
+    });
+
+    it('should not POST an event with unknown longitude', async () => {
+      const body = {
+        name: 'House warming',
+        description: 'All come over on wednesday for our housewarming!',
+        startDate,
+        endDate,
+        unknown: 'unknown',
+        latitude: 48.8915482,
+        longitude: -181,
+        streamerDevice: 'abcd',
+        isPrivate: true,
+      };
+
+      const user = await addUserProfile();
+      const jwt = generateJwt(user.insertId);
+
+      const res = await chai.request(server)
+        .post('/api/events')
+        .set({ Authorization: `Bearer ${jwt}` })
+        .send(body);
+
+      res.should.have.status(400);
+      res.body.should.be.a('object');
+      res.body.should.have.property('statusCode');
+      res.body.should.have.property('message');
+      res.body.message.should.eql('Unknown longitude');
+      const createdEvents = await sql.query('SELECT * FROM Events');
+      createdEvents.should.have.lengthOf(0);
+    });
+
+    it('should not POST an event with a latitude of wrong type', async () => {
+      const body = {
+        name: 'House warming',
+        description: 'All come over on wednesday for our housewarming!',
+        startDate,
+        endDate,
+        unknown: 'unknown',
+        latitude: '48.8915482',
+        longitude: 2.3170656,
+        streamerDevice: 'abcd',
+        isPrivate: true,
+      };
+
+      const user = await addUserProfile();
+      const jwt = generateJwt(user.insertId);
+
+      const res = await chai.request(server)
+        .post('/api/events')
+        .set({ Authorization: `Bearer ${jwt}` })
+        .send(body);
+
+      res.should.have.status(400);
+      res.body.should.be.a('object');
+      res.body.should.have.property('statusCode');
+      res.body.should.have.property('message');
+      res.body.message.should.eql('Field latitude expected float received string');
+      const createdEvents = await sql.query('SELECT * FROM Events');
+      createdEvents.should.have.lengthOf(0);
+    });
+
+    it('should not POST an event with a longitude of wrong type', async () => {
+      const body = {
+        name: 'House warming',
+        description: 'All come over on wednesday for our housewarming!',
+        startDate,
+        endDate,
+        unknown: 'unknown',
+        latitude: 48.8915482,
+        longitude: '2.3170656',
+        streamerDevice: 'abcd',
+        isPrivate: true,
+      };
+
+      const user = await addUserProfile();
+      const jwt = generateJwt(user.insertId);
+
+      const res = await chai.request(server)
+        .post('/api/events')
+        .set({ Authorization: `Bearer ${jwt}` })
+        .send(body);
+
+      res.should.have.status(400);
+      res.body.should.be.a('object');
+      res.body.should.have.property('statusCode');
+      res.body.should.have.property('message');
+      res.body.message.should.eql('Field longitude expected float received string');
+      const createdEvents = await sql.query('SELECT * FROM Events');
+      createdEvents.should.have.lengthOf(0);
+    });
+
+    // COMPLETED: should not POST an event with unknown latitude
+    // COMPLETED: should not POST an event with unknown longitude
+    // COMPLETED: should not POST an event with no latitude field (and type)
+    // COMPLETED: should not POST an event with no longitude field (and type)
     // TODO: should not POST an event with no streamerDevice field
     // TODO: should not POST an event with no private property ifeld
 
