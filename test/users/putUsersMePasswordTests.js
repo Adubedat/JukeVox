@@ -48,7 +48,7 @@ describe('Users', () => {
       res.body.should.have.property('statusCode');
       res.body.should.have.property('message');
 
-      const [updatedUserAccount] = await sql.query('SELECT * FROM userAccount');
+      const [updatedUserAccount] = await sql.query('SELECT * FROM UserAccounts');
       const checkOldPwAfter = await argon2.verify(updatedUserAccount.Password, body.oldPassword);
       const checkNewPwAfter = await argon2.verify(updatedUserAccount.Password, body.newPassword);
       checkOldPwAfter.should.eql(false);
@@ -78,7 +78,7 @@ describe('Users', () => {
       res.body.should.have.property('message');
       res.body.message.should.eql('Authorization token is missing');
 
-      const [updatedUserAccount] = await sql.query('SELECT * FROM userAccount');
+      const [updatedUserAccount] = await sql.query('SELECT * FROM UserAccounts');
       const checkOldPwAfter = await argon2.verify(updatedUserAccount.Password, body.oldPassword);
       const checkNewPwAfter = await argon2.verify(updatedUserAccount.Password, body.newPassword);
       checkOldPwAfter.should.eql(true);
@@ -110,7 +110,7 @@ describe('Users', () => {
       res.body.should.have.property('message');
       res.body.message.should.eql('Missing field in body: oldPassword');
 
-      const [updatedUserAccount] = await sql.query('SELECT * FROM userAccount');
+      const [updatedUserAccount] = await sql.query('SELECT * FROM UserAccounts');
       const checkOldPwAfter = await argon2.verify(updatedUserAccount.Password, oldPassword);
       const checkNewPwAfter = await argon2.verify(updatedUserAccount.Password, body.newPassword);
       checkOldPwAfter.should.eql(true);
@@ -142,7 +142,7 @@ describe('Users', () => {
       res.body.should.have.property('message');
       res.body.message.should.eql('Missing field in body: newPassword');
 
-      const [updatedUserAccount] = await sql.query('SELECT * FROM userAccount');
+      const [updatedUserAccount] = await sql.query('SELECT * FROM UserAccounts');
       const checkOldPwAfter = await argon2.verify(updatedUserAccount.Password, body.oldPassword);
       const checkNewPwAfter = await argon2.verify(updatedUserAccount.Password, newPassword);
       checkOldPwAfter.should.eql(true);
@@ -175,7 +175,7 @@ describe('Users', () => {
       res.body.should.have.property('message');
       res.body.message.should.eql('Invalid oldPassword');
 
-      const [updatedUserAccount] = await sql.query('SELECT * FROM userAccount');
+      const [updatedUserAccount] = await sql.query('SELECT * FROM UserAccounts');
       const checkOldPwAfter = await argon2.verify(updatedUserAccount.Password, oldPassword);
       const checkNewPwAfter = await argon2.verify(updatedUserAccount.Password, body.newPassword);
       checkOldPwAfter.should.eql(true);
@@ -207,7 +207,39 @@ describe('Users', () => {
       res.body.should.have.property('message');
       res.body.message.should.eql('Your password must have at least 10 characters');
 
-      const [updatedUserAccount] = await sql.query('SELECT * FROM userAccount');
+      const [updatedUserAccount] = await sql.query('SELECT * FROM UserAccounts');
+      const checkOldPwAfter = await argon2.verify(updatedUserAccount.Password, body.oldPassword);
+      const checkNewPwAfter = await argon2.verify(updatedUserAccount.Password, body.newPassword);
+      checkOldPwAfter.should.eql(true);
+      checkNewPwAfter.should.eql(false);
+    });
+    it('should not update user password with an unknown field', async () => {
+      const body = {
+        oldPassword: 'aaaaaaaaaa',
+        newPassword: 'bbbbbbbbbb',
+        unknown: 'unknown',
+      };
+      const hash = await argon2.hash(body.oldPassword);
+      const user1 = await sql.query('INSERT INTO UserProfiles (Username, Email, CreatedAt) VALUES (\'user1\', \'test@test.test\', \'2020-12-12 12:12:12\')');
+      await sql.query(`INSERT INTO UserAccounts (UserProfileId, Email, Password) VALUES (${user1.insertId}, 'test@test.test', '${hash}')`);
+      const jwt = generateJwt(user1.insertId);
+
+      const checkOldPwBefore = await argon2.verify(hash, body.oldPassword);
+      const checkNewPwBefore = await argon2.verify(hash, body.newPassword);
+      checkOldPwBefore.should.eql(true);
+      checkNewPwBefore.should.eql(false);
+
+      const res = await chai.request(server)
+        .put('/api/users/me/password')
+        .set({ Authorization: `Bearer ${jwt}` })
+        .send(body);
+
+      res.should.have.status(400);
+      res.body.should.be.a('object');
+      res.body.should.have.property('statusCode');
+      res.body.should.have.property('message');
+
+      const [updatedUserAccount] = await sql.query('SELECT * FROM UserAccounts');
       const checkOldPwAfter = await argon2.verify(updatedUserAccount.Password, body.oldPassword);
       const checkNewPwAfter = await argon2.verify(updatedUserAccount.Password, body.newPassword);
       checkOldPwAfter.should.eql(true);

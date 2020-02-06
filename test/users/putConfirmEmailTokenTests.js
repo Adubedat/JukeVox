@@ -38,6 +38,7 @@ describe('Users', () => {
       const [userAccount2] = await sql.query('SELECT * FROM UserAccounts');
       userAccount2.EmailConfirmed.should.eql(1);
       expect(userAccount2.EmailConfirmationString).to.equal(null);
+      expect(userAccount2.AccountExpiration).to.equal(null);
     });
     it('should not activate account with invalid token', async () => {
       const user1 = await sql.query('INSERT INTO UserProfiles (Username, Email, CreatedAt) VALUES (\'user1\', \'test@test,test\', \'2020-12-12 12:12:12\')');
