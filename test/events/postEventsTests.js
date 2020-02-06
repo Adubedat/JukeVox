@@ -699,8 +699,5 @@ describe('Events', () => {
       const createdEvents = await sql.query('SELECT * FROM Events');
       createdEvents.should.have.lengthOf(0);
     });
-
-    // COMPLETED: should not POST an event with no wrong streamerDevice field type
-    // COMPLETED: should not POST an event with no wrong private field type
   });
 });
