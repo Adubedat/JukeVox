@@ -402,7 +402,7 @@ describe('Events', () => {
       createdEvents.should.have.lengthOf(0);
     });
 
-    it('should not POST an event with no start date field', async () => {
+    it('should not POST an event with start date wrong type', async () => {
       const body = {
         name: 'House warming',
         description: 'All come over on wednesday for our housewarming!',
@@ -426,12 +426,12 @@ describe('Events', () => {
       res.body.should.be.a('object');
       res.body.should.have.property('statusCode');
       res.body.should.have.property('message');
-      res.body.message.should.eql('Missing field: start date');
+      res.body.message.should.eql('Field startDate expected string received undefined');
       const createdEvents = await sql.query('SELECT * FROM Events');
       createdEvents.should.have.lengthOf(0);
     });
 
-    it('should not POST an event with no end date field', async () => {
+    it('should not POST an event with end date wrong type', async () => {
       const body = {
         name: 'House warming',
         description: 'All come over on wednesday for our housewarming!',
@@ -455,16 +455,17 @@ describe('Events', () => {
       res.body.should.be.a('object');
       res.body.should.have.property('statusCode');
       res.body.should.have.property('message');
-      res.body.message.should.eql('Missing field: end date');
+      res.body.message.should.eql('Field endDate expected string received undefined');
       const createdEvents = await sql.query('SELECT * FROM Events');
       createdEvents.should.have.lengthOf(0);
     });
 
-    it('should not POST an event with no end date field', async () => {
+    it('should not POST an event with start date wrong format', async () => {
       const body = {
         name: 'House warming',
         description: 'All come over on wednesday for our housewarming!',
-        startDate,
+        startDate: moment().add(3, 'd').format('DD-MM-YYY HH:mm:ss'),
+        endDate,
         unknown: 'unknown',
         latitude: 48.8915482,
         longitude: 2.3170656,
@@ -484,19 +485,44 @@ describe('Events', () => {
       res.body.should.be.a('object');
       res.body.should.have.property('statusCode');
       res.body.should.have.property('message');
-      res.body.message.should.eql('Missing field: end date');
+      res.body.message.should.eql('Start date incorrectly formatted');
       const createdEvents = await sql.query('SELECT * FROM Events');
       createdEvents.should.have.lengthOf(0);
     });
 
-    // COMPLETED: should not POST an event with a start date > 1hour before now
-    // COMPLETED: should POST an event with a start date < 1 hour before now
-    // COMPLETED: should not POST an event with end date < startDate + 1hour
-    // COMPLETED: should not POST an event with end date > startDate + 1 week
-    // COMPLETED: should not POST an event with no start date field (and type)
-    // TODO: should not POST an event with start date wrong format
-    // COMPLETED: should not POST an event with no end date field (and type)
-    // TODO: should not POST an event with end date wrong format
+    it('should not POST an event with start date wrong format', async () => {
+      const body = {
+        name: 'House warming',
+        description: 'All come over on wednesday for our housewarming!',
+        startDate,
+        endDate: moment().add(5, 'd').format('DD-MM-YYY HH:mm:ss'),
+        unknown: 'unknown',
+        latitude: 48.8915482,
+        longitude: 2.3170656,
+        streamerDevice: 'abcd',
+        isPrivate: true,
+      };
+
+      const user = await addUserProfile();
+      const jwt = generateJwt(user.insertId);
+
+      const res = await chai.request(server)
+        .post('/api/events')
+        .set({ Authorization: `Bearer ${jwt}` })
+        .send(body);
+
+      res.should.have.status(400);
+      res.body.should.be.a('object');
+      res.body.should.have.property('statusCode');
+      res.body.should.have.property('message');
+      res.body.message.should.eql('End date incorrectly formatted');
+      const createdEvents = await sql.query('SELECT * FROM Events');
+      createdEvents.should.have.lengthOf(0);
+    });
+
+
+    // COMPLETED: should not POST an event with start date wrong format
+    // COMPLETED: should not POST an event with end date wrong format
     // TODO: should not POST an event with unknown latitude
     // TODO: should not POST an event with unknown longitude
     // TODO: should not POST an event with no latitude field (and type)
