@@ -5,7 +5,7 @@ import moment from 'moment';
 import DATETIME_FORMAT from '../../src/server/constants';
 import Database from '../../src/helpers/database';
 
-import { generateJwt } from '../../src/server/controller/userController';
+import { generateJwt } from '../../src/helpers/utils';
 
 const sql = new Database();
 const chai = require('chai');
