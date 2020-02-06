@@ -66,6 +66,16 @@ User.updateUserProfile = function updateUserProfile(userId, username, email, pro
   });
 };
 
+User.updateUserAccount = function updateUserAccount(userId, userAccount) {
+  return new Promise((resolve, reject) => {
+    const query = 'UPDATE UserAccounts SET Password = ?, EmailConfirmationString = ? WHERE UserProfileId = ?';
+    const values = [userAccount.Password, userAccount.EmailConfirmationString, userId];
+    sql.query(query, values)
+      .then((res) => resolve(res))
+      .catch((err) => reject(err));
+  });
+};
+
 User.deleteAllUserFriendships = function deleteAllUserFriendships(userId) {
   return new Promise((resolve, reject) => {
     const query = 'DELETE FROM Friendships WHERE RequesterId = ? OR AddresseeId = ?';
@@ -115,7 +125,7 @@ User.getProviderAccountsById = function getProviderAccountsById(userId) {
 
 User.confirmUserEmail = function confirmUserEmail(token) {
   return new Promise((resolve, reject) => {
-    const query = 'UPDATE UserAccounts SET EmailConfirmed = true, EmailConfirmationString = NULL WHERE EmailConfirmationString = ?';
+    const query = 'UPDATE UserAccounts SET EmailConfirmed = true, EmailConfirmationString = NULL, AccountExpiration = NULL WHERE EmailConfirmationString = ?';
     sql.query(query, token)
       .then((res) => resolve(res))
       .catch((err) => reject(err));

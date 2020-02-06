@@ -140,9 +140,7 @@ export async function deleteUser(req, res, next) {
   const { password } = req.body;
 
   try {
-    if (!password) {
-      throw new ErrorResponseHandler(400, 'Missing field in body : password');
-    }
+    if (!password) throw new ErrorResponseHandler(400, 'Missing field in body : password');
     const userAccount = await User.getUserAccount(['UserProfileId'], [userId]);
     if (userAccount.length === 0) {
       throw new ErrorResponseHandler(404, 'No account found: Wrong token provided');
@@ -232,6 +230,31 @@ export async function getMe(req, res, next) {
   }
 }
 
+export async function updatePassword(req, res, next) {
+  const { userId } = req.decoded;
+  const { oldPassword, newPassword } = req.body;
+
+  try {
+    checkUnknownFields(['oldPassword', 'newPassword'], req.body);
+    if (!oldPassword) throw new ErrorResponseHandler(400, 'Missing field in body: oldPassword');
+    if (!newPassword) throw new ErrorResponseHandler(400, 'Missing field in body: newPassword');
+    validatePassword(newPassword);
+    const [userAccount] = await User.getUserAccount(['UserProfileId'], [userId]);
+    if (userAccount === undefined) throw new ErrorResponseHandler(404, 'User Account not found');
+    if (!(await argon2.verify(userAccount.Password, oldPassword))) {
+      throw new ErrorResponseHandler(400, 'Invalid oldPassword');
+    }
+    const newHash = await argon2.hash(newPassword);
+    userAccount.Password = newHash;
+    await User.updateUserAccount(userId, userAccount);
+    res.send({
+      message: 'Password successfully updated',
+      statusCode: 200,
+    });
+  } catch (err) {
+    next(err);
+  }
+}
 export async function confirmEmail(req, res, next) {
   const { token } = req.params;
 
