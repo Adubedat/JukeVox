@@ -1,11 +1,11 @@
 import validator from 'validator';
 import User from '../../models/userModel';
 import { ErrorResponseHandler } from '../../../helpers/error';
-import { checkUnknownFields } from '../userController';
+import { checkUnknownFields } from '../../../helpers/validation';
 
 async function validateBody(userId, username, profilePicture) {
   if (typeof username !== 'string') {
-    throw new ErrorResponseHandler(400, `TypeError username field: expected string but received ${typeof username}`);
+    throw new ErrorResponseHandler(400, `TypeError username: expected string but received ${typeof username}`);
   }
   if (!validator.isAlphanumeric(username)) {
     throw new ErrorResponseHandler(400, 'Username must only contain numbers or letters');
@@ -15,7 +15,7 @@ async function validateBody(userId, username, profilePicture) {
     throw new ErrorResponseHandler(409, 'Username already used');
   }
   if (typeof profilePicture !== 'string') {
-    throw new ErrorResponseHandler(400, `TypeError profilPicture field: expected string but received ${typeof profilePicture}`);
+    throw new ErrorResponseHandler(400, `TypeError profilPicture: expected string but received ${typeof profilePicture}`);
   }
 }
 

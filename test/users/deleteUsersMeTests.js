@@ -3,7 +3,7 @@ import 'core-js/stable';
 import 'regenerator-runtime/runtime';
 import argon2 from 'argon2';
 import Database from '../../src/helpers/database';
-import { generateJwt } from '../../src/server/controller/userController';
+import { generateJwt } from '../../src/helpers/utils';
 
 const sql = new Database();
 const chai = require('chai');
@@ -69,7 +69,7 @@ describe('Users', () => {
       res.body.should.be.a('object');
       res.body.should.have.property('statusCode');
       res.body.should.have.property('message');
-      res.body.message.should.eql('Missing field in body : password');
+      res.body.message.should.eql('TypeError password: expected string but received undefined');
       const userAccounts = await sql.query('SELECT * FROM UserAccounts');
       userAccounts.should.have.lengthOf(1);
     });

@@ -1,7 +1,7 @@
 /* eslint-env node, mocha */
 import 'core-js/stable';
 import 'regenerator-runtime/runtime';
-import { generateJwt } from '../../src/server/controller/userController';
+import { generateJwt } from '../../src/helpers/utils';
 
 import Database from '../../src/helpers/database';
 
@@ -104,7 +104,7 @@ describe('Users', () => {
       res.body.should.be.a('object');
       res.body.should.have.property('statusCode');
       res.body.should.have.property('message');
-      res.body.message.should.eql('TypeError username field: expected string but received undefined');
+      res.body.message.should.eql('TypeError username: expected string but received undefined');
 
       const [updatedUser] = await sql.query('SELECT * FROM UserProfiles');
       updatedUser.Username.should.eql('user1');
@@ -126,7 +126,7 @@ describe('Users', () => {
       res.body.should.be.a('object');
       res.body.should.have.property('statusCode');
       res.body.should.have.property('message');
-      res.body.message.should.eql('TypeError profilPicture field: expected string but received undefined');
+      res.body.message.should.eql('TypeError profilPicture: expected string but received undefined');
 
       const [updatedUser] = await sql.query('SELECT * FROM UserProfiles');
       updatedUser.Username.should.eql('user1');

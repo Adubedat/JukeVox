@@ -1,7 +1,7 @@
 /* eslint-env node, mocha */
 import 'core-js/stable';
 import 'regenerator-runtime/runtime';
-import { generateJwt } from '../../src/server/controller/userController';
+import { generateJwt } from '../../src/helpers/utils';
 
 import Database from '../../src/helpers/database';
 

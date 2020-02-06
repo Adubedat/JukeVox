@@ -1,6 +1,7 @@
 import express from 'express';
 import userRoute from './usersRoutes';
-import { confirmEmail, login } from '../../controller/userController';
+import confirmEmail from '../../controller/users/confirmEmail';
+import login from '../../controller/users/login';
 
 const router = express.Router();
 

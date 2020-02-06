@@ -2,7 +2,7 @@
 import 'core-js/stable';
 import 'regenerator-runtime/runtime';
 import argon2 from 'argon2';
-import { generateJwt } from '../../src/server/controller/userController';
+import { generateJwt } from '../../src/helpers/utils';
 
 import Database from '../../src/helpers/database';
 
@@ -108,7 +108,7 @@ describe('Users', () => {
       res.body.should.be.a('object');
       res.body.should.have.property('statusCode');
       res.body.should.have.property('message');
-      res.body.message.should.eql('Missing field in body: oldPassword');
+      res.body.message.should.eql('TypeError oldPassword: expected string but received undefined');
 
       const [updatedUserAccount] = await sql.query('SELECT * FROM UserAccounts');
       const checkOldPwAfter = await argon2.verify(updatedUserAccount.Password, oldPassword);
@@ -140,7 +140,7 @@ describe('Users', () => {
       res.body.should.be.a('object');
       res.body.should.have.property('statusCode');
       res.body.should.have.property('message');
-      res.body.message.should.eql('Missing field in body: newPassword');
+      res.body.message.should.eql('TypeError newPassword: expected string but received undefined');
 
       const [updatedUserAccount] = await sql.query('SELECT * FROM UserAccounts');
       const checkOldPwAfter = await argon2.verify(updatedUserAccount.Password, body.oldPassword);
