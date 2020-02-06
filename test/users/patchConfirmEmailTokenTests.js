@@ -1,7 +1,6 @@
 /* eslint-env node, mocha */
 import 'core-js/stable';
 import 'regenerator-runtime/runtime';
-import argon2 from 'argon2';
 
 import Database from '../../src/helpers/database';
 
@@ -22,7 +21,7 @@ describe('Users', () => {
     await sql.query('DELETE FROM UserProfiles;');
   });
 
-  describe('/PUT confirmEmail/:token', () => {
+  describe('PATCH confirmEmail/:token', () => {
     it('should activate account with valid token', async () => {
       const user1 = await sql.query('INSERT INTO UserProfiles (Username, Email, CreatedAt) VALUES (\'user1\', \'test@test,test\', \'2020-12-12 12:12:12\')');
       await sql.query(`INSERT INTO UserAccounts (UserProfileId, Email, EmailConfirmationString) VALUES (${user1.insertId}, 'test@test.test', 'confirmationString')`);
@@ -30,7 +29,7 @@ describe('Users', () => {
       userAccount.EmailConfirmed.should.eql(0);
       userAccount.EmailConfirmationString.should.eql('confirmationString');
       const res = await chai.request(server)
-        .put('/confirmEmail/confirmationString');
+        .patch('/confirmEmail/confirmationString');
       res.should.have.status(200);
       res.body.should.be.a('object');
       res.body.should.have.property('statusCode');
@@ -47,7 +46,7 @@ describe('Users', () => {
       userAccount.EmailConfirmed.should.eql(0);
       userAccount.EmailConfirmationString.should.eql('confirmationString');
       const res = await chai.request(server)
-        .put('/confirmEmail/invalidConfirmationString');
+        .patch('/confirmEmail/invalidConfirmationString');
       res.should.have.status(404);
       res.body.should.be.a('object');
       res.body.should.have.property('statusCode');

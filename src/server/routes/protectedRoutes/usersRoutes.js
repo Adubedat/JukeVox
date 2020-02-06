@@ -9,6 +9,6 @@ router.route('/me')
   .delete(deleteUser)
   .patch(updateUserProfile);
 
-router.put('/me/password', updatePassword);
+router.patch('/me/password', updatePassword);
 
 export default router;

@@ -11,7 +11,7 @@ router.use((req, res, next) => {
 
 router.use('/users', userRoute);
 
-router.put('/confirmEmail/:token', confirmEmail);
+router.patch('/confirmEmail/:token', confirmEmail);
 
 router.post('/login', login);
 
