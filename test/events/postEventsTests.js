@@ -640,14 +640,67 @@ describe('Events', () => {
       createdEvents.should.have.lengthOf(0);
     });
 
-    // COMPLETED: should not POST an event with unknown latitude
-    // COMPLETED: should not POST an event with unknown longitude
-    // COMPLETED: should not POST an event with no latitude field (and type)
-    // COMPLETED: should not POST an event with no longitude field (and type)
-    // TODO: should not POST an event with no streamerDevice field
-    // TODO: should not POST an event with no private property ifeld
+    it('should not POST an event with wrong streamerDevice field type', async () => {
+      const body = {
+        name: 'House warming',
+        description: 'All come over on wednesday for our housewarming!',
+        startDate,
+        endDate,
+        unknown: 'unknown',
+        latitude: 48.8915482,
+        longitude: 2.3170656,
+        streamerDevice: true,
+        isPrivate: true,
+      };
 
+      const user = await addUserProfile();
+      const jwt = generateJwt(user.insertId);
 
-    // TODO: Discuss with others if there should be a min / max lenght for an event
+      const res = await chai.request(server)
+        .post('/api/events')
+        .set({ Authorization: `Bearer ${jwt}` })
+        .send(body);
+
+      res.should.have.status(400);
+      res.body.should.be.a('object');
+      res.body.should.have.property('statusCode');
+      res.body.should.have.property('message');
+      res.body.message.should.eql('Field streamerDevice expected string received bool');
+      const createdEvents = await sql.query('SELECT * FROM Events');
+      createdEvents.should.have.lengthOf(0);
+    });
+
+    it('should not POST an event with no wrong private field type', async () => {
+      const body = {
+        name: 'House warming',
+        description: 'All come over on wednesday for our housewarming!',
+        startDate,
+        endDate,
+        unknown: 'unknown',
+        latitude: 48.8915482,
+        longitude: 2.3170656,
+        streamerDevice: 'abc',
+        isPrivate: 1,
+      };
+
+      const user = await addUserProfile();
+      const jwt = generateJwt(user.insertId);
+
+      const res = await chai.request(server)
+        .post('/api/events')
+        .set({ Authorization: `Bearer ${jwt}` })
+        .send(body);
+
+      res.should.have.status(400);
+      res.body.should.be.a('object');
+      res.body.should.have.property('statusCode');
+      res.body.should.have.property('message');
+      res.body.message.should.eql('Field isPrivate expected bool received int');
+      const createdEvents = await sql.query('SELECT * FROM Events');
+      createdEvents.should.have.lengthOf(0);
+    });
+
+    // COMPLETED: should not POST an event with no wrong streamerDevice field type
+    // COMPLETED: should not POST an event with no wrong private field type
   });
 });
