@@ -21,7 +21,7 @@ describe('Users', () => {
     await sql.query('DELETE FROM UserProfiles;');
   });
 
-  describe('PUT /api/users/me', () => {
+  describe('PATCH /api/users/me', () => {
     it('should update userProfile with different username and profilePicture', async () => {
       const body = {
         username: 'newUserName',
@@ -31,7 +31,7 @@ describe('Users', () => {
       const jwt = generateJwt(user1.insertId);
 
       const res = await chai.request(server)
-        .put('/api/users/me')
+        .patch('/api/users/me')
         .set({ Authorization: `Bearer ${jwt}` })
         .send(body);
 
@@ -42,7 +42,7 @@ describe('Users', () => {
 
       const [updatedUser] = await sql.query('SELECT * FROM UserProfiles');
       updatedUser.Username.should.eql(body.username);
-      updatedUser.profilePicture.should.eql(body.profilePicture);
+      updatedUser.ProfilePicture.should.eql(body.profilePicture);
     });
     it('should update userProfile with same username and different profilePicture', async () => {
       const body = {
@@ -53,7 +53,7 @@ describe('Users', () => {
       const jwt = generateJwt(user1.insertId);
 
       const res = await chai.request(server)
-        .put('/api/users/me')
+        .patch('/api/users/me')
         .set({ Authorization: `Bearer ${jwt}` })
         .send(body);
 
@@ -64,7 +64,7 @@ describe('Users', () => {
 
       const [updatedUser] = await sql.query('SELECT * FROM UserProfiles');
       updatedUser.Username.should.eql(body.username);
-      updatedUser.profilePicture.should.eql(body.profilePicture);
+      updatedUser.ProfilePicture.should.eql(body.profilePicture);
     });
     it('should update userProfile with different username and same profilePicture', async () => {
       const body = {
@@ -75,7 +75,7 @@ describe('Users', () => {
       const jwt = generateJwt(user1.insertId);
 
       const res = await chai.request(server)
-        .put('/api/users/me')
+        .patch('/api/users/me')
         .set({ Authorization: `Bearer ${jwt}` })
         .send(body);
 
@@ -86,7 +86,7 @@ describe('Users', () => {
 
       const [updatedUser] = await sql.query('SELECT * FROM UserProfiles');
       updatedUser.Username.should.eql(body.username);
-      updatedUser.profilePicture.should.eql(body.profilePicture);
+      updatedUser.ProfilePicture.should.eql(body.profilePicture);
     });
     it('should not update userProfile without username field', async () => {
       const body = {
@@ -96,7 +96,7 @@ describe('Users', () => {
       const jwt = generateJwt(user1.insertId);
 
       const res = await chai.request(server)
-        .put('/api/users/me')
+        .patch('/api/users/me')
         .set({ Authorization: `Bearer ${jwt}` })
         .send(body);
 
@@ -104,11 +104,11 @@ describe('Users', () => {
       res.body.should.be.a('object');
       res.body.should.have.property('statusCode');
       res.body.should.have.property('message');
-      res.body.message.should.eql('Missing field in body: username');
+      res.body.message.should.eql('TypeError username field: expected string but received undefined');
 
       const [updatedUser] = await sql.query('SELECT * FROM UserProfiles');
       updatedUser.Username.should.eql('user1');
-      updatedUser.profilePicture.should.eql('profilePicture');
+      updatedUser.ProfilePicture.should.eql('profilePicture');
     });
     it('should not update userProfile without profilePicture field', async () => {
       const body = {
@@ -118,7 +118,7 @@ describe('Users', () => {
       const jwt = generateJwt(user1.insertId);
 
       const res = await chai.request(server)
-        .put('/api/users/me')
+        .patch('/api/users/me')
         .set({ Authorization: `Bearer ${jwt}` })
         .send(body);
 
@@ -126,11 +126,11 @@ describe('Users', () => {
       res.body.should.be.a('object');
       res.body.should.have.property('statusCode');
       res.body.should.have.property('message');
-      res.body.message.should.eql('Missing field in body: profilePicture');
+      res.body.message.should.eql('TypeError profilPicture field: expected string but received undefined');
 
       const [updatedUser] = await sql.query('SELECT * FROM UserProfiles');
       updatedUser.Username.should.eql('user1');
-      updatedUser.profilePicture.should.eql('profilePicture');
+      updatedUser.ProfilePicture.should.eql('profilePicture');
     });
     it('should not update userProfile with unknown field', async () => {
       const body = {
@@ -142,7 +142,7 @@ describe('Users', () => {
       const jwt = generateJwt(user1.insertId);
 
       const res = await chai.request(server)
-        .put('/api/users/me')
+        .patch('/api/users/me')
         .set({ Authorization: `Bearer ${jwt}` })
         .send(body);
 
@@ -154,31 +154,7 @@ describe('Users', () => {
 
       const [updatedUser] = await sql.query('SELECT * FROM UserProfiles');
       updatedUser.Username.should.eql('user1');
-      updatedUser.profilePicture.should.eql('profilePicture');
-    });
-    it('should not update userProfile with unknown field', async () => {
-      const body = {
-        username: 'newUsername',
-        profilePicture: 'newProfilePicture',
-        unknown: 'unknown',
-      };
-      const user1 = await sql.query('INSERT INTO UserProfiles (Username, Email, ProfilePicture, CreatedAt) VALUES (\'user1\', \'test@test,test\', \'profilePicture\', \'2020-12-12 12:12:12\')');
-      const jwt = generateJwt(user1.insertId);
-
-      const res = await chai.request(server)
-        .put('/api/users/me')
-        .set({ Authorization: `Bearer ${jwt}` })
-        .send(body);
-
-      res.should.have.status(400);
-      res.body.should.be.a('object');
-      res.body.should.have.property('statusCode');
-      res.body.should.have.property('message');
-      res.body.message.should.eql('Unknown field: unknown');
-
-      const [updatedUser] = await sql.query('SELECT * FROM UserProfiles');
-      updatedUser.Username.should.eql('user1');
-      updatedUser.profilePicture.should.eql('profilePicture');
+      updatedUser.ProfilePicture.should.eql('profilePicture');
     });
     it('should not update userProfile if username is already used', async () => {
       const body = {
@@ -191,7 +167,7 @@ describe('Users', () => {
       const jwt = generateJwt(user1.insertId);
 
       const res = await chai.request(server)
-        .put('/api/users/me')
+        .patch('/api/users/me')
         .set({ Authorization: `Bearer ${jwt}` })
         .send(body);
 
@@ -199,12 +175,12 @@ describe('Users', () => {
       res.body.should.be.a('object');
       res.body.should.have.property('statusCode');
       res.body.should.have.property('message');
-      res.body.message.should.eql('There already is an account with this username');
+      res.body.message.should.eql('Username already used');
 
       const userProfiles = await sql.query('SELECT * FROM UserProfiles');
       const updatedUser = userProfiles[0];
       updatedUser.Username.should.eql('user1');
-      updatedUser.profilePicture.should.eql('profilePicture');
+      updatedUser.ProfilePicture.should.eql('profilePicture');
     });
     it('should not update userProfile if username is not alphanumeric', async () => {
       const body = {
@@ -216,7 +192,7 @@ describe('Users', () => {
       const jwt = generateJwt(user1.insertId);
 
       const res = await chai.request(server)
-        .put('/api/users/me')
+        .patch('/api/users/me')
         .set({ Authorization: `Bearer ${jwt}` })
         .send(body);
 
@@ -228,7 +204,28 @@ describe('Users', () => {
 
       const [updatedUser] = await sql.query('SELECT * FROM UserProfiles');
       updatedUser.Username.should.eql('user1');
-      updatedUser.profilePicture.should.eql('profilePicture');
+      updatedUser.ProfilePicture.should.eql('profilePicture');
+    });
+    it('should not update userProfile without jwt', async () => {
+      const body = {
+        username: 'newUsername',
+        profilePicture: 'newProfilePicture',
+      };
+      await sql.query('INSERT INTO UserProfiles (Username, Email, ProfilePicture, CreatedAt) VALUES (\'user1\', \'test@test,test\', \'profilePicture\', \'2020-12-12 12:12:12\')');
+
+      const res = await chai.request(server)
+        .patch('/api/users/me')
+        .send(body);
+
+      res.should.have.status(401);
+      res.body.should.be.a('object');
+      res.body.should.have.property('statusCode');
+      res.body.should.have.property('message');
+      res.body.message.should.eql('Authorization token is missing');
+
+      const [updatedUser] = await sql.query('SELECT * FROM UserProfiles');
+      updatedUser.Username.should.eql('user1');
+      updatedUser.ProfilePicture.should.eql('profilePicture');
     });
   });
 });
