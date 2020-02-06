@@ -58,7 +58,7 @@ function validatePassword(password) {
   }
 }
 
-function checkUnknownFields(allowedFields, fields) {
+export function checkUnknownFields(allowedFields, fields) {
   Object.keys(fields).forEach((field) => {
     if (!(allowedFields.includes(field))) {
       throw new ErrorResponseHandler(400, `Unknown field: ${field}`);

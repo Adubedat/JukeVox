@@ -24,7 +24,6 @@ User.createUserAccount = function createUserAccount(userProfileId, email, passwo
   return new Promise((resolve, reject) => {
     const expirationDate = moment().add(3, 'd').format(DATETIME_FORMAT);
 
-    // TODO: update dbdiagram (emailconfirmationString)
     const query = 'INSERT INTO UserAccounts (UserProfileId, Email, Password, EmailConfirmationString, AccountExpiration) \
     VALUES ?';
     const values = [[userProfileId, email, password, token, expirationDate]];
