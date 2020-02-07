@@ -195,67 +195,67 @@ describe('Events', () => {
       createdEvents.should.have.lengthOf(0);
     });
 
-    // it('should not POST an event with name too long', async () => {
-    //   const body = {
-    //     name: 'a'.repeat(101),
-    //     description: 'All come over on wednesday for our housewarming!',
-    //     startDate,
-    //     endDate,
-    //     unknown: 'unknown',
-    //     latitude: 48.8915482,
-    //     longitude: 2.3170656,
-    //     streamerDevice: 'abcd',
-    //     isPrivate: true,
-    //     eventPicture: 'defaultPicture1',
-    //   };
+    it('should not POST an event with name too long', async () => {
+      const body = {
+        name: 'a'.repeat(101),
+        description: 'All come over on wednesday for our housewarming!',
+        startDate,
+        endDate,
 
-    //   const user = await addUserProfile();
-    //   const jwt = generateJwt(user.insertId);
+        latitude: 48.8915482,
+        longitude: 2.3170656,
+        streamerDevice: 'abcd',
+        isPrivate: true,
+        eventPicture: 'defaultPicture1',
+      };
 
-    //   const res = await chai.request(server)
-    //     .post('/api/events')
-    //     .set({ Authorization: `Bearer ${jwt}` })
-    //     .send(body);
+      const user = await addUserProfile();
+      const jwt = generateJwt(user.insertId);
 
-    //   res.should.have.status(400);
-    //   res.body.should.be.a('object');
-    //   res.body.should.have.property('statusCode');
-    //   res.body.should.have.property('message');
-    //   res.body.message.should.eql('Name is too long');
-    //   const createdEvents = await sql.query('SELECT * FROM Events');
-    //   createdEvents.should.have.lengthOf(0);
-    // });
+      const res = await chai.request(server)
+        .post('/api/events')
+        .set({ Authorization: `Bearer ${jwt}` })
+        .send(body);
 
-    // it('should not POST an event with name = null', async () => {
-    //   const body = {
-    //     name: null,
-    //     description: 'All come over on wednesday for our housewarming!',
-    //     startDate,
-    //     endDate,
-    //     unknown: 'unknown',
-    //     latitude: 48.8915482,
-    //     longitude: 2.3170656,
-    //     streamerDevice: 'abcd',
-    //     isPrivate: true,
-    //     eventPicture: 'defaultPicture1',
-    //   };
+      res.should.have.status(400);
+      res.body.should.be.a('object');
+      res.body.should.have.property('statusCode');
+      res.body.should.have.property('message');
+      res.body.message.should.eql('Name is too long');
+      const createdEvents = await sql.query('SELECT * FROM Events');
+      createdEvents.should.have.lengthOf(0);
+    });
 
-    //   const user = await addUserProfile();
-    //   const jwt = generateJwt(user.insertId);
+    it('should not POST an event with name = null', async () => {
+      const body = {
+        name: null,
+        description: 'All come over on wednesday for our housewarming!',
+        startDate,
+        endDate,
 
-    //   const res = await chai.request(server)
-    //     .post('/api/events')
-    //     .set({ Authorization: `Bearer ${jwt}` })
-    //     .send(body);
+        latitude: 48.8915482,
+        longitude: 2.3170656,
+        streamerDevice: 'abcd',
+        isPrivate: true,
+        eventPicture: 'defaultPicture1',
+      };
 
-    //   res.should.have.status(400);
-    //   res.body.should.be.a('object');
-    //   res.body.should.have.property('statusCode');
-    //   res.body.should.have.property('message');
-    //   res.body.message.should.eql('Missing field: name');
-    //   const createdEvents = await sql.query('SELECT * FROM Events');
-    //   createdEvents.should.have.lengthOf(0);
-    // });
+      const user = await addUserProfile();
+      const jwt = generateJwt(user.insertId);
+
+      const res = await chai.request(server)
+        .post('/api/events')
+        .set({ Authorization: `Bearer ${jwt}` })
+        .send(body);
+
+      res.should.have.status(400);
+      res.body.should.be.a('object');
+      res.body.should.have.property('statusCode');
+      res.body.should.have.property('message');
+      res.body.message.should.eql('Field name expected string received object');
+      const createdEvents = await sql.query('SELECT * FROM Events');
+      createdEvents.should.have.lengthOf(0);
+    });
 
     // it('should not POST an event with description too long', async () => {
     //   const body = {
@@ -263,7 +263,7 @@ describe('Events', () => {
     //     description: 'a'.repeat(2049),
     //     startDate,
     //     endDate,
-    //     unknown: 'unknown',
+    //
     //     latitude: 48.8915482,
     //     longitude: 2.3170656,
     //     streamerDevice: 'abcd',
@@ -295,7 +295,7 @@ describe('Events', () => {
     //     description: 'All come over on wednesday for our housewarming!',
     //     startDateBeforeNow,
     //     endDate,
-    //     unknown: 'unknown',
+    //
     //     latitude: 48.8915482,
     //     longitude: 2.3170656,
     //     streamerDevice: 'abcd',
@@ -328,7 +328,7 @@ describe('Events', () => {
     //     description: 'All come over on wednesday for our housewarming!',
     //     startDateNow,
     //     endDateInHalfAnHour,
-    //     unknown: 'unknown',
+    //
     //     latitude: 48.8915482,
     //     longitude: 2.3170656,
     //     streamerDevice: 'abcd',
@@ -395,7 +395,7 @@ describe('Events', () => {
     //     description: 'All come over on wednesday for our housewarming!',
     //     startDateNow,
     //     endDateInAWeek,
-    //     unknown: 'unknown',
+    //
     //     latitude: 48.8915482,
     //     longitude: 2.3170656,
     //     streamerDevice: 'abcd',
@@ -425,7 +425,7 @@ describe('Events', () => {
     //     name: 'House warming',
     //     description: 'All come over on wednesday for our housewarming!',
     //     endDate,
-    //     unknown: 'unknown',
+    //
     //     latitude: 48.8915482,
     //     longitude: 2.3170656,
     //     streamerDevice: 'abcd',
@@ -455,7 +455,7 @@ describe('Events', () => {
     //     name: 'House warming',
     //     description: 'All come over on wednesday for our housewarming!',
     //     startDate,
-    //     unknown: 'unknown',
+    //
     //     latitude: 48.8915482,
     //     longitude: 2.3170656,
     //     streamerDevice: 'abcd',
@@ -486,7 +486,7 @@ describe('Events', () => {
     //     description: 'All come over on wednesday for our housewarming!',
     //     startDate: moment().add(3, 'd').format('DD-MM-YYY HH:mm:ss'),
     //     endDate,
-    //     unknown: 'unknown',
+    //
     //     latitude: 48.8915482,
     //     longitude: 2.3170656,
     //     streamerDevice: 'abcd',
@@ -517,7 +517,7 @@ describe('Events', () => {
     //     description: 'All come over on wednesday for our housewarming!',
     //     startDate,
     //     endDate: moment().add(5, 'd').format('DD-MM-YYY HH:mm:ss'),
-    //     unknown: 'unknown',
+    //
     //     latitude: 48.8915482,
     //     longitude: 2.3170656,
     //     streamerDevice: 'abcd',
@@ -548,7 +548,7 @@ describe('Events', () => {
     //     description: 'All come over on wednesday for our housewarming!',
     //     startDate,
     //     endDate,
-    //     unknown: 'unknown',
+    //
     //     latitude: 91,
     //     longitude: 2.3170656,
     //     streamerDevice: 'abcd',
@@ -579,7 +579,7 @@ describe('Events', () => {
     //     description: 'All come over on wednesday for our housewarming!',
     //     startDate,
     //     endDate,
-    //     unknown: 'unknown',
+    //
     //     latitude: 48.8915482,
     //     longitude: -181,
     //     streamerDevice: 'abcd',
@@ -610,7 +610,7 @@ describe('Events', () => {
     //     description: 'All come over on wednesday for our housewarming!',
     //     startDate,
     //     endDate,
-    //     unknown: 'unknown',
+    //
     //     latitude: '48.8915482',
     //     longitude: 2.3170656,
     //     streamerDevice: 'abcd',
@@ -641,7 +641,7 @@ describe('Events', () => {
     //     description: 'All come over on wednesday for our housewarming!',
     //     startDate,
     //     endDate,
-    //     unknown: 'unknown',
+    //
     //     latitude: 48.8915482,
     //     longitude: '2.3170656',
     //     streamerDevice: 'abcd',
@@ -672,7 +672,7 @@ describe('Events', () => {
     //     description: 'All come over on wednesday for our housewarming!',
     //     startDate,
     //     endDate,
-    //     unknown: 'unknown',
+    //
     //     latitude: 48.8915482,
     //     longitude: 2.3170656,
     //     streamerDevice: true,
@@ -703,7 +703,7 @@ describe('Events', () => {
     //     description: 'All come over on wednesday for our housewarming!',
     //     startDate,
     //     endDate,
-    //     unknown: 'unknown',
+    //
     //     latitude: 48.8915482,
     //     longitude: 2.3170656,
     //     streamerDevice: 'abc',
