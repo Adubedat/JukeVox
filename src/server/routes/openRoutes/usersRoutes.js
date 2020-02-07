@@ -1,7 +1,8 @@
 import express from 'express';
-import {
-  createUser, getUserAccountsTypes, searchForUser,
-} from '../../controller/userController';
+import createUser from '../../controller/users/createUser';
+import searchForUser from '../../controller/users/searchForUser';
+import getUserAccountsTypes from '../../controller/users/getUserAccountsTypes';
+
 
 const router = express.Router();
 

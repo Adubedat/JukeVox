@@ -55,7 +55,7 @@ describe('Users', () => {
       res.body.should.be.a('object');
       res.body.should.have.property('statusCode');
       res.body.should.have.property('message');
-      res.body.message.should.eql('Missing field in body: password');
+      res.body.message.should.eql('TypeError password: expected string but received undefined');
     });
     it('should not successfully login without email', async () => {
       const body = {
@@ -72,7 +72,7 @@ describe('Users', () => {
       res.body.should.be.a('object');
       res.body.should.have.property('statusCode');
       res.body.should.have.property('message');
-      res.body.message.should.eql('Missing field in body: email');
+      res.body.message.should.eql('TypeError email: expected string but received undefined');
     });
     it('should not successfully login with an invalid password', async () => {
       const body = {

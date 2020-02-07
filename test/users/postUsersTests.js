@@ -38,7 +38,7 @@ describe('Users', () => {
           res.body.should.have.property('status').eql('error');
           res.body.should.have.property('statusCode');
           res.body.should.have.property('message');
-          res.body.message.should.eql('No password was supplied');
+          res.body.message.should.eql('TypeError password: expected string but received undefined');
           done();
         });
     });
@@ -58,7 +58,7 @@ describe('Users', () => {
           res.body.should.have.property('status').eql('error');
           res.body.should.have.property('statusCode');
           res.body.should.have.property('message');
-          res.body.message.should.eql('No username was supplied');
+          res.body.message.should.eql('TypeError username: expected string but received undefined');
           done();
         });
     });
@@ -77,7 +77,7 @@ describe('Users', () => {
           res.body.should.have.property('status').eql('error');
           res.body.should.have.property('statusCode');
           res.body.should.have.property('message');
-          res.body.message.should.eql('No email was supplied');
+          res.body.message.should.eql('TypeError email: expected string but received undefined');
           done();
         });
     });

@@ -1,6 +1,7 @@
 import express from 'express';
 import userRoute from './usersRoutes';
-import { confirmEmail, login } from '../../controller/userController';
+import confirmEmail from '../../controller/users/confirmEmail';
+import login from '../../controller/users/login';
 
 const router = express.Router();
 
@@ -11,7 +12,7 @@ router.use((req, res, next) => {
 
 router.use('/users', userRoute);
 
-router.put('/confirmEmail/:token', confirmEmail);
+router.patch('/confirmEmail/:token', confirmEmail);
 
 router.post('/login', login);
 
