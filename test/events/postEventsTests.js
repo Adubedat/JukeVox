@@ -257,135 +257,135 @@ describe('Events', () => {
       createdEvents.should.have.lengthOf(0);
     });
 
-    // it('should not POST an event with description too long', async () => {
-    //   const body = {
-    //     name: 'House warming',
-    //     description: 'a'.repeat(2049),
-    //     startDate,
-    //     endDate,
-    //
-    //     latitude: 48.8915482,
-    //     longitude: 2.3170656,
-    //     streamerDevice: 'abcd',
-    //     isPrivate: true,
-    //     eventPicture: 'defaultPicture1',
-    //   };
+    it('should not POST an event with description too long', async () => {
+      const body = {
+        name: 'House warming',
+        description: 'a'.repeat(2049),
+        startDate,
+        endDate,
 
-    //   const user = await addUserProfile();
-    //   const jwt = generateJwt(user.insertId);
+        latitude: 48.8915482,
+        longitude: 2.3170656,
+        streamerDevice: 'abcd',
+        isPrivate: true,
+        eventPicture: 'defaultPicture1',
+      };
 
-    //   const res = await chai.request(server)
-    //     .post('/api/events')
-    //     .set({ Authorization: `Bearer ${jwt}` })
-    //     .send(body);
+      const user = await addUserProfile();
+      const jwt = generateJwt(user.insertId);
 
-    //   res.should.have.status(400);
-    //   res.body.should.be.a('object');
-    //   res.body.should.have.property('statusCode');
-    //   res.body.should.have.property('message');
-    //   res.body.message.should.eql('Description is too long');
-    //   const createdEvents = await sql.query('SELECT * FROM Events');
-    //   createdEvents.should.have.lengthOf(0);
-    // });
+      const res = await chai.request(server)
+        .post('/api/events')
+        .set({ Authorization: `Bearer ${jwt}` })
+        .send(body);
 
-    // it('should not POST an event with start date more than 1 hour in the past', async () => {
-    //   const startDateBeforeNow = moment().subtract(1, 'h').format(DATETIME_FORMAT);
-    //   const body = {
-    //     name: 'House warming',
-    //     description: 'All come over on wednesday for our housewarming!',
-    //     startDateBeforeNow,
-    //     endDate,
-    //
-    //     latitude: 48.8915482,
-    //     longitude: 2.3170656,
-    //     streamerDevice: 'abcd',
-    //     isPrivate: true,
-    //     eventPicture: 'defaultPicture1',
-    //   };
+      res.should.have.status(400);
+      res.body.should.be.a('object');
+      res.body.should.have.property('statusCode');
+      res.body.should.have.property('message');
+      res.body.message.should.eql('Description is too long');
+      const createdEvents = await sql.query('SELECT * FROM Events');
+      createdEvents.should.have.lengthOf(0);
+    });
 
-    //   const user = await addUserProfile();
-    //   const jwt = generateJwt(user.insertId);
+    it('should not POST an event with start date more than 1 hour in the past', async () => {
+      const startDateBeforeNow = moment().subtract(2, 'h').format(DATETIME_FORMAT);
+      const body = {
+        name: 'House warming',
+        description: 'All come over on wednesday for our housewarming!',
+        startDate: startDateBeforeNow,
+        endDate,
 
-    //   const res = await chai.request(server)
-    //     .post('/api/events')
-    //     .set({ Authorization: `Bearer ${jwt}` })
-    //     .send(body);
+        latitude: 48.8915482,
+        longitude: 2.3170656,
+        streamerDevice: 'abcd',
+        isPrivate: true,
+        eventPicture: 'defaultPicture1',
+      };
 
-    //   res.should.have.status(400);
-    //   res.body.should.be.a('object');
-    //   res.body.should.have.property('statusCode');
-    //   res.body.should.have.property('message');
-    //   res.body.message.should.eql('The event cannot be in the past');
-    //   const createdEvents = await sql.query('SELECT * FROM Events');
-    //   createdEvents.should.have.lengthOf(0);
-    // });
+      const user = await addUserProfile();
+      const jwt = generateJwt(user.insertId);
 
-    // it('should not POST an event with end date before start date + 1 hour', async () => {
-    //   const startDateNow = moment().format(DATETIME_FORMAT);
-    //   const endDateInHalfAnHour = moment().add(30, 'm').format(DATETIME_FORMAT);
-    //   const body = {
-    //     name: 'House warming',
-    //     description: 'All come over on wednesday for our housewarming!',
-    //     startDateNow,
-    //     endDateInHalfAnHour,
-    //
-    //     latitude: 48.8915482,
-    //     longitude: 2.3170656,
-    //     streamerDevice: 'abcd',
-    //     isPrivate: true,
-    //     eventPicture: 'defaultPicture1',
-    //   };
+      const res = await chai.request(server)
+        .post('/api/events')
+        .set({ Authorization: `Bearer ${jwt}` })
+        .send(body);
 
-    //   const user = await addUserProfile();
-    //   const jwt = generateJwt(user.insertId);
+      res.should.have.status(400);
+      res.body.should.be.a('object');
+      res.body.should.have.property('statusCode');
+      res.body.should.have.property('message');
+      res.body.message.should.eql('The date cannot be in the past');
+      const createdEvents = await sql.query('SELECT * FROM Events');
+      createdEvents.should.have.lengthOf(0);
+    });
 
-    //   const res = await chai.request(server)
-    //     .post('/api/events')
-    //     .set({ Authorization: `Bearer ${jwt}` })
-    //     .send(body);
+    it('should not POST an event with end date before start date + 1 hour', async () => {
+      const startDateNow = moment().format(DATETIME_FORMAT);
+      const endDateInHalfAnHour = moment().add(30, 'm').format(DATETIME_FORMAT);
+      const body = {
+        name: 'House warming',
+        description: 'All come over on wednesday for our housewarming!',
+        startDate: startDateNow,
+        endDate: endDateInHalfAnHour,
+        latitude: 48.8915482,
+        longitude: 2.3170656,
+        streamerDevice: 'abcd',
+        isPrivate: true,
+        eventPicture: 'defaultPicture1',
+      };
 
-    //   res.should.have.status(400);
-    //   res.body.should.be.a('object');
-    //   res.body.should.have.property('statusCode');
-    //   res.body.should.have.property('message');
-    //   res.body.message.should.eql('The end date must be > (start date + 1 hour)');
-    //   const createdEvents = await sql.query('SELECT * FROM Events');
-    //   createdEvents.should.have.lengthOf(0);
-    // });
+      const user = await addUserProfile();
+      const jwt = generateJwt(user.insertId);
 
-    // it('should POST an event with a start date < 1 hour before now', async () => {
-    //   const startDateHalfHourBeforeNow = moment().subtract(30, 'm').format(DATETIME_FORMAT);
-    //   const body = {
-    //     name: 'House warming',
-    //     description: 'All come over on wednesday for our housewarming!',
-    //     startDateHalfHourBeforeNow,
-    //     endDate,
-    //     latitude: 48.8915482,
-    //     longitude: 2.3170656,
-    //     streamerDevice: 'abcd',
-    //     isPrivate: true,
-    //     eventPicture: 'defaultPicture1',
-    //   };
+      const res = await chai.request(server)
+        .post('/api/events')
+        .set({ Authorization: `Bearer ${jwt}` })
+        .send(body);
 
-    //   const user = await addUserProfile();
-    //   const jwt = generateJwt(user.insertId);
+      res.should.have.status(400);
+      res.body.should.be.a('object');
+      res.body.should.have.property('statusCode');
+      res.body.should.have.property('message');
+      res.body.message.should.eql('The end date must be > (startDate + 1 hour)');
+      const createdEvents = await sql.query('SELECT * FROM Events');
+      createdEvents.should.have.lengthOf(0);
+    });
 
-    //   const res = await chai.request(server)
-    //     .post('/api/events')
-    //     .set({ Authorization: `Bearer ${jwt}` })
-    //     .send(body);
+    it('should POST an event with a start date < 1 hour before now', async () => {
+      const startDateHalfHourBeforeNow = moment().subtract(30, 'm').format(DATETIME_FORMAT);
+      const body = {
+        name: 'House warming',
+        description: 'All come over on wednesday for our housewarming!',
+        startDate: startDateHalfHourBeforeNow,
+        endDate,
+        latitude: 48.8915482,
+        longitude: 2.3170656,
+        streamerDevice: 'abcd',
+        isPrivate: true,
+        eventPicture: 'defaultPicture1',
+      };
 
-    //   res.should.have.status(200);
-    //   res.body.should.be.a('object');
-    //   res.body.should.have.property('statusCode');
-    //   res.body.should.have.property('message');
-    //   res.body.message.should.be.eql(body);
+      const user = await addUserProfile();
+      const jwt = generateJwt(user.insertId);
 
-    //   const createdEvents = await sql.query('SELECT * FROM Events');
-    //   createdEvents.should.have.lengthOf(1);
-    //   createdEvents[0].CreatorId.should.eql(user.insertId);
-    //   // TODO (?): check the rest of the elements are eql
-    // });
+      const res = await chai.request(server)
+        .post('/api/events')
+        .set({ Authorization: `Bearer ${jwt}` })
+        .send(body);
+
+      res.should.have.status(200);
+      res.body.should.be.a('object');
+      res.body.should.have.property('statusCode');
+      res.body.should.have.property('message');
+      res.body.data.should.be.eql(body);
+      res.body.message.should.be.eql('Event successfully created!');
+
+      const createdEvents = await sql.query('SELECT * FROM Events');
+      createdEvents.should.have.lengthOf(1);
+      createdEvents[0].CreatorId.should.eql(user.insertId);
+      // TODO (?): check the rest of the elements are eql
+    });
 
     // it('should not POST an event with end date > startDate + 1 week', async () => {
     //   const startDateNow = moment().format(DATETIME_FORMAT);
