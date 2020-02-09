@@ -1,4 +1,6 @@
 import moment from 'moment';
+import { isValidLatitude, isValidLongitude } from 'geolib';
+
 import { ErrorResponseHandler } from '../../../helpers/error';
 import Event from '../../models/eventModel';
 import { checkUnknownFields } from '../../../helpers/validation';
@@ -14,8 +16,43 @@ function validateType(fieldName, fieldValue, expectedType) {
         );
       }
       break;
+    case 'number':
+      if (typeof fieldValue !== 'number') {
+        throw new ErrorResponseHandler(
+          400,
+          `Field ${fieldName} expected ${expectedType} received ${typeof fieldValue}`,
+        );
+      }
+      break;
+    case 'boolean':
+      if (typeof fieldValue !== 'boolean') {
+        throw new ErrorResponseHandler(
+          400,
+          `Field ${fieldName} expected ${expectedType} received ${typeof fieldValue}`,
+        );
+      }
+      break;
     default:
       throw new ErrorResponseHandler(400, 'Error parsing fields');
+  }
+}
+
+function validatePrivacy(isPrivate) {
+  validateType('isPrivate', isPrivate, 'boolean');
+}
+
+function validateStreamerDevice(streamerDevice) {
+  validateType('streamerDevice', streamerDevice, 'string');
+}
+
+function validateLocation(latitude, longitude) {
+  validateType('latitude', latitude, 'number');
+  validateType('longitude', longitude, 'number');
+  if (!isValidLatitude(latitude)) {
+    throw new ErrorResponseHandler(400, 'Unknown latitude');
+  }
+  if (!isValidLongitude(longitude)) {
+    throw new ErrorResponseHandler(400, 'Unknown longitude');
   }
 }
 
@@ -24,10 +61,12 @@ function validateDates(startDate, endDate) {
   validateType('endDate', endDate, 'string');
 
   const allowedStartTime = moment().subtract(1, 'h').format(DATETIME_FORMAT);
+  if (!(moment(startDate, DATETIME_FORMAT, true).isValid())) {
+    throw new ErrorResponseHandler(400, 'Start date incorrectly formatted');
+  }
 
-  if (!(moment(startDate, DATETIME_FORMAT, true).isValid)
-   || !(moment(endDate, DATETIME_FORMAT, true).isValid)) {
-    throw new ErrorResponseHandler(400, 'The date is badly formatted');
+  if (!(moment(endDate, DATETIME_FORMAT, true).isValid())) {
+    throw new ErrorResponseHandler(400, 'End date incorrectly formatted');
   }
 
   if (moment(allowedStartTime).isAfter(startDate)) {
@@ -36,6 +75,10 @@ function validateDates(startDate, endDate) {
 
   if (moment(startDate).add(1, 'h').isAfter(endDate)) {
     throw new ErrorResponseHandler(400, 'The end date must be > (startDate + 1 hour)');
+  }
+
+  if (moment(startDate).add(1, 'w').isBefore(endDate)) {
+    throw new ErrorResponseHandler(400, 'The end date must be < (startDate + 1 week)');
   }
 }
 
@@ -57,6 +100,9 @@ function validateBody(body) {
   validateName(body.name);
   validateDescription(body.description);
   validateDates(body.startDate, body.endDate);
+  validateLocation(body.latitude, body.longitude);
+  validateStreamerDevice(body.streamerDevice);
+  validatePrivacy(body.isPrivate);
 }
 
 export async function createEvent(req, res, next) {
