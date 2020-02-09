@@ -387,345 +387,342 @@ describe('Events', () => {
       // TODO (?): check the rest of the elements are eql
     });
 
-    // it('should not POST an event with end date > startDate + 1 week', async () => {
-    //   const startDateNow = moment().format(DATETIME_FORMAT);
-    //   const endDateInAWeek = moment().add(1, 'w').format(DATETIME_FORMAT);
-    //   const body = {
-    //     name: 'House warming',
-    //     description: 'All come over on wednesday for our housewarming!',
-    //     startDateNow,
-    //     endDateInAWeek,
-    //
-    //     latitude: 48.8915482,
-    //     longitude: 2.3170656,
-    //     streamerDevice: 'abcd',
-    //     isPrivate: true,
-    //     eventPicture: 'defaultPicture1',
-    //   };
+    it('should not POST an event with end date > startDate + 1 week', async () => {
+      const startDateNow = moment().format(DATETIME_FORMAT);
+      const endDateInAWeek = moment().add(1, 'w').add(1, 'm').format(DATETIME_FORMAT);
+      const body = {
+        name: 'House warming',
+        description: 'All come over on wednesday for our housewarming!',
+        startDate: startDateNow,
+        endDate: endDateInAWeek,
+        latitude: 48.8915482,
+        longitude: 2.3170656,
+        streamerDevice: 'abcd',
+        isPrivate: true,
+        eventPicture: 'defaultPicture1',
+      };
 
-    //   const user = await addUserProfile();
-    //   const jwt = generateJwt(user.insertId);
+      const user = await addUserProfile();
+      const jwt = generateJwt(user.insertId);
 
-    //   const res = await chai.request(server)
-    //     .post('/api/events')
-    //     .set({ Authorization: `Bearer ${jwt}` })
-    //     .send(body);
+      const res = await chai.request(server)
+        .post('/api/events')
+        .set({ Authorization: `Bearer ${jwt}` })
+        .send(body);
 
-    //   res.should.have.status(400);
-    //   res.body.should.be.a('object');
-    //   res.body.should.have.property('statusCode');
-    //   res.body.should.have.property('message');
-    //   res.body.message.should.eql('The end date must be < (start date + 1 week)');
-    //   const createdEvents = await sql.query('SELECT * FROM Events');
-    //   createdEvents.should.have.lengthOf(0);
-    // });
+      res.should.have.status(400);
+      res.body.should.be.a('object');
+      res.body.should.have.property('statusCode');
+      res.body.should.have.property('message');
+      res.body.message.should.eql('The end date must be < (startDate + 1 week)');
+      const createdEvents = await sql.query('SELECT * FROM Events');
+      createdEvents.should.have.lengthOf(0);
+    });
 
-    // it('should not POST an event with start date wrong type', async () => {
-    //   const body = {
-    //     name: 'House warming',
-    //     description: 'All come over on wednesday for our housewarming!',
-    //     endDate,
-    //
-    //     latitude: 48.8915482,
-    //     longitude: 2.3170656,
-    //     streamerDevice: 'abcd',
-    //     isPrivate: true,
-    //     eventPicture: 'defaultPicture1',
-    //   };
+    it('should not POST an event with start date wrong type', async () => {
+      const body = {
+        name: 'House warming',
+        description: 'All come over on wednesday for our housewarming!',
+        endDate,
+        latitude: 48.8915482,
+        longitude: 2.3170656,
+        streamerDevice: 'abcd',
+        isPrivate: true,
+        eventPicture: 'defaultPicture1',
+      };
 
-    //   const user = await addUserProfile();
-    //   const jwt = generateJwt(user.insertId);
+      const user = await addUserProfile();
+      const jwt = generateJwt(user.insertId);
 
-    //   const res = await chai.request(server)
-    //     .post('/api/events')
-    //     .set({ Authorization: `Bearer ${jwt}` })
-    //     .send(body);
+      const res = await chai.request(server)
+        .post('/api/events')
+        .set({ Authorization: `Bearer ${jwt}` })
+        .send(body);
 
-    //   res.should.have.status(400);
-    //   res.body.should.be.a('object');
-    //   res.body.should.have.property('statusCode');
-    //   res.body.should.have.property('message');
-    //   res.body.message.should.eql('Field startDate expected string received undefined');
-    //   const createdEvents = await sql.query('SELECT * FROM Events');
-    //   createdEvents.should.have.lengthOf(0);
-    // });
+      res.should.have.status(400);
+      res.body.should.be.a('object');
+      res.body.should.have.property('statusCode');
+      res.body.should.have.property('message');
+      res.body.message.should.eql('Field startDate expected string received undefined');
+      const createdEvents = await sql.query('SELECT * FROM Events');
+      createdEvents.should.have.lengthOf(0);
+    });
 
-    // it('should not POST an event with end date wrong type', async () => {
-    //   const body = {
-    //     name: 'House warming',
-    //     description: 'All come over on wednesday for our housewarming!',
-    //     startDate,
-    //
-    //     latitude: 48.8915482,
-    //     longitude: 2.3170656,
-    //     streamerDevice: 'abcd',
-    //     isPrivate: true,
-    //     eventPicture: 'defaultPicture1',
-    //   };
+    it('should not POST an event with end date wrong type', async () => {
+      const body = {
+        name: 'House warming',
+        description: 'All come over on wednesday for our housewarming!',
+        startDate,
+        latitude: 48.8915482,
+        longitude: 2.3170656,
+        streamerDevice: 'abcd',
+        isPrivate: true,
+        eventPicture: 'defaultPicture1',
+      };
 
-    //   const user = await addUserProfile();
-    //   const jwt = generateJwt(user.insertId);
+      const user = await addUserProfile();
+      const jwt = generateJwt(user.insertId);
 
-    //   const res = await chai.request(server)
-    //     .post('/api/events')
-    //     .set({ Authorization: `Bearer ${jwt}` })
-    //     .send(body);
+      const res = await chai.request(server)
+        .post('/api/events')
+        .set({ Authorization: `Bearer ${jwt}` })
+        .send(body);
 
-    //   res.should.have.status(400);
-    //   res.body.should.be.a('object');
-    //   res.body.should.have.property('statusCode');
-    //   res.body.should.have.property('message');
-    //   res.body.message.should.eql('Field endDate expected string received undefined');
-    //   const createdEvents = await sql.query('SELECT * FROM Events');
-    //   createdEvents.should.have.lengthOf(0);
-    // });
+      res.should.have.status(400);
+      res.body.should.be.a('object');
+      res.body.should.have.property('statusCode');
+      res.body.should.have.property('message');
+      res.body.message.should.eql('Field endDate expected string received undefined');
+      const createdEvents = await sql.query('SELECT * FROM Events');
+      createdEvents.should.have.lengthOf(0);
+    });
 
-    // it('should not POST an event with start date wrong format', async () => {
-    //   const body = {
-    //     name: 'House warming',
-    //     description: 'All come over on wednesday for our housewarming!',
-    //     startDate: moment().add(3, 'd').format('DD-MM-YYY HH:mm:ss'),
-    //     endDate,
-    //
-    //     latitude: 48.8915482,
-    //     longitude: 2.3170656,
-    //     streamerDevice: 'abcd',
-    //     isPrivate: true,
-    //     eventPicture: 'defaultPicture1',
-    //   };
+    it('should not POST an event with start date wrong format', async () => {
+      const body = {
+        name: 'House warming',
+        description: 'All come over on wednesday for our housewarming!',
+        startDate: moment().add(3, 'd').format('DD-MM-YYY HH:mm:ss'),
+        endDate,
 
-    //   const user = await addUserProfile();
-    //   const jwt = generateJwt(user.insertId);
+        latitude: 48.8915482,
+        longitude: 2.3170656,
+        streamerDevice: 'abcd',
+        isPrivate: true,
+        eventPicture: 'defaultPicture1',
+      };
 
-    //   const res = await chai.request(server)
-    //     .post('/api/events')
-    //     .set({ Authorization: `Bearer ${jwt}` })
-    //     .send(body);
+      const user = await addUserProfile();
+      const jwt = generateJwt(user.insertId);
 
-    //   res.should.have.status(400);
-    //   res.body.should.be.a('object');
-    //   res.body.should.have.property('statusCode');
-    //   res.body.should.have.property('message');
-    //   res.body.message.should.eql('Start date incorrectly formatted');
-    //   const createdEvents = await sql.query('SELECT * FROM Events');
-    //   createdEvents.should.have.lengthOf(0);
-    // });
+      const res = await chai.request(server)
+        .post('/api/events')
+        .set({ Authorization: `Bearer ${jwt}` })
+        .send(body);
 
-    // it('should not POST an event with start date wrong format', async () => {
-    //   const body = {
-    //     name: 'House warming',
-    //     description: 'All come over on wednesday for our housewarming!',
-    //     startDate,
-    //     endDate: moment().add(5, 'd').format('DD-MM-YYY HH:mm:ss'),
-    //
-    //     latitude: 48.8915482,
-    //     longitude: 2.3170656,
-    //     streamerDevice: 'abcd',
-    //     isPrivate: true,
-    //     eventPicture: 'defaultPicture1',
-    //   };
+      res.should.have.status(400);
+      res.body.should.be.a('object');
+      res.body.should.have.property('statusCode');
+      res.body.should.have.property('message');
+      res.body.message.should.eql('Start date incorrectly formatted');
+      const createdEvents = await sql.query('SELECT * FROM Events');
+      createdEvents.should.have.lengthOf(0);
+    });
 
-    //   const user = await addUserProfile();
-    //   const jwt = generateJwt(user.insertId);
+    it('should not POST an event with end date wrong format', async () => {
+      const body = {
+        name: 'House warming',
+        description: 'All come over on wednesday for our housewarming!',
+        startDate,
+        endDate: moment().add(5, 'd').format('DD-MM-YYY HH:mm:ss'),
 
-    //   const res = await chai.request(server)
-    //     .post('/api/events')
-    //     .set({ Authorization: `Bearer ${jwt}` })
-    //     .send(body);
+        latitude: 48.8915482,
+        longitude: 2.3170656,
+        streamerDevice: 'abcd',
+        isPrivate: true,
+        eventPicture: 'defaultPicture1',
+      };
 
-    //   res.should.have.status(400);
-    //   res.body.should.be.a('object');
-    //   res.body.should.have.property('statusCode');
-    //   res.body.should.have.property('message');
-    //   res.body.message.should.eql('End date incorrectly formatted');
-    //   const createdEvents = await sql.query('SELECT * FROM Events');
-    //   createdEvents.should.have.lengthOf(0);
-    // });
+      const user = await addUserProfile();
+      const jwt = generateJwt(user.insertId);
 
-    // it('should not POST an event with unknown latitude', async () => {
-    //   const body = {
-    //     name: 'House warming',
-    //     description: 'All come over on wednesday for our housewarming!',
-    //     startDate,
-    //     endDate,
-    //
-    //     latitude: 91,
-    //     longitude: 2.3170656,
-    //     streamerDevice: 'abcd',
-    //     isPrivate: true,
-    //     eventPicture: 'defaultPicture1',
-    //   };
+      const res = await chai.request(server)
+        .post('/api/events')
+        .set({ Authorization: `Bearer ${jwt}` })
+        .send(body);
 
-    //   const user = await addUserProfile();
-    //   const jwt = generateJwt(user.insertId);
+      res.should.have.status(400);
+      res.body.should.be.a('object');
+      res.body.should.have.property('statusCode');
+      res.body.should.have.property('message');
+      res.body.message.should.eql('End date incorrectly formatted');
+      const createdEvents = await sql.query('SELECT * FROM Events');
+      createdEvents.should.have.lengthOf(0);
+    });
 
-    //   const res = await chai.request(server)
-    //     .post('/api/events')
-    //     .set({ Authorization: `Bearer ${jwt}` })
-    //     .send(body);
+    it('should not POST an event with unknown latitude', async () => {
+      const body = {
+        name: 'House warming',
+        description: 'All come over on wednesday for our housewarming!',
+        startDate,
+        endDate,
 
-    //   res.should.have.status(400);
-    //   res.body.should.be.a('object');
-    //   res.body.should.have.property('statusCode');
-    //   res.body.should.have.property('message');
-    //   res.body.message.should.eql('Unknown latitude');
-    //   const createdEvents = await sql.query('SELECT * FROM Events');
-    //   createdEvents.should.have.lengthOf(0);
-    // });
+        latitude: 91,
+        longitude: 2.3170656,
+        streamerDevice: 'abcd',
+        isPrivate: true,
+        eventPicture: 'defaultPicture1',
+      };
 
-    // it('should not POST an event with unknown longitude', async () => {
-    //   const body = {
-    //     name: 'House warming',
-    //     description: 'All come over on wednesday for our housewarming!',
-    //     startDate,
-    //     endDate,
-    //
-    //     latitude: 48.8915482,
-    //     longitude: -181,
-    //     streamerDevice: 'abcd',
-    //     isPrivate: true,
-    //     eventPicture: 'defaultPicture1',
-    //   };
+      const user = await addUserProfile();
+      const jwt = generateJwt(user.insertId);
 
-    //   const user = await addUserProfile();
-    //   const jwt = generateJwt(user.insertId);
+      const res = await chai.request(server)
+        .post('/api/events')
+        .set({ Authorization: `Bearer ${jwt}` })
+        .send(body);
 
-    //   const res = await chai.request(server)
-    //     .post('/api/events')
-    //     .set({ Authorization: `Bearer ${jwt}` })
-    //     .send(body);
+      res.should.have.status(400);
+      res.body.should.be.a('object');
+      res.body.should.have.property('statusCode');
+      res.body.should.have.property('message');
+      res.body.message.should.eql('Unknown latitude');
+      const createdEvents = await sql.query('SELECT * FROM Events');
+      createdEvents.should.have.lengthOf(0);
+    });
 
-    //   res.should.have.status(400);
-    //   res.body.should.be.a('object');
-    //   res.body.should.have.property('statusCode');
-    //   res.body.should.have.property('message');
-    //   res.body.message.should.eql('Unknown longitude');
-    //   const createdEvents = await sql.query('SELECT * FROM Events');
-    //   createdEvents.should.have.lengthOf(0);
-    // });
+    it('should not POST an event with unknown longitude', async () => {
+      const body = {
+        name: 'House warming',
+        description: 'All come over on wednesday for our housewarming!',
+        startDate,
+        endDate,
 
-    // it('should not POST an event with a latitude of wrong type', async () => {
-    //   const body = {
-    //     name: 'House warming',
-    //     description: 'All come over on wednesday for our housewarming!',
-    //     startDate,
-    //     endDate,
-    //
-    //     latitude: '48.8915482',
-    //     longitude: 2.3170656,
-    //     streamerDevice: 'abcd',
-    //     isPrivate: true,
-    //     eventPicture: 'defaultPicture1',
-    //   };
+        latitude: 48.8915482,
+        longitude: -181,
+        streamerDevice: 'abcd',
+        isPrivate: true,
+        eventPicture: 'defaultPicture1',
+      };
 
-    //   const user = await addUserProfile();
-    //   const jwt = generateJwt(user.insertId);
+      const user = await addUserProfile();
+      const jwt = generateJwt(user.insertId);
 
-    //   const res = await chai.request(server)
-    //     .post('/api/events')
-    //     .set({ Authorization: `Bearer ${jwt}` })
-    //     .send(body);
+      const res = await chai.request(server)
+        .post('/api/events')
+        .set({ Authorization: `Bearer ${jwt}` })
+        .send(body);
 
-    //   res.should.have.status(400);
-    //   res.body.should.be.a('object');
-    //   res.body.should.have.property('statusCode');
-    //   res.body.should.have.property('message');
-    //   res.body.message.should.eql('Field latitude expected float received string');
-    //   const createdEvents = await sql.query('SELECT * FROM Events');
-    //   createdEvents.should.have.lengthOf(0);
-    // });
+      res.should.have.status(400);
+      res.body.should.be.a('object');
+      res.body.should.have.property('statusCode');
+      res.body.should.have.property('message');
+      res.body.message.should.eql('Unknown longitude');
+      const createdEvents = await sql.query('SELECT * FROM Events');
+      createdEvents.should.have.lengthOf(0);
+    });
 
-    // it('should not POST an event with a longitude of wrong type', async () => {
-    //   const body = {
-    //     name: 'House warming',
-    //     description: 'All come over on wednesday for our housewarming!',
-    //     startDate,
-    //     endDate,
-    //
-    //     latitude: 48.8915482,
-    //     longitude: '2.3170656',
-    //     streamerDevice: 'abcd',
-    //     isPrivate: true,
-    //     eventPicture: 'defaultPicture1',
-    //   };
+    it('should not POST an event with a latitude of wrong type', async () => {
+      const body = {
+        name: 'House warming',
+        description: 'All come over on wednesday for our housewarming!',
+        startDate,
+        endDate,
 
-    //   const user = await addUserProfile();
-    //   const jwt = generateJwt(user.insertId);
+        latitude: '48.8915482',
+        longitude: 2.3170656,
+        streamerDevice: 'abcd',
+        isPrivate: true,
+        eventPicture: 'defaultPicture1',
+      };
 
-    //   const res = await chai.request(server)
-    //     .post('/api/events')
-    //     .set({ Authorization: `Bearer ${jwt}` })
-    //     .send(body);
+      const user = await addUserProfile();
+      const jwt = generateJwt(user.insertId);
 
-    //   res.should.have.status(400);
-    //   res.body.should.be.a('object');
-    //   res.body.should.have.property('statusCode');
-    //   res.body.should.have.property('message');
-    //   res.body.message.should.eql('Field longitude expected float received string');
-    //   const createdEvents = await sql.query('SELECT * FROM Events');
-    //   createdEvents.should.have.lengthOf(0);
-    // });
+      const res = await chai.request(server)
+        .post('/api/events')
+        .set({ Authorization: `Bearer ${jwt}` })
+        .send(body);
 
-    // it('should not POST an event with wrong streamerDevice field type', async () => {
-    //   const body = {
-    //     name: 'House warming',
-    //     description: 'All come over on wednesday for our housewarming!',
-    //     startDate,
-    //     endDate,
-    //
-    //     latitude: 48.8915482,
-    //     longitude: 2.3170656,
-    //     streamerDevice: true,
-    //     isPrivate: true,
-    //     eventPicture: 'defaultPicture1',
-    //   };
+      res.should.have.status(400);
+      res.body.should.be.a('object');
+      res.body.should.have.property('statusCode');
+      res.body.should.have.property('message');
+      res.body.message.should.eql('Field latitude expected number received string');
+      const createdEvents = await sql.query('SELECT * FROM Events');
+      createdEvents.should.have.lengthOf(0);
+    });
 
-    //   const user = await addUserProfile();
-    //   const jwt = generateJwt(user.insertId);
+    it('should not POST an event with a longitude of wrong type', async () => {
+      const body = {
+        name: 'House warming',
+        description: 'All come over on wednesday for our housewarming!',
+        startDate,
+        endDate,
 
-    //   const res = await chai.request(server)
-    //     .post('/api/events')
-    //     .set({ Authorization: `Bearer ${jwt}` })
-    //     .send(body);
+        latitude: 48.8915482,
+        longitude: '2.3170656',
+        streamerDevice: 'abcd',
+        isPrivate: true,
+        eventPicture: 'defaultPicture1',
+      };
 
-    //   res.should.have.status(400);
-    //   res.body.should.be.a('object');
-    //   res.body.should.have.property('statusCode');
-    //   res.body.should.have.property('message');
-    //   res.body.message.should.eql('Field streamerDevice expected string received bool');
-    //   const createdEvents = await sql.query('SELECT * FROM Events');
-    //   createdEvents.should.have.lengthOf(0);
-    // });
+      const user = await addUserProfile();
+      const jwt = generateJwt(user.insertId);
 
-    // it('should not POST an event with no wrong private field type', async () => {
-    //   const body = {
-    //     name: 'House warming',
-    //     description: 'All come over on wednesday for our housewarming!',
-    //     startDate,
-    //     endDate,
-    //
-    //     latitude: 48.8915482,
-    //     longitude: 2.3170656,
-    //     streamerDevice: 'abc',
-    //     isPrivate: 1,
-    //     eventPicture: 'defaultPicture1',
-    //   };
+      const res = await chai.request(server)
+        .post('/api/events')
+        .set({ Authorization: `Bearer ${jwt}` })
+        .send(body);
 
-    //   const user = await addUserProfile();
-    //   const jwt = generateJwt(user.insertId);
+      res.should.have.status(400);
+      res.body.should.be.a('object');
+      res.body.should.have.property('statusCode');
+      res.body.should.have.property('message');
+      res.body.message.should.eql('Field longitude expected number received string');
+      const createdEvents = await sql.query('SELECT * FROM Events');
+      createdEvents.should.have.lengthOf(0);
+    });
 
-    //   const res = await chai.request(server)
-    //     .post('/api/events')
-    //     .set({ Authorization: `Bearer ${jwt}` })
-    //     .send(body);
+    it('should not POST an event with wrong streamerDevice field type', async () => {
+      const body = {
+        name: 'House warming',
+        description: 'All come over on wednesday for our housewarming!',
+        startDate,
+        endDate,
 
-    //   res.should.have.status(400);
-    //   res.body.should.be.a('object');
-    //   res.body.should.have.property('statusCode');
-    //   res.body.should.have.property('message');
-    //   res.body.message.should.eql('Field isPrivate expected bool received int');
-    //   const createdEvents = await sql.query('SELECT * FROM Events');
-    //   createdEvents.should.have.lengthOf(0);
-    // });
+        latitude: 48.8915482,
+        longitude: 2.3170656,
+        streamerDevice: true,
+        isPrivate: true,
+        eventPicture: 'defaultPicture1',
+      };
+
+      const user = await addUserProfile();
+      const jwt = generateJwt(user.insertId);
+
+      const res = await chai.request(server)
+        .post('/api/events')
+        .set({ Authorization: `Bearer ${jwt}` })
+        .send(body);
+
+      res.should.have.status(400);
+      res.body.should.be.a('object');
+      res.body.should.have.property('statusCode');
+      res.body.should.have.property('message');
+      res.body.message.should.eql('Field streamerDevice expected string received boolean');
+      const createdEvents = await sql.query('SELECT * FROM Events');
+      createdEvents.should.have.lengthOf(0);
+    });
+
+    it('should not POST an event with no wrong private field type', async () => {
+      const body = {
+        name: 'House warming',
+        description: 'All come over on wednesday for our housewarming!',
+        startDate,
+        endDate,
+
+        latitude: 48.8915482,
+        longitude: 2.3170656,
+        streamerDevice: 'abc',
+        isPrivate: 1,
+        eventPicture: 'defaultPicture1',
+      };
+
+      const user = await addUserProfile();
+      const jwt = generateJwt(user.insertId);
+
+      const res = await chai.request(server)
+        .post('/api/events')
+        .set({ Authorization: `Bearer ${jwt}` })
+        .send(body);
+
+      res.should.have.status(400);
+      res.body.should.be.a('object');
+      res.body.should.have.property('statusCode');
+      res.body.should.have.property('message');
+      res.body.message.should.eql('Field isPrivate expected boolean received number');
+      const createdEvents = await sql.query('SELECT * FROM Events');
+      createdEvents.should.have.lengthOf(0);
+    });
   });
 });
