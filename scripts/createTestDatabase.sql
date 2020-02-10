@@ -95,7 +95,7 @@ CREATE TABLE IF NOT EXISTS `EventGuests` (
   `EventId` int NOT NULL,
   `GuestId` int NOT NULL,
   `HasPlayerControl` boolean DEFAULT false,
-  `Status` ENUM ('Going', 'NotGoing', 'Invited') NOT NULL,
+  `GuestStatus` ENUM ('Going', 'NotGoing', 'Invited') NOT NULL,
   PRIMARY KEY (`EventId`, `GuestId`),
   FOREIGN KEY (`EventId`) REFERENCES `Events` (`Id`),
   FOREIGN KEY (`GuestId`) REFERENCES `UserProfiles` (`Id`)
