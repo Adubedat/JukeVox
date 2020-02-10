@@ -105,7 +105,7 @@ function validateBody(body) {
   validatePrivacy(body.isPrivate);
 }
 
-export async function createEvent(req, res, next) {
+export default async function createEvent(req, res, next) {
   const { userId } = req.decoded;
   const acceptedFields = [
     'name',
@@ -138,5 +138,3 @@ export async function createEvent(req, res, next) {
     next(err);
   }
 }
-
-export async function getEvent(req, res, next) { }
