@@ -79,5 +79,21 @@ describe('Events', () => {
       res.body.message.should.be.eql(`Event with Id: ${event.insertId}`);
       res.body.data.Name.should.be.eql('House warming');
     });
+
+    it('should not GET an event with unknown id', async () => {
+      const user = await addUserProfile();
+      const jwt = generateJwt(user.insertId);
+      const event = await addEvent(user.insertId);
+
+      const res = await chai.request(server)
+        .get(`/api/events/${event.insertId + 1}`)
+        .set({ Authorization: `Bearer ${jwt}` });
+
+      res.should.have.status(404);
+      res.body.should.be.a('object');
+      res.body.should.have.property('statusCode');
+      res.body.should.have.property('message');
+      res.body.message.should.eql('No event found with this ID');
+    });
   });
 });
