@@ -121,11 +121,14 @@ export async function createEvent(req, res, next) {
   try {
     checkUnknownFields(acceptedFields, req.body);
 
-    // TODO: verify all fields in req.body are correct
     validateBody(req.body);
 
-    await Event.createNewEvent(userId, req.body);
-    // TODO: Create a user in eventGuest with the userId
+    const eventConfirmation = await Event.createNewEvent(userId, req.body);
+
+    await Event.addGuest(eventConfirmation.insertId, userId, true, 'Going');
+
+    req.body.eventId = eventConfirmation.insertId;
+
     res.status(200).send({
       statusCode: 200,
       message: 'Event successfully created!',
