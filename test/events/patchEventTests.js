@@ -100,7 +100,7 @@ describe('Events', () => {
       res.body.should.have.property('statusCode');
       res.body.should.have.property('message');
       res.body.should.have.property('data');
-      res.body.data.should.have.property('eventId');
+      res.body.data.should.have.property('Id');
       res.body.message.should.be.eql('Event successfully updated!');
       res.body.data.name.should.be.eql('Warming house');
 

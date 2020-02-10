@@ -64,7 +64,7 @@ describe('Events', () => {
       res.body.should.have.property('statusCode');
       res.body.should.have.property('message');
       res.body.should.have.property('data');
-      res.body.data.should.have.property('eventId');
+      res.body.data.should.have.property('Id');
       res.body.message.should.be.eql('Event successfully created!');
 
       const createdEvents = await sql.query('SELECT * FROM Events');
@@ -100,7 +100,7 @@ describe('Events', () => {
       res.body.should.have.property('message');
       res.body.should.have.property('data');
 
-      res.body.data.should.have.property('eventId');
+      res.body.data.should.have.property('Id');
       res.body.message.should.be.eql('Event successfully created!');
 
       const createdEvents = await sql.query('SELECT * FROM Events');
@@ -110,13 +110,14 @@ describe('Events', () => {
       const eventGuests = await sql.query('SELECT * FROM EventGuests');
 
       eventGuests.should.have.lengthOf(1);
-      eventGuests[0].EventId.should.eql(res.body.data.eventId);
+      eventGuests[0].EventId.should.eql(res.body.data.Id);
       eventGuests[0].GuestId.should.eql(user.insertId);
       eventGuests[0].HasPlayerControl.should.eql(1);
       eventGuests[0].GuestStatus.should.eql('Going');
       // TODO (?): check the rest of the elements are eql
     });
 
+    // TODO: Refactor code so that the following 3 tests pass
 
     // it('should not POST an event with a jwt that matches no user', async () => {
     //   const body = {
@@ -456,7 +457,7 @@ describe('Events', () => {
       res.body.should.be.a('object');
       res.body.should.have.property('statusCode');
       res.body.should.have.property('message');
-      res.body.data.should.have.property('eventId');
+      res.body.data.should.have.property('Id');
       res.body.message.should.be.eql('Event successfully created!');
 
       const createdEvents = await sql.query('SELECT * FROM Events');

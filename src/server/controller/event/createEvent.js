@@ -24,7 +24,7 @@ export default async function createEvent(req, res, next) {
 
     await Event.addGuest(eventConfirmation.insertId, userId, true, 'Going');
 
-    req.body.eventId = eventConfirmation.insertId;
+    req.body.Id = eventConfirmation.insertId;
 
     res.status(200).send({
       statusCode: 200,
