@@ -28,10 +28,14 @@ export default async function updateEvent(req, res, next) {
 
     checkUnknownFields(acceptedFields, req.body);
     validateBody(req.body);
+
+    await Event.updateEvent(req.body);
+    res.send({
+      message: 'Event updated successfully!',
+      statusCode: 204,
+      data: req.body,
+    });
   } catch (err) {
     next(err);
   }
-  // TODO: checkUnknownFields;
-  // TODO: Validate body;
-  // TODO: Patch;
 }
