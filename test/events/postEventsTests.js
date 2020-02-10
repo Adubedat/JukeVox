@@ -23,6 +23,7 @@ describe('Events', () => {
   beforeEach(async () => {
     await sql.query('DELETE FROM UserAccounts;');
     await sql.query('DELETE FROM ProviderAccounts;');
+    await sql.query('DELETE FROM EventGuests');
     await sql.query('DELETE FROM Events;');
     await sql.query('DELETE FROM UserProfiles;');
   });
@@ -65,8 +66,7 @@ describe('Events', () => {
       res.body.should.have.property('statusCode');
       res.body.should.have.property('message');
       res.body.should.have.property('data');
-
-      res.body.data.should.be.eql(body);
+      res.body.data.should.have.property('eventId');
       res.body.message.should.be.eql('Event successfully created!');
 
       const createdEvents = await sql.query('SELECT * FROM Events');
@@ -74,6 +74,51 @@ describe('Events', () => {
       createdEvents[0].CreatorId.should.eql(user.insertId);
       // TODO (?): check the rest of the elements are eql
     });
+
+    it('should POST an event with a guest', async () => {
+      const body = {
+        name: 'House warming',
+        description: 'All come over on wednesday for our housewarming!',
+        startDate,
+        endDate,
+        latitude: 48.8915482,
+        longitude: 2.3170656,
+        streamerDevice: 'abcd',
+        isPrivate: true,
+        eventPicture: 'defaultPicture1',
+      };
+
+      const user = await addUserProfile();
+      const jwt = generateJwt(user.insertId);
+
+      const res = await chai.request(server)
+        .post('/api/events')
+        .set({ Authorization: `Bearer ${jwt}` })
+        .send(body);
+
+      res.should.have.status(200);
+      res.body.should.be.a('object');
+      res.body.should.have.property('statusCode');
+      res.body.should.have.property('message');
+      res.body.should.have.property('data');
+
+      res.body.data.should.have.property('eventId');
+      res.body.message.should.be.eql('Event successfully created!');
+
+      const createdEvents = await sql.query('SELECT * FROM Events');
+      createdEvents.should.have.lengthOf(1);
+      createdEvents[0].CreatorId.should.eql(user.insertId);
+
+      const eventGuests = await sql.query('SELECT * FROM EventGuests');
+
+      eventGuests.should.have.lengthOf(1);
+      eventGuests[0].EventId.should.eql(res.body.data.eventId);
+      eventGuests[0].GuestId.should.eql(user.insertId);
+      eventGuests[0].HasPlayerControl.should.eql(1);
+      eventGuests[0].GuestStatus.should.eql('Going');
+      // TODO (?): check the rest of the elements are eql
+    });
+
 
     // it('should not POST an event with a jwt that matches no user', async () => {
     //   const body = {
@@ -193,6 +238,41 @@ describe('Events', () => {
       res.body.message.should.eql('Unknown field: unknown');
       const createdEvents = await sql.query('SELECT * FROM Events');
       createdEvents.should.have.lengthOf(0);
+    });
+
+    it('should not POST an event with an unknown field and not make an event guest', async () => {
+      const body = {
+        name: 'House warming',
+        description: 'All come over on wednesday for our housewarming!',
+        startDate,
+        endDate,
+        unknown: 'unknown',
+        latitude: 48.8915482,
+        longitude: 2.3170656,
+        streamerDevice: 'abcd',
+        isPrivate: true,
+        eventPicture: 'defaultPicture1',
+      };
+
+      const user = await addUserProfile();
+      const jwt = generateJwt(user.insertId);
+
+      const res = await chai.request(server)
+        .post('/api/events')
+        .set({ Authorization: `Bearer ${jwt}` })
+        .send(body);
+
+      res.should.have.status(400);
+      res.body.should.be.a('object');
+      res.body.should.have.property('statusCode');
+      res.body.should.have.property('message');
+      res.body.message.should.eql('Unknown field: unknown');
+      const createdEvents = await sql.query('SELECT * FROM Events');
+      createdEvents.should.have.lengthOf(0);
+
+      const eventGuests = await sql.query('SELECT * FROM EventGuests');
+
+      eventGuests.should.have.lengthOf(0);
     });
 
     it('should not POST an event with name too long', async () => {
@@ -378,7 +458,7 @@ describe('Events', () => {
       res.body.should.be.a('object');
       res.body.should.have.property('statusCode');
       res.body.should.have.property('message');
-      res.body.data.should.be.eql(body);
+      res.body.data.should.have.property('eventId');
       res.body.message.should.be.eql('Event successfully created!');
 
       const createdEvents = await sql.query('SELECT * FROM Events');
