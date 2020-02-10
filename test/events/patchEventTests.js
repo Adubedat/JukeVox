@@ -100,12 +100,119 @@ describe('Events', () => {
       createdEvents.should.have.lengthOf(1);
       createdEvents[0].CreatorId.should.eql(user.insertId);
       createdEvents[0].Name.should.eql('Warming house');
-    // TODO (?): check the rest of the elements are eql
+      // TODO (?): check the rest of the elements are eql
+    });
+
+    it('should not PATCH an event with unknown id', async () => {
+      const user = await addUserProfile();
+      const jwt = generateJwt(user.insertId);
+
+      const event = await addEvent(user.insertId);
+
+      const updatedBody = {
+        name: 'Warming house',
+        description: 'All come over on wednesday for our housewarming!',
+        startDate,
+        endDate,
+        latitude: 48.8915482,
+        longitude: 2.3170656,
+        streamerDevice: 'abcd',
+        isPrivate: true,
+        eventPicture: 'defaultPicture1',
+      };
+
+      const res = await chai.request(server)
+        .patch(`/api/events/${event.insertId + 1}`)
+        .set({ Authorization: `Bearer ${jwt}` })
+        .send(updatedBody);
+
+      res.should.have.status(404);
+      res.body.should.be.a('object');
+      res.body.should.have.property('statusCode');
+      res.body.should.have.property('message');
+      res.body.message.should.eql('No event found with this ID');
+
+      const createdEvents = await sql.query('SELECT * FROM Events');
+      createdEvents.should.have.lengthOf(1);
+      createdEvents[0].CreatorId.should.eql(user.insertId);
+      createdEvents[0].Name.should.eql('House warming');
+      // TODO (?): check the rest of the elements are eql
+    });
+
+    it('should not PATCH an event with unknown fields', async () => {
+      const user = await addUserProfile();
+      const jwt = generateJwt(user.insertId);
+
+      const event = await addEvent(user.insertId);
+
+      const updatedBody = {
+        name: 'Warming house',
+        description: 'All come over on wednesday for our housewarming!',
+        startDate,
+        endDate,
+        latitude: 48.8915482,
+        longitude: 2.3170656,
+        streamerDevice: 'abcd',
+        unknown: 'unknown',
+        isPrivate: true,
+        eventPicture: 'defaultPicture1',
+      };
+
+      const res = await chai.request(server)
+        .patch(`/api/events/${event.insertId}`)
+        .set({ Authorization: `Bearer ${jwt}` })
+        .send(updatedBody);
+
+      res.should.have.status(400);
+      res.body.should.be.a('object');
+      res.body.should.have.property('statusCode');
+      res.body.should.have.property('message');
+      res.body.message.should.eql('Unknown field: unknown');
+
+      const createdEvents = await sql.query('SELECT * FROM Events');
+      createdEvents.should.have.lengthOf(1);
+      createdEvents[0].CreatorId.should.eql(user.insertId);
+      createdEvents[0].Name.should.eql('House warming');
+      // TODO (?): check the rest of the elements are eql
+    });
+
+    it('should not PATCH an event with invalid param in body', async () => {
+      const user = await addUserProfile();
+      const jwt = generateJwt(user.insertId);
+
+      const event = await addEvent(user.insertId);
+
+      const updatedBody = {
+        name: 'Warming house',
+        description: 'All come over on wednesday for our housewarming!',
+        startDate,
+        endDate,
+        latitude: 48.8915482,
+        longitude: 2.3170656,
+        streamerDevice: 'abcd',
+        isPrivate: 'true',
+        eventPicture: 'defaultPicture1',
+      };
+
+      const res = await chai.request(server)
+        .patch(`/api/events/${event.insertId}`)
+        .set({ Authorization: `Bearer ${jwt}` })
+        .send(updatedBody);
+
+      res.should.have.status(400);
+      res.body.should.be.a('object');
+      res.body.should.have.property('statusCode');
+      res.body.should.have.property('message');
+      res.body.message.should.eql('Field isPrivate expected boolean received string');
+
+      const createdEvents = await sql.query('SELECT * FROM Events');
+      createdEvents.should.have.lengthOf(1);
+      createdEvents[0].CreatorId.should.eql(user.insertId);
+      createdEvents[0].Name.should.eql('House warming');
+      // TODO (?): check the rest of the elements are eql
     });
   });
 });
-// TODO: event doesn't exist
-// TODO: Userid not match creator Id
-// TODO: Unknown fields;
+
 // TODO: Validate Body;
-// TODO: Check patch worked correctly
+// TODO: Userid not match creator Id
