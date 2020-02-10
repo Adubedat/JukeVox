@@ -32,7 +32,7 @@ export default async function updateEvent(req, res, next) {
     await Event.updateEvent(eventId, req.body);
 
     const responseBody = req.body;
-    responseBody.eventId = eventId;
+    responseBody.Id = eventId;
 
     res.send({
       message: 'Event successfully updated!',
