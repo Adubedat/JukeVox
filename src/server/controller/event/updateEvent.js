@@ -22,18 +22,22 @@ export default async function updateEvent(req, res, next) {
     if (event === null) {
       throw new ErrorResponseHandler(404, 'No event found with this Id');
     }
-    if (event.CreatorId !== userId) {
+    if (event[0].CreatorId !== userId) {
       throw new ErrorResponseHandler(403, 'You cannot modify this resource');
     }
 
     checkUnknownFields(acceptedFields, req.body);
     validateBody(req.body);
 
-    await Event.updateEvent(req.body);
+    await Event.updateEvent(eventId, req.body);
+
+    const responseBody = req.body;
+    responseBody.eventId = eventId;
+
     res.send({
-      message: 'Event updated successfully!',
+      message: 'Event successfully updated!',
       statusCode: 204,
-      data: req.body,
+      data: responseBody,
     });
   } catch (err) {
     next(err);
