@@ -28,7 +28,8 @@ describe('Events', () => {
   async function addUserProfile() {
     const userProfileQuery = 'INSERT INTO UserProfiles (Username, Email, CreatedAt) VALUES ?';
     const userProfileValues = [['Daniel', 'daniel@mail.com', moment().format(DATETIME_FORMAT)]];
-    const userProfile = await sql.query(userProfileQuery, [userProfileValues]).catch((err) => console.log(err));
+    const userProfile = await sql.query(userProfileQuery, [userProfileValues])
+      .catch((err) => console.log(err));
     return userProfile;
   }
 
