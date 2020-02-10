@@ -16,9 +16,6 @@ const should = chai.should();
 
 chai.use(chaiHttp);
 
-// TODO: Test that the user was added to the event
-// TODO: Test that the user was not added to the event if failed post
-
 describe('Events', () => {
   beforeEach(async () => {
     await sql.query('DELETE FROM UserAccounts;');
