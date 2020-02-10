@@ -37,4 +37,13 @@ Event.addGuest = function addGuestToEvent(eventId, guestId, hasPlayerControl, gu
   });
 };
 
+Event.getEvent = function getEvent(eventId) {
+  return new Promise((resolve, reject) => {
+    const query = 'SELECT * FROM Events WHERE EventId = ?';
+    sql.query(query, eventId)
+      .then((res) => resolve(res))
+      .catch((err) => reject(err));
+  });
+};
+
 export default Event;
