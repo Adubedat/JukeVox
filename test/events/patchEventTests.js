@@ -33,6 +33,14 @@ describe('Events', () => {
     return userProfile;
   }
 
+  async function addSecondUserProfile() {
+    const userProfileQuery = 'INSERT INTO UserProfiles (Username, Email, CreatedAt) VALUES ?';
+    const userProfileValues = [['DanielSecond', 'danielsecond@mail.com', moment().format(DATETIME_FORMAT)]];
+    const userProfile = await sql.query(userProfileQuery, [userProfileValues])
+      .catch((err) => console.log(err));
+    return userProfile;
+  }
+
   async function addEvent(creatorId) {
     const startDate = moment().add(3, 'd').format(DATETIME_FORMAT);
     const endDate = moment().add(4, 'd').format(DATETIME_FORMAT);
@@ -100,7 +108,6 @@ describe('Events', () => {
       createdEvents.should.have.lengthOf(1);
       createdEvents[0].CreatorId.should.eql(user.insertId);
       createdEvents[0].Name.should.eql('Warming house');
-      // TODO (?): check the rest of the elements are eql
     });
 
     it('should not PATCH an event with unknown id', async () => {
@@ -136,7 +143,6 @@ describe('Events', () => {
       createdEvents.should.have.lengthOf(1);
       createdEvents[0].CreatorId.should.eql(user.insertId);
       createdEvents[0].Name.should.eql('House warming');
-      // TODO (?): check the rest of the elements are eql
     });
 
     it('should not PATCH an event with unknown fields', async () => {
@@ -173,7 +179,6 @@ describe('Events', () => {
       createdEvents.should.have.lengthOf(1);
       createdEvents[0].CreatorId.should.eql(user.insertId);
       createdEvents[0].Name.should.eql('House warming');
-      // TODO (?): check the rest of the elements are eql
     });
 
     it('should not PATCH an event with invalid param in body', async () => {
@@ -209,10 +214,42 @@ describe('Events', () => {
       createdEvents.should.have.lengthOf(1);
       createdEvents[0].CreatorId.should.eql(user.insertId);
       createdEvents[0].Name.should.eql('House warming');
-      // TODO (?): check the rest of the elements are eql
+    });
+
+    it('should not PATCH an event with userId !== creatorId', async () => {
+      const user = await addUserProfile();
+      const user2 = await addSecondUserProfile();
+      const jwt = generateJwt(user2.insertId);
+
+      const event = await addEvent(user.insertId);
+
+      const updatedBody = {
+        name: 'Warming house',
+        description: 'All come over on wednesday for our housewarming!',
+        startDate,
+        endDate,
+        latitude: 48.8915482,
+        longitude: 2.3170656,
+        streamerDevice: 'abcd',
+        isPrivate: 'true',
+        eventPicture: 'defaultPicture1',
+      };
+
+      const res = await chai.request(server)
+        .patch(`/api/events/${event.insertId}`)
+        .set({ Authorization: `Bearer ${jwt}` })
+        .send(updatedBody);
+
+      res.should.have.status(403);
+      res.body.should.be.a('object');
+      res.body.should.have.property('statusCode');
+      res.body.should.have.property('message');
+      res.body.message.should.eql('Forbidden');
+
+      const createdEvents = await sql.query('SELECT * FROM Events');
+      createdEvents.should.have.lengthOf(1);
+      createdEvents[0].CreatorId.should.eql(user.insertId);
+      createdEvents[0].Name.should.eql('House warming');
     });
   });
 });
-
-// TODO: Validate Body;
-// TODO: Userid not match creator Id

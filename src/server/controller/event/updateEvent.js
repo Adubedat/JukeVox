@@ -23,7 +23,7 @@ export default async function updateEvent(req, res, next) {
       throw new ErrorResponseHandler(404, 'No event found with this ID');
     }
     if (event[0].CreatorId !== userId) {
-      throw new ErrorResponseHandler(403, 'You cannot modify this resource');
+      throw new ErrorResponseHandler(403, 'Forbidden');
     }
 
     checkUnknownFields(acceptedFields, req.body);
