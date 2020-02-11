@@ -13,17 +13,17 @@ async function validateBody(addresseeId) {
   }
 }
 
-export default async function createFriendship(req, res, next) {
+export default async function deleteFriendship(req, res, next) {
   const { userId } = req.decoded;
   const { addresseeId } = req.body;
 
   try {
     await validateBody(addresseeId);
     checkUnknownFields(['addresseeId'], req.body);
-    await Friendships.createFriendship(userId, addresseeId);
-    res.status(201).send({
-      message: 'Friendship created',
-      statusCode: 201,
+    await Friendships.deleteFriendship(userId, addresseeId);
+    res.status(200).send({
+      message: 'Friendship deleted',
+      statusCode: 200,
     });
   } catch (err) {
     next(err);

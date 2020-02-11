@@ -17,6 +17,17 @@ Friendships.createFriendship = function createFriendship(requesterId, addresseeI
   });
 };
 
+Friendships.deleteFriendship = function deleteFriendship(requesterId, addresseeId) {
+  return new Promise((resolve, reject) => {
+    const query = 'DELETE FROM Friendships WHERE RequesterId = ? AND AddresseeId = ?';
+    const values = [requesterId, addresseeId];
+
+    sql.query(query, values)
+      .then((res) => resolve(res))
+      .catch((err) => reject(err));
+  });
+};
+
 Friendships.getFriends = function getFriends(requesterId) {
   return new Promise((resolve, reject) => {
     const query = ' \
