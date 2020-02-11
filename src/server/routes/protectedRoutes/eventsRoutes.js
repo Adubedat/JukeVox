@@ -1,7 +1,7 @@
 import express from 'express';
-import createEvent from '../../controller/event/createEvent';
-import updateEvent from '../../controller/event/updateEvent';
-import getEvent from '../../controller/event/getEvent';
+import createEvent from '../../controller/events/createEvent';
+import updateEvent from '../../controller/events/updateEvent';
+import getEvent from '../../controller/events/getEvent';
 
 const router = express.Router();
 
