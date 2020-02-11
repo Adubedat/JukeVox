@@ -22,7 +22,7 @@ describe('Users', () => {
     await sql.query('DELETE FROM UserProfiles;');
   });
 
-  describe('PATCH /api/users/me/password', () => {
+  describe('PATCH /api/me/password', () => {
     it('should update user password with valid old and new password', async () => {
       const body = {
         oldPassword: 'aaaaaaaaaa',
@@ -39,7 +39,7 @@ describe('Users', () => {
       checkNewPwBefore.should.eql(false);
 
       const res = await chai.request(server)
-        .patch('/api/users/me/password')
+        .patch('/api/me/password')
         .set({ Authorization: `Bearer ${jwt}` })
         .send(body);
 
@@ -69,7 +69,7 @@ describe('Users', () => {
       checkNewPwBefore.should.eql(false);
 
       const res = await chai.request(server)
-        .patch('/api/users/me/password')
+        .patch('/api/me/password')
         .send(body);
 
       res.should.have.status(401);
@@ -100,7 +100,7 @@ describe('Users', () => {
       checkNewPwBefore.should.eql(false);
 
       const res = await chai.request(server)
-        .patch('/api/users/me/password')
+        .patch('/api/me/password')
         .set({ Authorization: `Bearer ${jwt}` })
         .send(body);
 
@@ -132,7 +132,7 @@ describe('Users', () => {
       checkNewPwBefore.should.eql(false);
 
       const res = await chai.request(server)
-        .patch('/api/users/me/password')
+        .patch('/api/me/password')
         .set({ Authorization: `Bearer ${jwt}` })
         .send(body);
 
@@ -165,7 +165,7 @@ describe('Users', () => {
       checkNewPwBefore.should.eql(false);
 
       const res = await chai.request(server)
-        .patch('/api/users/me/password')
+        .patch('/api/me/password')
         .set({ Authorization: `Bearer ${jwt}` })
         .send(body);
 
@@ -197,7 +197,7 @@ describe('Users', () => {
       checkNewPwBefore.should.eql(false);
 
       const res = await chai.request(server)
-        .patch('/api/users/me/password')
+        .patch('/api/me/password')
         .set({ Authorization: `Bearer ${jwt}` })
         .send(body);
 
@@ -230,7 +230,7 @@ describe('Users', () => {
       checkNewPwBefore.should.eql(false);
 
       const res = await chai.request(server)
-        .patch('/api/users/me/password')
+        .patch('/api/me/password')
         .set({ Authorization: `Bearer ${jwt}` })
         .send(body);
 

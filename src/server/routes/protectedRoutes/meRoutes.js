@@ -6,11 +6,11 @@ import updatePassword from '../../controller/users/updatePassword';
 
 const router = express.Router();
 
-router.route('/me')
+router.route('/')
   .get(getMe)
   .delete(deleteUser)
   .patch(updateUserProfile);
 
-router.patch('/me/password', updatePassword);
+router.patch('/password', updatePassword);
 
 export default router;

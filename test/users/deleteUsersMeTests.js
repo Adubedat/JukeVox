@@ -22,7 +22,7 @@ describe('Users', () => {
     await sql.query('DELETE FROM UserProfiles;');
   });
 
-  describe('/DELETE /api/users/me', () => {
+  describe('/DELETE /api/me', () => {
     it('should DELETE personnal user account', async () => {
       const user1 = await sql.query('INSERT INTO UserProfiles (Username, Email, CreatedAt) VALUES (\'user1\', \'test@test.test\', \'2020-12-12 12:12:12\')');
       await sql.query(`INSERT INTO UserAccounts (UserProfileId, Email) VALUES (${user1.insertId}, 'test@test.test')`);
@@ -30,7 +30,7 @@ describe('Users', () => {
 
       const jwt = generateJwt(user1.insertId);
       const res = await chai.request(server)
-        .delete('/api/users/me')
+        .delete('/api/me')
         .set({ Authorization: `Bearer ${jwt}` });
 
       res.should.have.status(200);
@@ -55,7 +55,7 @@ describe('Users', () => {
       const user1 = await sql.query('INSERT INTO UserProfiles (Username, Email, CreatedAt) VALUES (\'user1\', \'test@test.test\', \'2020-12-12 12:12:12\')');
       await sql.query(`INSERT INTO UserAccounts (UserProfileId, Email, Password) VALUES (${user1.insertId}, 'test@test.test', '${hash}')`);
       const res = await chai.request(server)
-        .delete('/api/users/me')
+        .delete('/api/me')
         .send(body);
 
       res.should.have.status(401);
@@ -76,7 +76,7 @@ describe('Users', () => {
       let jwt = generateJwt(user1.insertId);
       jwt = jwt.substring(0, jwt.length - 1);
       const res = await chai.request(server)
-        .delete('/api/users/me')
+        .delete('/api/me')
         .set({ Authorization: `Bearer ${jwt}` })
         .send(body);
 

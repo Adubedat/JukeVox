@@ -21,12 +21,12 @@ describe('Users', () => {
     await sql.query('DELETE FROM UserProfiles;');
   });
 
-  describe('GET /api/users/me', () => {
+  describe('GET /api/me', () => {
     it('should get user with valid jwt', async () => {
       const user1 = await sql.query('INSERT INTO UserProfiles (Username, Email, CreatedAt) VALUES (\'user1\', \'test@test.test\', \'2020-12-12 12:12:12\')');
       const jwt = generateJwt(user1.insertId);
       const res = await chai.request(server)
-        .get('/api/users/me')
+        .get('/api/me')
         .set({ Authorization: `Bearer ${jwt}` });
 
       res.should.have.status(200);
@@ -40,7 +40,7 @@ describe('Users', () => {
     it('should get user without jwt', async () => {
       await sql.query('INSERT INTO UserProfiles (Username, Email, CreatedAt) VALUES (\'user1\', \'test@test.test\', \'2020-12-12 12:12:12\')');
       const res = await chai.request(server)
-        .get('/api/users/me');
+        .get('/api/me');
 
       res.should.have.status(401);
       res.body.should.be.a('object');
@@ -52,7 +52,7 @@ describe('Users', () => {
       await sql.query('INSERT INTO UserProfiles (Username, Email, CreatedAt) VALUES (\'user1\', \'test@test.test\', \'2020-12-12 12:12:12\')');
       const jwt = generateJwt(-1);
       const res = await chai.request(server)
-        .get('/api/users/me')
+        .get('/api/me')
         .set({ Authorization: `Bearer ${jwt}` });
 
       res.should.have.status(404);

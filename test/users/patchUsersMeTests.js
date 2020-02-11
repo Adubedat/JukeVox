@@ -21,7 +21,7 @@ describe('Users', () => {
     await sql.query('DELETE FROM UserProfiles;');
   });
 
-  describe('PATCH /api/users/me', () => {
+  describe('PATCH /api/me', () => {
     it('should update userProfile with different username and profilePicture', async () => {
       const body = {
         username: 'newUserName',
@@ -31,7 +31,7 @@ describe('Users', () => {
       const jwt = generateJwt(user1.insertId);
 
       const res = await chai.request(server)
-        .patch('/api/users/me')
+        .patch('/api/me')
         .set({ Authorization: `Bearer ${jwt}` })
         .send(body);
 
@@ -53,7 +53,7 @@ describe('Users', () => {
       const jwt = generateJwt(user1.insertId);
 
       const res = await chai.request(server)
-        .patch('/api/users/me')
+        .patch('/api/me')
         .set({ Authorization: `Bearer ${jwt}` })
         .send(body);
 
@@ -75,7 +75,7 @@ describe('Users', () => {
       const jwt = generateJwt(user1.insertId);
 
       const res = await chai.request(server)
-        .patch('/api/users/me')
+        .patch('/api/me')
         .set({ Authorization: `Bearer ${jwt}` })
         .send(body);
 
@@ -96,7 +96,7 @@ describe('Users', () => {
       const jwt = generateJwt(user1.insertId);
 
       const res = await chai.request(server)
-        .patch('/api/users/me')
+        .patch('/api/me')
         .set({ Authorization: `Bearer ${jwt}` })
         .send(body);
 
@@ -118,7 +118,7 @@ describe('Users', () => {
       const jwt = generateJwt(user1.insertId);
 
       const res = await chai.request(server)
-        .patch('/api/users/me')
+        .patch('/api/me')
         .set({ Authorization: `Bearer ${jwt}` })
         .send(body);
 
@@ -142,7 +142,7 @@ describe('Users', () => {
       const jwt = generateJwt(user1.insertId);
 
       const res = await chai.request(server)
-        .patch('/api/users/me')
+        .patch('/api/me')
         .set({ Authorization: `Bearer ${jwt}` })
         .send(body);
 
@@ -167,7 +167,7 @@ describe('Users', () => {
       const jwt = generateJwt(user1.insertId);
 
       const res = await chai.request(server)
-        .patch('/api/users/me')
+        .patch('/api/me')
         .set({ Authorization: `Bearer ${jwt}` })
         .send(body);
 
@@ -192,7 +192,7 @@ describe('Users', () => {
       const jwt = generateJwt(user1.insertId);
 
       const res = await chai.request(server)
-        .patch('/api/users/me')
+        .patch('/api/me')
         .set({ Authorization: `Bearer ${jwt}` })
         .send(body);
 
@@ -214,7 +214,7 @@ describe('Users', () => {
       await sql.query('INSERT INTO UserProfiles (Username, Email, ProfilePicture, CreatedAt) VALUES (\'user1\', \'test@test,test\', \'profilePicture\', \'2020-12-12 12:12:12\')');
 
       const res = await chai.request(server)
-        .patch('/api/users/me')
+        .patch('/api/me')
         .send(body);
 
       res.should.have.status(401);
