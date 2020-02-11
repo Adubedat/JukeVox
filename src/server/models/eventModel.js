@@ -46,6 +46,15 @@ Event.getEvent = function getEvent(eventId) {
   });
 };
 
+Event.getEventsByUser = function getEventsByUser(userId) {
+  return new Promise((resolve, reject) => {
+    const query = 'SELECT * FROM EventGuests WHERE GuestId = ?';
+    sql.query(query, userId)
+      .then((res) => resolve(res))
+      .catch((err) => reject(err));
+  });
+};
+
 Event.updateEvent = function updateEvent(eventId, body) {
   return new Promise((resolve, reject) => {
     const query = 'UPDATE Events SET Name = ?, Description = ?, \
