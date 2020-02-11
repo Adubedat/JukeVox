@@ -17,11 +17,12 @@ chai.use(chaiHttp);
 
 describe('Users', () => {
   beforeEach(async () => {
-    await sql.query('DELETE FROM UserProfiles;');
+    await sql.query('DELETE FROM UserAccounts');
     await sql.query('DELETE FROM Friendships;');
+    await sql.query('DELETE FROM UserProfiles;');
   });
 
-  describe('POST /api/users/me/friendships', () => {
+  describe('POST /api/me/friendships', () => {
     it('should create a friendship with valid addressee Id', async () => {
       const user1 = await sql.query('INSERT INTO UserProfiles (Username, Email, CreatedAt) VALUES (\'user1\', \'test@test.test\', \'2020-12-12 12:12:12\')');
       const user2 = await sql.query('INSERT INTO UserProfiles (Username, Email, CreatedAt) VALUES (\'user2\', \'test2@test.test\', \'2020-12-12 12:12:12\')');
@@ -30,7 +31,7 @@ describe('Users', () => {
         addresseeId: user2.insertId,
       };
       const res = await chai.request(server)
-        .post('/api/users/me/friendships')
+        .post('/api/me/friendships')
         .set({ Authorization: `Bearer ${jwt}` })
         .send(body);
 
@@ -41,14 +42,14 @@ describe('Users', () => {
 
       const [friendship] = await sql.query('SELECT * FROM Friendships');
       friendship.RequesterId.should.eql(user1.insertId);
-      friendship.addresseeId.should.eql(user2.insertId);
+      friendship.AddresseeId.should.eql(user2.insertId);
     });
     it('should not create a friendship without addressee Id', async () => {
       const user1 = await sql.query('INSERT INTO UserProfiles (Username, Email, CreatedAt) VALUES (\'user1\', \'test@test.test\', \'2020-12-12 12:12:12\')');
       const jwt = generateJwt(user1.insertId);
 
       const res = await chai.request(server)
-        .post('/api/users/me/friendships')
+        .post('/api/me/friendships')
         .set({ Authorization: `Bearer ${jwt}` });
 
       res.should.have.status(400);
@@ -67,7 +68,7 @@ describe('Users', () => {
         addresseeId: -1,
       };
       const res = await chai.request(server)
-        .post('/api/users/me/friendships')
+        .post('/api/me/friendships')
         .set({ Authorization: `Bearer ${jwt}` })
         .send(body);
 
@@ -88,7 +89,7 @@ describe('Users', () => {
         addresseeId: user2.insertId,
       };
       const res = await chai.request(server)
-        .post('/api/users/me/friendships')
+        .post('/api/me/friendships')
         .send(body);
 
       res.should.have.status(401);
@@ -109,7 +110,7 @@ describe('Users', () => {
         unknown: 'unknown',
       };
       const res = await chai.request(server)
-        .post('/api/users/me/friendships')
+        .post('/api/me/friendships')
         .set({ Authorization: `Bearer ${jwt}` })
         .send(body);
 
