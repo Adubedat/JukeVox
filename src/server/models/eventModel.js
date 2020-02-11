@@ -87,4 +87,13 @@ Event.updateEvent = function updateEvent(eventId, body) {
   });
 };
 
+Event.getEventGuests = function getEventGuests(eventId) {
+  return new Promise((resolve, reject) => {
+    const query = 'SELECT * FROM EventGuests WHERE EventId = ?';
+    sql.query(query, eventId)
+      .then((res) => resolve(res))
+      .catch((err) => reject(err));
+  });
+};
+
 export default Event;
