@@ -15,7 +15,7 @@ const { expect } = chai;
 
 chai.use(chaiHttp);
 
-describe('Users', () => {
+describe('Friendships', () => {
   beforeEach(async () => {
     await sql.query('DELETE FROM UserAccounts');
     await sql.query('DELETE FROM Friendships;');
@@ -34,11 +34,6 @@ describe('Users', () => {
         .post('/api/me/friendships')
         .set({ Authorization: `Bearer ${jwt}` })
         .send(body);
-
-      res.should.have.status(200);
-      res.body.should.be.a('object');
-      res.body.should.have.property('statusCode');
-      res.body.should.have.property('message');
 
       const [friendship] = await sql.query('SELECT * FROM Friendships');
       friendship.RequesterId.should.eql(user1.insertId);
