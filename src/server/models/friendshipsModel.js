@@ -17,4 +17,26 @@ Friendships.createFriendship = function createFriendship(requesterId, addresseeI
   });
 };
 
+Friendships.getFriends = function getFriends(requesterId) {
+  return new Promise((resolve, reject) => {
+    const query = ' \
+        SELECT \
+            users.Id, \
+            users.Username, \
+            users.ProfilePicture \
+        FROM \
+            UserProfiles users \
+            JOIN \
+            (SELECT * FROM Friendships WHERE RequesterId = ?) AS friendships \
+            ON \
+            friendships.AddresseeId = users.Id;';
+
+    const values = [requesterId];
+
+    sql.query(query, values)
+      .then((res) => resolve(res))
+      .catch((err) => reject(err));
+  });
+};
+
 export default Friendships;
