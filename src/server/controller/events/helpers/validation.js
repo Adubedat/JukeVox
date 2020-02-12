@@ -4,7 +4,7 @@ import { isValidLatitude, isValidLongitude } from 'geolib';
 import { ErrorResponseHandler } from '../../../../helpers/error';
 import DATETIME_FORMAT from '../../../constants';
 
-function validateType(fieldName, fieldValue, expectedType) {
+export function validateType(fieldName, fieldValue, expectedType) {
   switch (expectedType) {
     case 'string':
       if (typeof fieldValue !== 'string') {
