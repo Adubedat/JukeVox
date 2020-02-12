@@ -232,5 +232,7 @@ describe('Invite', () => {
       res.body.should.have.property('message');
       res.body.message.should.be.eql('No user with this ID');
     });
+
+    // TODO: Check if guest is already invited!
   });
 });
