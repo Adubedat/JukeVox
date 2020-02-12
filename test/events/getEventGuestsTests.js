@@ -106,9 +106,10 @@ describe('Events', () => {
       res.body.message.should.be.eql('The guests for this event');
       res.body.data.should.be.a('array');
       res.body.data.length.should.be.eql(3);
+      res.body.data[0].should.have.all.keys('GuestStatus', 'Id', 'Username', 'ProfilePicture');
     });
 
-    it('should GET a list of 2 users attending the event', async () => {
+    it('should GET a list of 1 user attending the event', async () => {
       const user1 = await addUserProfile(1);
       const user2 = await addUserProfile(2);
       const user3 = await addUserProfile(3);
@@ -130,6 +131,9 @@ describe('Events', () => {
       res.body.message.should.be.eql('The guests for this event');
       res.body.data.should.be.a('array');
       res.body.data.length.should.be.eql(1);
+      res.body.data[0].should.have.all.keys('GuestStatus', 'Id', 'Username', 'ProfilePicture');
+      res.body.data[0].Id.should.be.eql(user1.insertId);
+      res.body.data[0].GuestStatus.should.be.eql('Invited');
     });
 
     it('should not GET a list of users with unknown event', async () => {
