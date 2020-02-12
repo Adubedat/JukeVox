@@ -163,5 +163,74 @@ describe('Invite', () => {
       res.body.should.have.property('message');
       res.body.message.should.be.eql('Field guestId expected number received string');
     });
+
+    it('should not POST a guest to an unknown event', async () => {
+      const user1 = await addUserProfile(1);
+      const user2 = await addUserProfile(2);
+      const event1 = await addEvent(1, user1.insertId);
+
+      const body = {
+        eventId: -1,
+        guestId: user2.insertId,
+      };
+
+      const jwt = generateJwt(user1.insertId);
+      const res = await chai.request(server)
+        .post('/api/invite')
+        .set({ Authorization: `Bearer ${jwt}` })
+        .send(body);
+
+      res.should.have.status(404);
+      res.body.should.be.a('object');
+      res.body.should.have.property('statusCode');
+      res.body.should.have.property('message');
+      res.body.message.should.be.eql('No event with this ID');
+    });
+
+    it('should not POST a guest to if the JWT does not match the creator of the event', async () => {
+      const user1 = await addUserProfile(1);
+      const user2 = await addUserProfile(2);
+      const event1 = await addEvent(1, user1.insertId);
+
+      const body = {
+        eventId: event1.insertId,
+        guestId: user2.insertId,
+      };
+
+      const jwt = generateJwt(user2.insertId);
+      const res = await chai.request(server)
+        .post('/api/invite')
+        .set({ Authorization: `Bearer ${jwt}` })
+        .send(body);
+
+      res.should.have.status(403);
+      res.body.should.be.a('object');
+      res.body.should.have.property('statusCode');
+      res.body.should.have.property('message');
+      res.body.message.should.be.eql('Forbidden');
+    });
+
+    it('should not POST a guest to if the guest does not exist', async () => {
+      const user1 = await addUserProfile(1);
+      const user2 = await addUserProfile(2);
+      const event1 = await addEvent(1, user1.insertId);
+
+      const body = {
+        eventId: event1.insertId,
+        guestId: -1,
+      };
+
+      const jwt = generateJwt(user1.insertId);
+      const res = await chai.request(server)
+        .post('/api/invite')
+        .set({ Authorization: `Bearer ${jwt}` })
+        .send(body);
+
+      res.should.have.status(404);
+      res.body.should.be.a('object');
+      res.body.should.have.property('statusCode');
+      res.body.should.have.property('message');
+      res.body.message.should.be.eql('No user with this ID');
+    });
   });
 });
