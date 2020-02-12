@@ -87,10 +87,18 @@ Event.updateEvent = function updateEvent(eventId, body) {
   });
 };
 
-// TODO: Actually return the users instead of just the list of Ids
 Event.getEventGuests = function getEventGuests(eventId) {
   return new Promise((resolve, reject) => {
-    const query = 'SELECT * FROM EventGuests WHERE EventId = ?';
+    const query = 'SELECT \
+      EventGuests.GuestStatus, \
+      UserProfiles.Id, \
+      UserProfiles.Username, \
+      UserProfiles.ProfilePicture \
+    FROM \
+      UserProfiles \
+      JOIN EventGuests ON UserProfiles.Id = EventGuests.GuestId \
+    WHERE \
+      EventGuests.EventId = ?;';
     sql.query(query, eventId)
       .then((res) => resolve(res))
       .catch((err) => reject(err));
