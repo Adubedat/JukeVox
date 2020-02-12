@@ -16,6 +16,8 @@ const should = chai.should();
 
 chai.use(chaiHttp);
 
+
+// TODO : Write tests for JWT
 describe('Events', () => {
   beforeEach(async () => {
     await sql.query('DELETE FROM UserAccounts;');
