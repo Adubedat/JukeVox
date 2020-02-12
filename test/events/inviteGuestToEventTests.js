@@ -93,5 +93,75 @@ describe('Invite', () => {
       res.body.should.have.property('message');
       res.body.message.should.be.eql(`User ${user2.insertId} invited to event ${event1.insertId}`);
     });
+
+    it('should not POST a guest to an event with unknown field in body', async () => {
+      const user1 = await addUserProfile(1);
+      const user2 = await addUserProfile(2);
+      const event1 = await addEvent(1, user1.insertId);
+
+      const body = {
+        eventId: event1.insertId,
+        guestId: user2.insertId,
+        unknown: 'unknown',
+      };
+
+      const jwt = generateJwt(user1.insertId);
+      const res = await chai.request(server)
+        .post('/api/invite')
+        .set({ Authorization: `Bearer ${jwt}` })
+        .send(body);
+
+      res.should.have.status(400);
+      res.body.should.be.a('object');
+      res.body.should.have.property('statusCode');
+      res.body.should.have.property('message');
+      res.body.message.should.be.eql('Unknown field: unknown');
+    });
+
+    it('should not POST a guest to an event with wrong type field for eventId', async () => {
+      const user1 = await addUserProfile(1);
+      const user2 = await addUserProfile(2);
+      const event1 = await addEvent(1, user1.insertId);
+
+      const body = {
+        eventId: '1',
+        guestId: user2.insertId,
+      };
+
+      const jwt = generateJwt(user1.insertId);
+      const res = await chai.request(server)
+        .post('/api/invite')
+        .set({ Authorization: `Bearer ${jwt}` })
+        .send(body);
+
+      res.should.have.status(400);
+      res.body.should.be.a('object');
+      res.body.should.have.property('statusCode');
+      res.body.should.have.property('message');
+      res.body.message.should.be.eql('Field eventId expected number received string');
+    });
+
+    it('should not POST a guest to an event with wrong type field for guestId', async () => {
+      const user1 = await addUserProfile(1);
+      const user2 = await addUserProfile(2);
+      const event1 = await addEvent(1, user1.insertId);
+
+      const body = {
+        eventId: event1.insertId,
+        guestId: '1',
+      };
+
+      const jwt = generateJwt(user1.insertId);
+      const res = await chai.request(server)
+        .post('/api/invite')
+        .set({ Authorization: `Bearer ${jwt}` })
+        .send(body);
+
+      res.should.have.status(400);
+      res.body.should.be.a('object');
+      res.body.should.have.property('statusCode');
+      res.body.should.have.property('message');
+      res.body.message.should.be.eql('Field guestId expected number received string');
+    });
   });
 });
