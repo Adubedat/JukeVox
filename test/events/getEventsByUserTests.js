@@ -108,6 +108,8 @@ describe('Events', () => {
       res.body.message.should.be.eql(`The events for the user ${user1.insertId}`);
       res.body.data.should.be.a('array');
       res.body.data.length.should.be.eql(3);
+      res.body.data[0].should.have.all.keys('CreatorId', 'Name', 'Description', 'EventPicture', 'StartDate',
+        'EndDate', 'Latitude', 'Longitude', 'StreamerDevice', 'IsPrivate', 'Id', 'GuestStatus');
     });
 
     it('should GET a list of 2 events that user is attending / not going', async () => {

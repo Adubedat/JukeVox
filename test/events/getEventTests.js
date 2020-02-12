@@ -78,6 +78,8 @@ describe('Events', () => {
       res.body.data.should.have.property('Id');
       res.body.message.should.be.eql(`Event with Id: ${event.insertId}`);
       res.body.data.Name.should.be.eql('House warming');
+      res.body.data.should.have.all.keys('CreatorId', 'Name', 'Description', 'EventPicture', 'StartDate',
+        'EndDate', 'Latitude', 'Longitude', 'StreamerDevice', 'IsPrivate', 'Id');
     });
 
     it('should not GET an event with unknown id', async () => {
