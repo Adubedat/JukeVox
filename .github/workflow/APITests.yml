@@ -5,6 +5,7 @@ on:
     branches:
       - dev
       - master
+      - CICD
   pull_request:
     branches:
       - dev
@@ -26,7 +27,7 @@ jobs:
         ports:
         - 3306
         options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
-        
+
     steps:
       - uses: actions/checkout@v1
       - name: Use Node.js ${{ matrix.node-version }}
