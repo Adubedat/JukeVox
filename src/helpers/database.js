@@ -4,17 +4,17 @@ import params from '../../params';
 class Database {
   constructor() {
     if (process.env.NODE_ENV === 'production') {
-      this.connection = mysql.createConnection(process.env.CLEARDB_DATABASE_URL);
+      this.pool = mysql.createPool(process.env.CLEARDB_DATABASE_URL);
     } else if (process.env.NODE_ENV === 'test') {
-      this.connection = mysql.createConnection(params.test.database);
+      this.pool = mysql.createPool(params.test.database);
     } else {
-      this.connection = mysql.createConnection(params.database);
+      this.pool = mysql.createPool(params.database);
     }
   }
 
   query(sql, args) {
     return new Promise((resolve, reject) => {
-      this.connection.query(sql, args, (err, rows) => {
+      this.pool.query(sql, args, (err, rows) => {
         if (err) { return reject(err); }
         return resolve(rows);
       });
@@ -23,7 +23,7 @@ class Database {
 
   close() {
     return new Promise((resolve, reject) => {
-      this.connection.end((err) => {
+      this.pool.end((err) => {
         if (err) { return reject(err); }
         return resolve();
       });
