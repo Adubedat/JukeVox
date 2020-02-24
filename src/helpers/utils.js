@@ -34,21 +34,33 @@ export function generateJwt(userId) {
 // TODO: Make it a generic function sendEmail
 
 export function sendConfirmationEmail(email, emailConfirmationString) {
-  const transporter = nodemailer.createTransport({
-    host: 'smtp.mailtrap.io',
-    port: 2525,
-    auth: {
-      user: process.env.MAILTRAP_USER,
-      pass: process.env.MAILTRAP_PASS,
-    },
-  });
+  let transporter;
+  if (process.env.NODE_ENV === 'production' || process.env.NODE_ENV === 'test') {
+    transporter = nodemailer.createTransport({
+      host: process.env.MAILGUN_HOST,
+      port: process.env.MAILGUN_PORT,
+      auth: {
+        user: process.env.MAILGUN_USER,
+        pass: process.env.MAILGUN_PASS,
+      },
+    });
+  } else {
+    transporter = nodemailer.createTransport({
+      host: 'smtp.mailtrap.io',
+      port: 2525,
+      auth: {
+        user: process.env.MAILTRAP_USER,
+        pass: process.env.MAILTRAP_PASS,
+      },
+    });
+  }
 
   const message = {
     from: 'noreply@domain.com',
     to: email,
     subject: 'Confirm your email',
-    text: `Please click the following link to validate your email : http://localhost:5000/users/verify/${emailConfirmationString}`,
-    html: `<p>Please click the following link to validate your email : http://localhost:5000/users/verify/${emailConfirmationString}</p>`,
+    text: `Please click the following link to validate your email : https://jukevox.herokuapp.com/confirmEmail/${emailConfirmationString}`,
+    html: `<p>Please click the following link to validate your email : https://jukevox.herokuapp.com/confirmEmail/${emailConfirmationString}</p>`,
   };
 
   transporter.sendMail(message, (err, info) => {

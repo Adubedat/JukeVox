@@ -2,9 +2,8 @@
 import 'core-js/stable';
 import 'regenerator-runtime/runtime';
 
-import Database from '../../src/helpers/database';
+import sql from '../../src/helpers/database';
 
-const sql = new Database();
 const chai = require('chai');
 const chaiHttp = require('chai-http');
 const server = require('../../server');

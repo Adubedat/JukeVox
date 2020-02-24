@@ -1,8 +1,6 @@
 import moment from 'moment';
 import DATETIME_FORMAT from '../constants';
-import Database from '../../helpers/database';
-
-const sql = new Database();
+import sql from '../../helpers/database';
 
 const User = function () {
 
