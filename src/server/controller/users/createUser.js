@@ -1,7 +1,8 @@
 import argon2 from 'argon2';
 import { validateEmail, validatePassword, validateUsername } from '../../../helpers/validation';
 import User from '../../models/userModel';
-import { generateUniqueToken, sendConfirmationEmail } from '../../../helpers/utils';
+import { generateUniqueToken } from '../../../helpers/utils';
+import { sendEmailConfirmationLink } from '../../../helpers/sendMailWithTemplate';
 
 export default async function createUser(req, res, next) {
   const { username, email, password } = req.body;
@@ -14,7 +15,7 @@ export default async function createUser(req, res, next) {
     const [token, userProfile] = await Promise.all([generateUniqueToken(),
       User.createUserProfile(username, email)]);
     const userAccount = await User.createUserAccount(userProfile.insertId, email, hash, token);
-    sendConfirmationEmail(email, userAccount.emailConfirmationString);
+    await sendEmailConfirmationLink(email, username, userAccount.emailConfirmationString);
     res.status(201).send({
       message: 'User created. Please check your mail!',
       statusCode: 201,
