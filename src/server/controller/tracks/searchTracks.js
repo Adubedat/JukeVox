@@ -8,6 +8,17 @@ function validateBody(query) {
   }
 }
 
+function formatTracks(tracks) {
+  return tracks.map((track) => ({
+    deezerSongId: track.id,
+    title: track.title,
+    duration: track.duration,
+    artistName: track.artist.name,
+    pictureSmall: track.album.cover_small,
+    pictureBig: track.album.cover_big,
+  }));
+}
+
 export default async function searchTracks(req, res, next) {
   const { query } = req.query;
   const url = 'https://api.deezer.com/search/track';
@@ -17,12 +28,11 @@ export default async function searchTracks(req, res, next) {
     validateBody(query);
 
     const response = await axios.get(url, { params: { q: query } });
-    const tracks = response.data;
-    console.log(tracks);
+    const tracks = formatTracks(response.data.data);
     res.send({
       message: 'Tracks found',
-      data: tracks.data,
       statusCode: 200,
+      data: tracks,
     });
   } catch (err) {
     next(err);
