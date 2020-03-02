@@ -35,6 +35,17 @@ User.createUserAccount = function createUserAccount(userProfileId, email, passwo
   });
 };
 
+User.createProviderAccount = function createProviderAccount(userId, providerId, provider) {
+  return new Promise((resolve, reject) => {
+    const query = 'INSERT INTO ProviderAccounts (UserProfileId, Provider, ProviderId) VALUES ?';
+    const values = [[userId, provider, providerId]];
+
+    sql.query(query, [values])
+      .then((res) => resolve(res))
+      .catch((err) => reject(err));
+  });
+};
+
 User.deleteUserAccount = function deleteUserAccount(userId) {
   return new Promise((resolve, reject) => {
     const query = 'DELETE FROM UserAccounts WHERE UserProfileId = ?';
@@ -101,10 +112,15 @@ User.getUserAccount = function getUserAccount(filters, values) {
   });
 };
 
-User.getProviderAccountsById = function getProviderAccountsById(userId) {
+User.getProviderAccounts = function getProviderAccounts(filters, values) {
   return new Promise((resolve, reject) => {
-    const query = 'SELECT * FROM ProviderAccounts WHERE UserProfileId = ?';
-    sql.query(query, userId)
+    let query = 'SELECT * FROM ProviderAccounts WHERE 1 = 1';
+    filters.forEach((filter) => {
+      query += ` AND ${filter} = ?`;
+    });
+    query += ';';
+
+    sql.query(query, values)
       .then((res) => resolve(res))
       .catch((err) => reject(err));
   });

@@ -1,6 +1,5 @@
 import crypto from 'crypto';
 import jwt from 'jsonwebtoken';
-import nodemailer from 'nodemailer';
 import User from '../server/models/userModel';
 
 async function checkTokenIsUnique(token) {
