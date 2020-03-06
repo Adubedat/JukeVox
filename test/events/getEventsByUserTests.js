@@ -75,6 +75,7 @@ describe('Events', () => {
       const event1 = await addEvent(1, user1.insertId);
       const event2 = await addEvent(2, user1.insertId);
       const event3 = await addEvent(3, user2.insertId);
+      const event4 = await addEvent(4, user2.insertId);
 
       await addEventGuest(event1.insertId, user1.insertId, 'Going');
       await addEventGuest(event1.insertId, user2.insertId, 'Going');
@@ -84,13 +85,15 @@ describe('Events', () => {
       await addEventGuest(event2.insertId, user2.insertId, 'NotGoing');
 
       await addEventGuest(event3.insertId, user1.insertId, 'Invited');
+
+      await addEventGuest(event4.insertId, user1.insertId, 'NotGoing');
     } catch (err) {
       console.log(err);
     }
   }
 
   describe('GET /me/events', () => {
-    it('should GET a list of 3 events that user is attending / invited / not going', async () => {
+    it('should GET a list of 4 events that user is attending / invited / not going', async () => {
       const user1 = await addUserProfile(1);
       const user2 = await addUserProfile(2);
       const user3 = await addUserProfile(3);
@@ -109,9 +112,199 @@ describe('Events', () => {
       res.body.should.have.property('data');
       res.body.message.should.be.eql(`The events for the user ${user1.insertId}`);
       res.body.data.should.be.a('array');
-      res.body.data.length.should.be.eql(3);
+      res.body.data.length.should.be.eql(4);
       res.body.data[0].should.have.all.keys('CreatorId', 'Name', 'Description', 'EventPicture', 'StartDate',
         'EndDate', 'Latitude', 'Longitude', 'StreamerDevice', 'IsPrivate', 'Id', 'GuestStatus');
+    });
+
+    it('should GET a list of 2 events that the user is going (with filter)', async () => {
+      const user1 = await addUserProfile(1);
+      const user2 = await addUserProfile(2);
+      const user3 = await addUserProfile(3);
+      await populateTables(user1, user2, user3);
+      // User1 is going to event 1, going to event 2, invited to event 3 and notgoing to event 4
+
+      const jwt = generateJwt(user1.insertId);
+      const res = await chai.request(server)
+        .get('/api/me/events')
+        .query({ Going: true })
+        .set({ Authorization: `Bearer ${jwt}` });
+
+      res.should.have.status(200);
+      res.body.should.be.a('object');
+      res.body.should.have.property('statusCode');
+      res.body.should.have.property('message');
+      res.body.should.have.property('data');
+      res.body.message.should.be.eql(`The events for the user ${user1.insertId}`);
+      res.body.data.should.be.a('array');
+      res.body.data.length.should.be.eql(2);
+      res.body.data[0].should.have.all.keys('CreatorId', 'Name', 'Description', 'EventPicture', 'StartDate',
+        'EndDate', 'Latitude', 'Longitude', 'StreamerDevice', 'IsPrivate', 'Id', 'GuestStatus');
+    });
+
+    it('should GET a list of 1 events that the user is invited (with filter)', async () => {
+      const user1 = await addUserProfile(1);
+      const user2 = await addUserProfile(2);
+      const user3 = await addUserProfile(3);
+      await populateTables(user1, user2, user3);
+      // User1 is going to event 1, going to event 2, invited to event 3 and notgoing to event 4
+
+      const jwt = generateJwt(user1.insertId);
+      const res = await chai.request(server)
+        .get('/api/me/events')
+        .query({ Invited: true })
+        .set({ Authorization: `Bearer ${jwt}` });
+
+      res.should.have.status(200);
+      res.body.should.be.a('object');
+      res.body.should.have.property('statusCode');
+      res.body.should.have.property('message');
+      res.body.should.have.property('data');
+      res.body.message.should.be.eql(`The events for the user ${user1.insertId}`);
+      res.body.data.should.be.a('array');
+      res.body.data.length.should.be.eql(1);
+      res.body.data[0].should.have.all.keys('CreatorId', 'Name', 'Description', 'EventPicture', 'StartDate',
+        'EndDate', 'Latitude', 'Longitude', 'StreamerDevice', 'IsPrivate', 'Id', 'GuestStatus');
+    });
+
+    it('should GET a list of 1 events that the user is notgoing (with filter)', async () => {
+      const user1 = await addUserProfile(1);
+      const user2 = await addUserProfile(2);
+      const user3 = await addUserProfile(3);
+      await populateTables(user1, user2, user3);
+      // User1 is going to event 1, going to event 2, invited to event 3 and notgoing to event 4
+
+      const jwt = generateJwt(user1.insertId);
+      const res = await chai.request(server)
+        .get('/api/me/events')
+        .query({ NotGoing: true })
+        .set({ Authorization: `Bearer ${jwt}` });
+
+      res.should.have.status(200);
+      res.body.should.be.a('object');
+      res.body.should.have.property('statusCode');
+      res.body.should.have.property('message');
+      res.body.should.have.property('data');
+      res.body.message.should.be.eql(`The events for the user ${user1.insertId}`);
+      res.body.data.should.be.a('array');
+      res.body.data.length.should.be.eql(1);
+      res.body.data[0].should.have.all.keys('CreatorId', 'Name', 'Description', 'EventPicture', 'StartDate',
+        'EndDate', 'Latitude', 'Longitude', 'StreamerDevice', 'IsPrivate', 'Id', 'GuestStatus');
+    });
+
+    it('should GET a list of 2 events that the user is notgoing AND invited (with filter)', async () => {
+      const user1 = await addUserProfile(1);
+      const user2 = await addUserProfile(2);
+      const user3 = await addUserProfile(3);
+      await populateTables(user1, user2, user3);
+      // User1 is going to event 1, going to event 2, invited to event 3 and notgoing to event 4
+
+      const jwt = generateJwt(user1.insertId);
+      const res = await chai.request(server)
+        .get('/api/me/events')
+        .query({ Invited: true, NotGoing: true })
+        .set({ Authorization: `Bearer ${jwt}` });
+
+      res.should.have.status(200);
+      res.body.should.be.a('object');
+      res.body.should.have.property('statusCode');
+      res.body.should.have.property('message');
+      res.body.should.have.property('data');
+      res.body.message.should.be.eql(`The events for the user ${user1.insertId}`);
+      res.body.data.should.be.a('array');
+      res.body.data.length.should.be.eql(2);
+      res.body.data[0].should.have.all.keys('CreatorId', 'Name', 'Description', 'EventPicture', 'StartDate',
+        'EndDate', 'Latitude', 'Longitude', 'StreamerDevice', 'IsPrivate', 'Id', 'GuestStatus');
+    });
+
+    it('should GET a list of 2 events that the user is notgoing AND invited (with filter and going = false)', async () => {
+      const user1 = await addUserProfile(1);
+      const user2 = await addUserProfile(2);
+      const user3 = await addUserProfile(3);
+      await populateTables(user1, user2, user3);
+      // User1 is going to event 1, going to event 2, invited to event 3 and notgoing to event 4
+
+      const jwt = generateJwt(user1.insertId);
+      const res = await chai.request(server)
+        .get('/api/me/events')
+        .query({ Invited: true, NotGoing: true, Going: false })
+        .set({ Authorization: `Bearer ${jwt}` });
+
+      res.should.have.status(200);
+      res.body.should.be.a('object');
+      res.body.should.have.property('statusCode');
+      res.body.should.have.property('message');
+      res.body.should.have.property('data');
+      res.body.message.should.be.eql(`The events for the user ${user1.insertId}`);
+      res.body.data.should.be.a('array');
+      res.body.data.length.should.be.eql(2);
+      res.body.data[0].should.have.all.keys('CreatorId', 'Name', 'Description', 'EventPicture', 'StartDate',
+        'EndDate', 'Latitude', 'Longitude', 'StreamerDevice', 'IsPrivate', 'Id', 'GuestStatus');
+    });
+
+    it('should GET a list of 4 events that the user is notgoing AND invited AND going (with filter)', async () => {
+      const user1 = await addUserProfile(1);
+      const user2 = await addUserProfile(2);
+      const user3 = await addUserProfile(3);
+      await populateTables(user1, user2, user3);
+      // User1 is going to event 1, going to event 2, invited to event 3 and notgoing to event 4
+
+      const jwt = generateJwt(user1.insertId);
+      const res = await chai.request(server)
+        .get('/api/me/events')
+        .query({ Invited: true, NotGoing: true, Going: true })
+        .set({ Authorization: `Bearer ${jwt}` });
+
+      res.should.have.status(200);
+      res.body.should.be.a('object');
+      res.body.should.have.property('statusCode');
+      res.body.should.have.property('message');
+      res.body.should.have.property('data');
+      res.body.message.should.be.eql(`The events for the user ${user1.insertId}`);
+      res.body.data.should.be.a('array');
+      res.body.data.length.should.be.eql(4);
+      res.body.data[0].should.have.all.keys('CreatorId', 'Name', 'Description', 'EventPicture', 'StartDate',
+        'EndDate', 'Latitude', 'Longitude', 'StreamerDevice', 'IsPrivate', 'Id', 'GuestStatus');
+    });
+
+    it('should not GET events if the type of one of the filters is wrong', async () => {
+      const user1 = await addUserProfile(1);
+      const user2 = await addUserProfile(2);
+      const user3 = await addUserProfile(3);
+      await populateTables(user1, user2, user3);
+      // User1 is going to event 1, going to event 2, invited to event 3 and notgoing to event 4
+
+      const jwt = generateJwt(user1.insertId);
+      const res = await chai.request(server)
+        .get('/api/me/events')
+        .query({ Invited: 'test', NotGoing: true, Going: true })
+        .set({ Authorization: `Bearer ${jwt}` });
+
+      res.should.have.status(400);
+      res.body.should.be.a('object');
+      res.body.should.have.property('statusCode');
+      res.body.should.have.property('message');
+      res.body.message.should.be.eql('Field Invited expected boolean received string');
+    });
+
+    it('should not GET events if one of the fields is wrong', async () => {
+      const user1 = await addUserProfile(1);
+      const user2 = await addUserProfile(2);
+      const user3 = await addUserProfile(3);
+      await populateTables(user1, user2, user3);
+      // User1 is going to event 1, going to event 2, invited to event 3 and notgoing to event 4
+
+      const jwt = generateJwt(user1.insertId);
+      const res = await chai.request(server)
+        .get('/api/me/events')
+        .query({ Unknown: true, NotGoing: true, Going: true })
+        .set({ Authorization: `Bearer ${jwt}` });
+
+      res.should.have.status(400);
+      res.body.should.be.a('object');
+      res.body.should.have.property('statusCode');
+      res.body.should.have.property('message');
+      res.body.message.should.be.eql('Unknown field: Unknown');
     });
 
     it('should GET a list of 2 events that user is attending / not going', async () => {
@@ -146,6 +339,29 @@ describe('Events', () => {
       const jwt = generateJwt(user3.insertId);
       const res = await chai.request(server)
         .get('/api/me/events')
+        .set({ Authorization: `Bearer ${jwt}` });
+
+      res.should.have.status(200);
+      res.body.should.be.a('object');
+      res.body.should.have.property('statusCode');
+      res.body.should.have.property('message');
+      res.body.should.have.property('data');
+      res.body.message.should.be.eql(`The events for the user ${user3.insertId}`);
+      res.body.data.should.be.a('array');
+      res.body.data.length.should.be.eql(1);
+    });
+
+    it('should GET a list of 1 event that user is invited with filter as string', async () => {
+      const user1 = await addUserProfile(1);
+      const user2 = await addUserProfile(2);
+      const user3 = await addUserProfile(3);
+      await populateTables(user1, user2, user3);
+
+
+      const jwt = generateJwt(user3.insertId);
+      const res = await chai.request(server)
+        .get('/api/me/events')
+        .query({ Invited: 'true' })
         .set({ Authorization: `Bearer ${jwt}` });
 
       res.should.have.status(200);
