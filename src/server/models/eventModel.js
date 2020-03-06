@@ -58,13 +58,15 @@ Event.getEventsByUser = function getEventsByUser(userId, filters) {
         EventGuests.GuestId = ?';
 
     filters.forEach((filter) => {
-      let conjunction = 'AND';
+      let conjunction = 'AND (';
       if (filters.indexOf(filter) > 0) {
         conjunction = 'OR';
       }
       query += ` ${conjunction} EventGuests.GuestStatus = '${filter}'`;
     });
-    query += ';';
+    if (filters[0]) {
+      query += ');';
+    }
     sql.query(query, userId)
       .then((res) => resolve(res))
       .catch((err) => reject(err));
