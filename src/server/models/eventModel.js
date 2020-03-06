@@ -46,9 +46,9 @@ Event.getEvent = function getEvent(eventId) {
   });
 };
 
-Event.getEventsByUser = function getEventsByUser(userId) {
+Event.getEventsByUser = function getEventsByUser(userId, filters) {
   return new Promise((resolve, reject) => {
-    const query = 'SELECT \
+    let query = 'SELECT \
         EventGuests.GuestStatus, \
         Events.* \
       FROM \
@@ -56,6 +56,15 @@ Event.getEventsByUser = function getEventsByUser(userId) {
         JOIN EventGuests ON Events.Id = EventGuests.EventId \
       WHERE \
         EventGuests.GuestId = ?';
+
+    filters.forEach((filter) => {
+      let conjunction = 'AND';
+      if (filters.indexOf(filter) > 0) {
+        conjunction = 'OR';
+      }
+      query += ` ${conjunction} EventGuests.GuestStatus = '${filter}'`;
+    });
+    query += ';';
     sql.query(query, userId)
       .then((res) => resolve(res))
       .catch((err) => reject(err));
