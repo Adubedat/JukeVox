@@ -197,7 +197,7 @@ describe('Events', () => {
         latitude: 48.8915482,
         longitude: 2.3170656,
         streamerDevice: 'abcd',
-        isPrivate: 'true',
+        isPrivate: 'z',
         eventPicture: 'defaultPicture1',
       };
 
