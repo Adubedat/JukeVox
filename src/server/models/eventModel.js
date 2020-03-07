@@ -98,9 +98,9 @@ Event.updateEvent = function updateEvent(eventId, body) {
   });
 };
 
-Event.getEventGuests = function getEventGuests(eventId) {
+Event.getEventGuests = function getEventGuests(eventId, filters) {
   return new Promise((resolve, reject) => {
-    const query = 'SELECT \
+    let query = 'SELECT \
       EventGuests.GuestStatus, \
       UserProfiles.Id, \
       UserProfiles.Username, \
@@ -109,7 +109,19 @@ Event.getEventGuests = function getEventGuests(eventId) {
       UserProfiles \
       JOIN EventGuests ON UserProfiles.Id = EventGuests.GuestId \
     WHERE \
-      EventGuests.EventId = ?;';
+      EventGuests.EventId = ?';
+
+    filters.forEach((filter) => {
+      let conjunction = 'AND (';
+      if (filters.indexOf(filter) > 0) {
+        conjunction = 'OR';
+      }
+      query += ` ${conjunction} EventGuests.GuestStatus = '${filter}'`;
+    });
+    if (filters[0]) {
+      query += ');';
+    }
+
     sql.query(query, eventId)
       .then((res) => resolve(res))
       .catch((err) => reject(err));
