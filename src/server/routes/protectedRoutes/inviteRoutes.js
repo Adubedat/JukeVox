@@ -3,7 +3,7 @@ import inviteGuestToEvent from '../../controller/events/inviteGuestToEvent';
 
 const router = express.Router();
 
-router.route('/')
+router.route('/invite')
   .post(inviteGuestToEvent);
 
 export default router;

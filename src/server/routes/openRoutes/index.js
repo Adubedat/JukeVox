@@ -12,7 +12,7 @@ router.use((req, res, next) => {
 
 router.use('/users', userRoute);
 
-router.patch('/confirmEmail/:token', confirmEmail);
+router.get('/confirmEmail/:token', confirmEmail);
 
 router.post('/login', login);
 

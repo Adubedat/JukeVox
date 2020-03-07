@@ -3,11 +3,10 @@ import 'core-js/stable';
 import 'regenerator-runtime/runtime';
 import moment from 'moment';
 import DATETIME_FORMAT from '../../src/server/constants';
-import Database from '../../src/helpers/database';
+import sql from '../../src/helpers/database';
 
 import { generateJwt } from '../../src/helpers/utils';
 
-const sql = new Database();
 const chai = require('chai');
 const chaiHttp = require('chai-http');
 const server = require('../../server');
@@ -233,6 +232,7 @@ describe('Invite', () => {
       res.body.message.should.be.eql('No user with this ID');
     });
 
+<<<<<<< HEAD
     it('should not POST a guest to if the guest is already invited', async () => {
       const user1 = await addUserProfile(1);
       const user2 = await addUserProfile(2);
@@ -259,5 +259,8 @@ describe('Invite', () => {
       const invited = await sql.query('SELECT * FROM EventGuests');
       invited.should.have.lengthOf(1);
     });
+=======
+    // TODO: Check if guest is already invited!
+>>>>>>> dev
   });
 });

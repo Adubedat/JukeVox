@@ -4,9 +4,8 @@ import 'regenerator-runtime/runtime';
 import moment from 'moment';
 import DATETIME_FORMAT from '../../src/server/constants';
 
-import Database from '../../src/helpers/database';
+import sql from '../../src/helpers/database';
 
-const sql = new Database();
 const chai = require('chai');
 const chaiHttp = require('chai-http');
 const server = require('../../server');
@@ -188,7 +187,7 @@ describe('Users', () => {
     it('should POST a user', (done) => {
       const user = {
         username: 'Daniel',
-        email: 'daniel@mail.com',
+        email: 'arthur.dubedat@gmail.com',
         password: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
       };
       chai.request(server)

@@ -1,7 +1,6 @@
-import Database from '../../helpers/database';
 import { ErrorResponseHandler } from '../../helpers/error';
 
-const sql = new Database();
+import sql from '../../helpers/database';
 
 const Event = function () {
 

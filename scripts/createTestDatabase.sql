@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS  `UserProfiles` (
   `Username` varchar(20) UNIQUE,
   `Email` varchar(50),
   `ProfilePicture` varchar(100),
-  `CreatedAt` timestamp NOT NULL DEFAULT (now())
+  `CreatedAt` timestamp NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS `UserAccounts` (

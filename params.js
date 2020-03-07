@@ -1,16 +1,17 @@
 const params = {
   port: 5000,
   database: {
-    host: 'localhost',
+    host: '127.0.0.1',
     user: 'root',
-    password: '',
+    password: 'root',
     database: 'JukeVox',
   },
   test: {
     database: {
-      host: 'localhost',
+      port: 3306,
+      host: '127.0.0.1',
       user: 'root',
-      password: '',
+      password: 'root',
       database: 'JukeVoxTest',
     },
   },
