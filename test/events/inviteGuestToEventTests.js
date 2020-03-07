@@ -232,7 +232,6 @@ describe('Invite', () => {
       res.body.message.should.be.eql('No user with this ID');
     });
 
-<<<<<<< HEAD
     it('should not POST a guest to if the guest is already invited', async () => {
       const user1 = await addUserProfile(1);
       const user2 = await addUserProfile(2);
@@ -259,8 +258,5 @@ describe('Invite', () => {
       const invited = await sql.query('SELECT * FROM EventGuests');
       invited.should.have.lengthOf(1);
     });
-=======
-    // TODO: Check if guest is already invited!
->>>>>>> dev
   });
 });
