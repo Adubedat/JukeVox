@@ -255,6 +255,9 @@ describe('Invite', () => {
       res.body.should.have.property('statusCode');
       res.body.should.have.property('message');
       res.body.message.should.be.eql('Guest already invited or attending');
+
+      const invited = await sql.query('SELECT * FROM EventGuests');
+      invited.should.have.lengthOf(1);
     });
   });
 });
