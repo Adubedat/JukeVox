@@ -17,11 +17,9 @@ export default async function voteForTrack(req, res, next) {
 
     // TODO: Check that trackId exists
 
-    // TODO: Check if vote is === to 1, -1 or 0
-
     // TODO: Check if user is 'going' to the event
 
-    // TODO: Update vote if vote already exists
+    // TODO: Check if vote is === to 1, -1 or 0
 
     await Vote.addVote(trackIdAsInt, userId, vote);
 
