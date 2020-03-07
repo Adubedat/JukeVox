@@ -185,6 +185,77 @@ describe('Events', () => {
       res.body.message.should.be.eql('No guests found for this event');
     });
 
+    it('should GET a list of 3 users going to the event (filter invited = true going = true)', async () => {
+      const user1 = await addUserProfile(1);
+      const user2 = await addUserProfile(2);
+      const user3 = await addUserProfile(3);
+      const event1 = await addEvent(1, user1.insertId);
+      const event2 = await addEvent(2, user1.insertId);
+      const event3 = await addEvent(3, user2.insertId);
+      await populateTables(user1, user2, user3, event1, event2, event3);
+
+      const jwt = generateJwt(user1.insertId);
+      const res = await chai.request(server)
+        .get(`/api/events/${event1.insertId}/guests`)
+        .query({ Invited: true, Going: true })
+        .set({ Authorization: `Bearer ${jwt}` });
+
+      res.should.have.status(200);
+      res.body.should.be.a('object');
+      res.body.should.have.property('statusCode');
+      res.body.should.have.property('message');
+      res.body.should.have.property('data');
+      res.body.message.should.be.eql('The guests for this event');
+      res.body.data.should.be.a('array');
+      res.body.data.length.should.be.eql(3);
+      res.body.data[0].should.have.all.keys('GuestStatus', 'Id', 'Username', 'ProfilePicture');
+    });
+
+    it('should not GET users with filter wrong type', async () => {
+      const user1 = await addUserProfile(1);
+      const user2 = await addUserProfile(2);
+      const user3 = await addUserProfile(3);
+      const event1 = await addEvent(1, user1.insertId);
+      const event2 = await addEvent(2, user1.insertId);
+      const event3 = await addEvent(3, user2.insertId);
+      await populateTables(user1, user2, user3, event1, event2, event3);
+
+      const jwt = generateJwt(user1.insertId);
+      const res = await chai.request(server)
+        .get(`/api/events/${event1.insertId}/guests`)
+        .query({ NotGoing: 'two' })
+        .set({ Authorization: `Bearer ${jwt}` });
+
+      res.should.have.status(400);
+      res.body.should.be.a('object');
+      res.body.should.have.property('statusCode');
+      res.body.should.have.property('message');
+      res.body.message.should.be.eql('Field NotGoing expected boolean received string');
+    });
+
+    it('should not GET users with unkown filter', async () => {
+      const user1 = await addUserProfile(1);
+      const user2 = await addUserProfile(2);
+      const user3 = await addUserProfile(3);
+      const event1 = await addEvent(1, user1.insertId);
+      const event2 = await addEvent(2, user1.insertId);
+      const event3 = await addEvent(3, user2.insertId);
+      await populateTables(user1, user2, user3, event1, event2, event3);
+
+      const jwt = generateJwt(user1.insertId);
+      const res = await chai.request(server)
+        .get(`/api/events/${event1.insertId}/guests`)
+        .query({ Going: true, Unknown: true })
+        .set({ Authorization: `Bearer ${jwt}` });
+
+      res.should.have.status(400);
+      res.body.should.be.a('object');
+      res.body.should.have.property('statusCode');
+      res.body.should.have.property('message');
+      res.body.message.should.be.eql('Unknown field: Unknown');
+    });
+
+
     it('should GET a list of 1 user attending the event', async () => {
       const user1 = await addUserProfile(1);
       const user2 = await addUserProfile(2);
