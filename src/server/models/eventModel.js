@@ -1,4 +1,5 @@
 import Database from '../../helpers/database';
+import { ErrorResponseHandler } from '../../helpers/error';
 
 const sql = new Database();
 
@@ -33,7 +34,13 @@ Event.addGuest = function addGuestToEvent(eventId, guestId, hasPlayerControl, gu
       .then((res) => {
         resolve(res);
       })
-      .catch((err) => reject(err));
+      .catch((err) => {
+        if (err.code === 'ER_DUP_ENTRY') {
+          const customError = new ErrorResponseHandler(400, 'Guest already invited or attending');
+          reject(customError);
+        }
+        reject(err);
+      });
   });
 };
 

@@ -232,5 +232,29 @@ describe('Invite', () => {
       res.body.should.have.property('message');
       res.body.message.should.be.eql('No user with this ID');
     });
+
+    it('should not POST a guest to if the guest is already invited', async () => {
+      const user1 = await addUserProfile(1);
+      const user2 = await addUserProfile(2);
+      const event1 = await addEvent(1, user1.insertId);
+      await addEventGuest(event1.insertId, user2.insertId, 'Going');
+
+      const body = {
+        eventId: event1.insertId,
+        guestId: user2.insertId,
+      };
+
+      const jwt = generateJwt(user1.insertId);
+      const res = await chai.request(server)
+        .post('/api/invite')
+        .set({ Authorization: `Bearer ${jwt}` })
+        .send(body);
+
+      res.should.have.status(400);
+      res.body.should.be.a('object');
+      res.body.should.have.property('statusCode');
+      res.body.should.have.property('message');
+      res.body.message.should.be.eql('Guest already invited or attending');
+    });
   });
 });
