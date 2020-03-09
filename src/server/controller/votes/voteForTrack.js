@@ -24,9 +24,14 @@ export default async function voteForTrack(req, res, next) {
       throw new ErrorResponseHandler(404, 'No event found with this ID');
     }
 
-    // TODO: Check if the user is going to the event
+    const guestStatusResponse = await Event.getGuestStatusForEvent(userId, eventId);
+    if (guestStatusResponse[0] == null || guestStatusResponse[0].GuestStatus !== 'Going') {
+      throw new ErrorResponseHandler(403, 'Forbidden');
+    }
 
-    // TODO: Check if the track is in the event
+    // TODO: Check if the track is in the event'
+
+    // TODO: Check if event is ongoing
 
     // TODO: Check if vote is === to 1, -1 or 0
 

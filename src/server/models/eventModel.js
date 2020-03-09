@@ -135,4 +135,19 @@ Event.getEventGuests = function getEventGuests(eventId, filters) {
   });
 };
 
+Event.getGuestStatusForEvent = function getGuestStatusForEvent(userId, eventId) {
+  return new Promise((resolve, reject) => {
+    const query = 'SELECT \
+        GuestStatus \
+      FROM \
+        EventGuests \
+      WHERE \
+        GuestId = ? AND EventId = ?;';
+
+    sql.query(query, [userId, eventId])
+      .then((res) => resolve(res))
+      .catch((err) => reject(err));
+  });
+};
+
 export default Event;
