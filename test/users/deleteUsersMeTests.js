@@ -2,10 +2,9 @@
 import 'core-js/stable';
 import 'regenerator-runtime/runtime';
 import argon2 from 'argon2';
-import Database from '../../src/helpers/database';
+import sql from '../../src/helpers/database';
 import { generateJwt } from '../../src/helpers/utils';
 
-const sql = new Database();
 const chai = require('chai');
 const chaiHttp = require('chai-http');
 const server = require('../../server');

@@ -3,11 +3,10 @@ import 'core-js/stable';
 import 'regenerator-runtime/runtime';
 import moment from 'moment';
 import DATETIME_FORMAT from '../../src/server/constants';
-import Database from '../../src/helpers/database';
+import sql from '../../src/helpers/database';
 
 import { generateJwt } from '../../src/helpers/utils';
 
-const sql = new Database();
 const chai = require('chai');
 const chaiHttp = require('chai-http');
 const server = require('../../server');
@@ -233,6 +232,31 @@ describe('Invite', () => {
       res.body.message.should.be.eql('No user with this ID');
     });
 
-    // TODO: Check if guest is already invited!
+    it('should not POST a guest to if the guest is already invited', async () => {
+      const user1 = await addUserProfile(1);
+      const user2 = await addUserProfile(2);
+      const event1 = await addEvent(1, user1.insertId);
+      await addEventGuest(event1.insertId, user2.insertId, 'Going');
+
+      const body = {
+        eventId: event1.insertId,
+        guestId: user2.insertId,
+      };
+
+      const jwt = generateJwt(user1.insertId);
+      const res = await chai.request(server)
+        .post('/api/invite')
+        .set({ Authorization: `Bearer ${jwt}` })
+        .send(body);
+
+      res.should.have.status(400);
+      res.body.should.be.a('object');
+      res.body.should.have.property('statusCode');
+      res.body.should.have.property('message');
+      res.body.message.should.be.eql('Guest already invited or attending');
+
+      const invited = await sql.query('SELECT * FROM EventGuests');
+      invited.should.have.lengthOf(1);
+    });
   });
 });

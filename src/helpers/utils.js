@@ -1,8 +1,6 @@
 import crypto from 'crypto';
 import jwt from 'jsonwebtoken';
-import nodemailer from 'nodemailer';
 import User from '../server/models/userModel';
-import ErrorResponseHandler from './error';
 
 async function checkTokenIsUnique(token) {
   const response = await User.getUserAccount(['EmailConfirmationString'], [token]);
@@ -28,34 +26,13 @@ export function generateJwt(userId) {
   return jwt.sign(payload, process.env.JWT_SECRET, { expiresIn });
 }
 
-
-// TODO: sending the email is async. We should wait for it in order to catch errors before
-// returning the 200 status code.
-// TODO: Make it a generic function sendEmail
-
-export function sendConfirmationEmail(email, emailConfirmationString) {
-  const transporter = nodemailer.createTransport({
-    host: 'smtp.mailtrap.io',
-    port: 2525,
-    auth: {
-      user: process.env.MAILTRAP_USER,
-      pass: process.env.MAILTRAP_PASS,
-    },
-  });
-
-  const message = {
-    from: 'noreply@domain.com',
-    to: email,
-    subject: 'Confirm your email',
-    text: `Please click the following link to validate your email : http://localhost:5000/users/verify/${emailConfirmationString}`,
-    html: `<p>Please click the following link to validate your email : http://localhost:5000/users/verify/${emailConfirmationString}</p>`,
-  };
-
-  transporter.sendMail(message, (err, info) => {
-    if (err) {
-      console.log(err);
-      throw new ErrorResponseHandler(500, 'Internal server Error');
-    }
-    return console.log('Message sent: %s', info.messageId);
-  });
+export async function generateUsername() {
+  const username = `user_${Math.floor(Math.random() * 100000000000000)}`;
+  const [userProfile] = await User.getUserProfile(['Username'], [username]);
+  console.log('generateusername');
+  console.log(userProfile);
+  if (userProfile !== undefined) {
+    return generateUsername();
+  }
+  return username;
 }

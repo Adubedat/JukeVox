@@ -3,11 +3,10 @@ import 'core-js/stable';
 import 'regenerator-runtime/runtime';
 import moment from 'moment';
 import DATETIME_FORMAT from '../../src/server/constants';
-import Database from '../../src/helpers/database';
+import sql from '../../src/helpers/database';
 
 import { generateJwt } from '../../src/helpers/utils';
 
-const sql = new Database();
 const chai = require('chai');
 const chaiHttp = require('chai-http');
 const server = require('../../server');
@@ -197,7 +196,7 @@ describe('Events', () => {
         latitude: 48.8915482,
         longitude: 2.3170656,
         streamerDevice: 'abcd',
-        isPrivate: 'true',
+        isPrivate: 'z',
         eventPicture: 'defaultPicture1',
       };
 

@@ -6,6 +6,7 @@ class Database {
     if (process.env.NODE_ENV === 'production') {
       this.pool = mysql.createPool(process.env.CLEARDB_DATABASE_URL);
     } else if (process.env.NODE_ENV === 'test') {
+      console.log(params.test.database);
       this.pool = mysql.createPool(params.test.database);
     } else {
       this.pool = mysql.createPool(params.database);
@@ -15,7 +16,10 @@ class Database {
   query(sql, args) {
     return new Promise((resolve, reject) => {
       this.pool.query(sql, args, (err, rows) => {
-        if (err) { return reject(err); }
+        if (err) {
+          console.log(err);
+          return reject(err);
+        }
         return resolve(rows);
       });
     });
@@ -31,4 +35,4 @@ class Database {
   }
 }
 
-export default Database;
+export default new Database();

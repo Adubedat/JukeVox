@@ -1,6 +1,6 @@
+import ejs from 'ejs';
 import User from '../../models/userModel';
 import { ErrorResponseHandler } from '../../../helpers/error';
-import { generateJwt } from '../../../helpers/utils';
 
 export default async function confirmEmail(req, res, next) {
   const { token } = req.params;
@@ -12,11 +12,9 @@ export default async function confirmEmail(req, res, next) {
     }
     const confirmation = await User.confirmUserEmail(token);
     if (confirmation.affectedRows > 0) {
-      const jsonToken = generateJwt(userAccount[0].UserProfileId);
-      res.send({
-        message: 'Email successfully confirmed',
-        jwt: jsonToken,
-        statusCode: 200,
+      ejs.renderFile(`${__dirname}/../../../../templates/emailConfirmed.ejs`, {}, (err, data) => {
+        console.log(data);
+        res.send(data);
       });
     }
   } catch (err) {

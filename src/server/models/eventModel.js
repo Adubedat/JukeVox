@@ -1,6 +1,6 @@
-import Database from '../../helpers/database';
+import { ErrorResponseHandler } from '../../helpers/error';
 
-const sql = new Database();
+import sql from '../../helpers/database';
 
 const Event = function () {
 
@@ -33,7 +33,14 @@ Event.addGuest = function addGuestToEvent(eventId, guestId, hasPlayerControl, gu
       .then((res) => {
         resolve(res);
       })
-      .catch((err) => reject(err));
+      .catch((err) => {
+        // TODO: Check if this is best practice. Also see if useful printing console log in the error handling
+        if (err.code === 'ER_DUP_ENTRY') {
+          const customError = new ErrorResponseHandler(400, 'Guest already invited or attending');
+          reject(customError);
+        }
+        reject(err);
+      });
   });
 };
 
@@ -46,9 +53,9 @@ Event.getEvent = function getEvent(eventId) {
   });
 };
 
-Event.getEventsByUser = function getEventsByUser(userId) {
+Event.getEventsByUser = function getEventsByUser(userId, filters) {
   return new Promise((resolve, reject) => {
-    const query = 'SELECT \
+    let query = 'SELECT \
         EventGuests.GuestStatus, \
         Events.* \
       FROM \
@@ -56,6 +63,17 @@ Event.getEventsByUser = function getEventsByUser(userId) {
         JOIN EventGuests ON Events.Id = EventGuests.EventId \
       WHERE \
         EventGuests.GuestId = ?';
+
+    filters.forEach((filter) => {
+      let conjunction = 'AND (';
+      if (filters.indexOf(filter) > 0) {
+        conjunction = 'OR';
+      }
+      query += ` ${conjunction} EventGuests.GuestStatus = '${filter}'`;
+    });
+    if (filters[0]) {
+      query += ');';
+    }
     sql.query(query, userId)
       .then((res) => resolve(res))
       .catch((err) => reject(err));
@@ -87,9 +105,9 @@ Event.updateEvent = function updateEvent(eventId, body) {
   });
 };
 
-Event.getEventGuests = function getEventGuests(eventId) {
+Event.getEventGuests = function getEventGuests(eventId, filters) {
   return new Promise((resolve, reject) => {
-    const query = 'SELECT \
+    let query = 'SELECT \
       EventGuests.GuestStatus, \
       UserProfiles.Id, \
       UserProfiles.Username, \
@@ -98,7 +116,19 @@ Event.getEventGuests = function getEventGuests(eventId) {
       UserProfiles \
       JOIN EventGuests ON UserProfiles.Id = EventGuests.GuestId \
     WHERE \
-      EventGuests.EventId = ?;';
+      EventGuests.EventId = ?';
+
+    filters.forEach((filter) => {
+      let conjunction = 'AND (';
+      if (filters.indexOf(filter) > 0) {
+        conjunction = 'OR';
+      }
+      query += ` ${conjunction} EventGuests.GuestStatus = '${filter}'`;
+    });
+    if (filters[0]) {
+      query += ');';
+    }
+
     sql.query(query, eventId)
       .then((res) => resolve(res))
       .catch((err) => reject(err));

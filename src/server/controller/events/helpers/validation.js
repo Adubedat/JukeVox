@@ -23,7 +23,7 @@ export function validateType(fieldName, fieldValue, expectedType) {
       }
       break;
     case 'boolean':
-      if (typeof fieldValue !== 'boolean') {
+      if (typeof fieldValue !== 'boolean' && fieldValue !== 'true' && fieldValue !== 'false') {
         throw new ErrorResponseHandler(
           400,
           `Field ${fieldName} expected ${expectedType} received ${typeof fieldValue}`,
