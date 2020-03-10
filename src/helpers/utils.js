@@ -25,3 +25,14 @@ export function generateJwt(userId) {
   const expiresIn = 3600 * 24 * 365; // one year
   return jwt.sign(payload, process.env.JWT_SECRET, { expiresIn });
 }
+
+export async function generateUsername() {
+  const username = `user_${Math.floor(Math.random() * 100000000000000)}`;
+  const [userProfile] = await User.getUserProfile(['Username'], [username]);
+  console.log('generateusername');
+  console.log(userProfile);
+  if (userProfile !== undefined) {
+    return generateUsername();
+  }
+  return username;
+}
