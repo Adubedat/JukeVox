@@ -15,11 +15,8 @@ router.use('/', usersRoutes);
 router.use('/', eventRoutes);
 router.use('/', inviteRoutes);
 router.use('/', friendshipsRoutes);
-<<<<<<< HEAD
 router.use('/', tracksRoutes);
 
-=======
 router.use('/votes', votesRoutes);
->>>>>>> dev
 
 export default router;
