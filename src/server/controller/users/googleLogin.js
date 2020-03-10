@@ -24,7 +24,7 @@ export default async function googleLogin(req, res, next) {
     checkUnknownFields(['idToken'], req.body);
     const decodedToken = await admin.auth().verifyIdToken(idToken).catch((error) => {
       console.log(error);
-      throw new ErrorResponseHandler(400, 'Unvalid Google idToken');
+      throw new ErrorResponseHandler(400, error.errorInfo.message);
     });
     const providerId = decodedToken.uid;
 

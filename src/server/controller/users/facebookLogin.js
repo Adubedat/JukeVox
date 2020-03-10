@@ -21,7 +21,7 @@ export default async function facebookLogin(req, res, next) {
       let userProfile;
 
       if (!resp || resp.error) {
-        throw new ErrorResponseHandler(400, 'Unvalid facebook access token');
+        throw new ErrorResponseHandler(400, 'Invalid facebook access token');
       }
 
       const [[providerAccount], [userProfileByEmail]] = await Promise.all([User.getProviderAccounts(['ProviderId', 'Provider'], [providerId, 'Facebook']),
