@@ -1,13 +1,11 @@
-import dotenv from 'dotenv';
-import openRoutes from './src/server/routes/openRoutes';
-import protectedRoutes from './src/server/routes/protectedRoutes';
-import params from './params';
-
-import { handleError } from './src/helpers/error';
+import {} from 'dotenv/config';
+import openRoutes from './src/server/routes/openRoutes'; // eslint-disable-line
+import protectedRoutes from './src/server/routes/protectedRoutes'; // eslint-disable-line
+import params from './params'; // eslint-disable-line
+import { handleError } from './src/helpers/error'; // eslint-disable-line
 
 // TODO: Fix return codes
 
-dotenv.config();
 const express = require('express');
 
 const port = process.env.PORT || params.port;
