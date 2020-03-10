@@ -11,6 +11,15 @@ const express = require('express');
 const port = process.env.PORT || params.port;
 const app = express();
 
+const socketio = require('socket.io')(app);
+
+socketio.on('connection', (userSocket) => {
+  console.log('user connected');
+  userSocket.on('send_message', (data) => {
+    userSocket.broadcast.emit('receive_message', data);
+  });
+});
+
 app.listen(port);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
