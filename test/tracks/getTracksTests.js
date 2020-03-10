@@ -2,10 +2,9 @@
 import 'core-js/stable';
 import 'regenerator-runtime/runtime';
 
-import Database from '../../src/helpers/database';
+import sql from '../../src/helpers/database';
 import { generateJwt } from '../../src/helpers/utils';
 
-const sql = new Database();
 const chai = require('chai');
 const chaiHttp = require('chai-http');
 const server = require('../../server');
@@ -30,7 +29,7 @@ describe('Users', () => {
       const jwt = generateJwt(user1.insertId);
 
       const res = await chai.request(server)
-        .get('/users')
+        .get('/api/tracks')
         .set({ Authorization: `Bearer ${jwt}` })
         .query(query);
 
@@ -40,9 +39,6 @@ describe('Users', () => {
       res.body.message.should.eql('Tracks found');
       res.body.should.have.property('data');
       res.body.data.should.be.a('array');
-      res.body.data[0].should.have.property('id');
-      res.body.data[0].should.have.property('eventId');
-      res.body.data[0].should.have.property('userId');
       res.body.data[0].should.have.property('deezerSongId');
       res.body.data[0].should.have.property('title');
       res.body.data[0].should.have.property('duration');
@@ -56,7 +52,7 @@ describe('Users', () => {
       const jwt = generateJwt(user1.insertId);
 
       const res = await chai.request(server)
-        .get('/users')
+        .get('/api/tracks')
         .set({ Authorization: `Bearer ${jwt}` });
 
       res.should.have.status(400);
@@ -71,7 +67,7 @@ describe('Users', () => {
       };
 
       const res = await chai.request(server)
-        .get('/users')
+        .get('/api/tracks')
         .query(query);
 
       res.should.have.status(401);
@@ -89,7 +85,7 @@ describe('Users', () => {
       const jwt = generateJwt(user1.insertId);
 
       const res = await chai.request(server)
-        .get('/users')
+        .get('/api/tracks')
         .set({ Authorization: `Bearer ${jwt}` })
         .query(query);
 

@@ -4,7 +4,7 @@ import { ErrorResponseHandler } from '../../../helpers/error';
 
 function validateBody(query) {
   if (typeof query !== 'string') {
-    throw new ErrorResponseHandler(400, `TypeError query: expected number but received ${typeof query}`);
+    throw new ErrorResponseHandler(400, `TypeError query: expected string but received ${typeof query}`);
   }
 }
 
