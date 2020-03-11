@@ -3,6 +3,7 @@ import openRoutes from './src/server/routes/openRoutes'; // eslint-disable-line
 import protectedRoutes from './src/server/routes/protectedRoutes'; // eslint-disable-line
 import params from './params'; // eslint-disable-line
 import { handleError } from './src/helpers/error'; // eslint-disable-line
+import initListeners from './src/server/sockets/listeners';
 
 // TODO: Fix return codes
 
@@ -15,13 +16,7 @@ const app = express();
 const http = require('http').createServer(app);
 const socketio = require('socket.io')(http);
 
-socketio.on('connection', (userSocket) => {
-  console.log('User Connected');
-
-  userSocket.on('disconnect', () => {
-    console.log('User disconnected');
-  });
-});
+initListeners(socketio);
 
 // TODO: Make port into env or params port
 socketio.listen(5001);
