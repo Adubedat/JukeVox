@@ -9,16 +9,22 @@ import { handleError } from './src/helpers/error'; // eslint-disable-line
 const express = require('express');
 
 const port = process.env.PORT || params.port;
+
 const app = express();
 
-const socketio = require('socket.io')(app);
+const http = require('http').createServer(app);
+const socketio = require('socket.io')(http);
 
 socketio.on('connection', (userSocket) => {
-  console.log('user connected');
-  userSocket.on('send_message', (data) => {
-    userSocket.broadcast.emit('receive_message', data);
+  console.log('User Connected');
+
+  userSocket.on('disconnect', () => {
+    console.log('User disconnected');
   });
 });
+
+// TODO: Make port into env or params port
+socketio.listen(5001);
 
 app.listen(port);
 app.use(express.json());
