@@ -4,7 +4,7 @@ import { ErrorResponseHandler } from '../../../helpers/error';
 async function getAccountTypes(id) {
   const accountTypes = [];
   const [userAccount, providerAccounts] = await Promise.all([User.getUserAccount(['userProfileId'], [id]),
-    User.getProviderAccountsById(id)]);
+    User.getProviderAccounts(['UserProfileId'], [id])]);
   if (userAccount.length > 0) {
     accountTypes.push('Classic');
   }
