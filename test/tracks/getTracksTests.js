@@ -13,7 +13,7 @@ const should = chai.should();
 
 chai.use(chaiHttp);
 
-describe('Users', () => {
+describe('Tracks', () => {
   beforeEach(async () => {
     await sql.query('DELETE FROM UserAccounts;');
     await sql.query('DELETE FROM ProviderAccounts;');
@@ -33,11 +33,11 @@ describe('Users', () => {
         .set({ Authorization: `Bearer ${jwt}` })
         .query(query);
 
-      res.should.have.status(200);
       res.body.should.have.property('message');
       res.body.should.have.property('statusCode');
       res.body.message.should.eql('Tracks found');
       res.body.should.have.property('data');
+      res.should.have.status(200);
       res.body.data.should.be.a('array');
       res.body.data[0].should.have.property('deezerSongId');
       res.body.data[0].should.have.property('title');
