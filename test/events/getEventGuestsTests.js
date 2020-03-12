@@ -19,6 +19,8 @@ chai.use(chaiHttp);
 // TODO : Write tests for JWT
 describe('Events', () => {
   beforeEach(async () => {
+    await sql.query('DELETE FROM Votes;');
+    await sql.query('DELETE FROM Tracks;');
     await sql.query('DELETE FROM UserAccounts;');
     await sql.query('DELETE FROM ProviderAccounts;');
     await sql.query('DELETE FROM EventGuests');

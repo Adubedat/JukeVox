@@ -28,6 +28,11 @@ describe('Vote', () => {
     await sql.query('DELETE FROM UserProfiles;');
   });
 
+  afterEach(async () => {
+    await sql.query('DELETE FROM Votes;');
+    await sql.query('DELETE FROM Tracks;');
+  });
+
   async function addVote(trackId, userId, vote) {
     const query = 'INSERT INTO Votes (TrackId, UserId, Vote) VALUES ? ON DUPLICATE KEY UPDATE Vote = ?;';
     const values = [[trackId, userId, vote]];
