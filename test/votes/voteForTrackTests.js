@@ -82,6 +82,60 @@ describe('Vote', () => {
     return event;
   }
 
+  async function addEventInPast(nameId, creatorId) {
+    const startDate = moment().subtract(2, 'd').format(DATETIME_FORMAT);
+    const endDate = moment().subtract(1, 'd').format(DATETIME_FORMAT);
+
+    const content = {
+      name: `Ongoing house warming #${nameId}`,
+      description: 'All come over on wednesday for our housewarming!',
+      startDate,
+      endDate,
+      latitude: 48.8915482,
+      longitude: 2.3170656,
+      streamerDevice: 'abcd',
+      isPrivate: true,
+      eventPicture: 'defaultPicture1',
+    };
+
+    const eventQuery = 'INSERT INTO Events (CreatorId, Name, Description, \
+        EventPicture, StartDate, EndDate, Latitude, Longitude, \
+        StreamerDevice, IsPrivate) VALUES ?;';
+    const eventValues = [[creatorId, content.name, content.description, content.eventPicture,
+      content.startDate, content.endDate, content.latitude, content.longitude,
+      content.streamerDevice, content.isPrivate]];
+    const event = await sql.query(eventQuery, [eventValues])
+      .catch((err) => console.log(err));
+    return event;
+  }
+
+  async function addEventInFuture(nameId, creatorId) {
+    const startDate = moment().add(2, 'd').format(DATETIME_FORMAT);
+    const endDate = moment().add(3, 'd').format(DATETIME_FORMAT);
+
+    const content = {
+      name: `Ongoing house warming #${nameId}`,
+      description: 'All come over on wednesday for our housewarming!',
+      startDate,
+      endDate,
+      latitude: 48.8915482,
+      longitude: 2.3170656,
+      streamerDevice: 'abcd',
+      isPrivate: true,
+      eventPicture: 'defaultPicture1',
+    };
+
+    const eventQuery = 'INSERT INTO Events (CreatorId, Name, Description, \
+        EventPicture, StartDate, EndDate, Latitude, Longitude, \
+        StreamerDevice, IsPrivate) VALUES ?;';
+    const eventValues = [[creatorId, content.name, content.description, content.eventPicture,
+      content.startDate, content.endDate, content.latitude, content.longitude,
+      content.streamerDevice, content.isPrivate]];
+    const event = await sql.query(eventQuery, [eventValues])
+      .catch((err) => console.log(err));
+    return event;
+  }
+
   async function addUserProfile(userNumber) {
     const userProfileQuery = 'INSERT INTO UserProfiles (Username, Email, CreatedAt) VALUES ?';
     const userProfileValues = [[`Daniel${userNumber}`, `${userNumber}daniel@mail.com`, moment().format(DATETIME_FORMAT)]];
@@ -138,6 +192,67 @@ describe('Vote', () => {
       res.body.should.have.property('statusCode');
       res.body.should.have.property('message');
       res.body.message.should.be.eql('Event not found');
+    });
+
+    it('should not vote for a track if the event is in the past', async () => {
+      const user1 = await addUserProfile(1);
+      const user2 = await addUserProfile(2);
+      //   const event1 = await addEvent(1, user1.insertId);
+      //   const ongoingEvent = await addOngoingEvent(1, user1.insertId);
+      const eventInPast = await addEventInPast(1, user1.insertId);
+      await addEventGuest(eventInPast.insertId, user1.insertId, 'Going');
+      await addEventGuest(eventInPast.insertId, user2.insertId, 'Invited');
+
+
+      const track = await addTrack(user1.insertId, eventInPast.insertId, 'Rythm of the night');
+
+      const body = {
+        vote: 1,
+      };
+
+      const jwt = generateJwt(user1.insertId);
+
+      const res = await chai.request(server)
+        .post(`/api/events/${eventInPast.insertId}/tracks/${track.insertId}/vote`)
+        .set({ Authorization: `Bearer ${jwt}` })
+        .send(body);
+
+      res.should.have.status(403);
+      res.body.should.be.a('object');
+      res.body.should.have.property('statusCode');
+      res.body.should.have.property('message');
+      res.body.message.should.be.eql('Forbidden. Event is not ongoing');
+    });
+
+    it('should not vote for a track if the event is in the future', async () => {
+      const user1 = await addUserProfile(1);
+      const user2 = await addUserProfile(2);
+      //   const event1 = await addEvent(1, user1.insertId);
+      //   const ongoingEvent = await addOngoingEvent(1, user1.insertId);
+      //   const eventInPast = await addEventInPast(1, user1.insertId);
+      const eventInFuture = await addEventInFuture(1, user1.insertId);
+      await addEventGuest(eventInFuture.insertId, user1.insertId, 'Going');
+      await addEventGuest(eventInFuture.insertId, user2.insertId, 'Invited');
+
+
+      const track = await addTrack(user1.insertId, eventInFuture.insertId, 'Rythm of the night');
+
+      const body = {
+        vote: 1,
+      };
+
+      const jwt = generateJwt(user1.insertId);
+
+      const res = await chai.request(server)
+        .post(`/api/events/${eventInFuture.insertId}/tracks/${track.insertId}/vote`)
+        .set({ Authorization: `Bearer ${jwt}` })
+        .send(body);
+
+      res.should.have.status(403);
+      res.body.should.be.a('object');
+      res.body.should.have.property('statusCode');
+      res.body.should.have.property('message');
+      res.body.message.should.be.eql('Forbidden. Event is not ongoing');
     });
   });
 });

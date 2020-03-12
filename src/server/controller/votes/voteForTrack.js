@@ -33,7 +33,7 @@ export default async function voteForTrack(req, res, next) {
 
     const timeNow = moment().format(DATETIME_FORMAT);
     if (moment(timeNow).isBefore(event[0].StartDate) || moment(timeNow).isAfter(event[0].EndDate)) {
-      throw new ErrorResponseHandler(403, 'Forbidden. Event is not ongoing.');
+      throw new ErrorResponseHandler(403, 'Forbidden. Event is not ongoing');
     }
 
     // TODO: Check if the track is in the event'
