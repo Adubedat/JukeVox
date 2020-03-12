@@ -22,17 +22,18 @@ export default async function voteForTrack(req, res, next) {
 
     const event = await Event.getEvent(eventId);
     if (event[0] == null) {
-      throw new ErrorResponseHandler(404, 'No event found with this ID');
+      throw new ErrorResponseHandler(404, 'Event not found');
+    }
+
+    const guestStatusResponse = await Event.getGuestStatusForEvent(userId, eventId);
+    if (guestStatusResponse[0] == null || guestStatusResponse[0].GuestStatus !== 'Going') {
+      console.log(guestStatusResponse);
+      throw new ErrorResponseHandler(403, 'Forbidden');
     }
 
     const timeNow = moment().format(DATETIME_FORMAT);
     if (moment(timeNow).isBefore(event[0].StartDate) || moment(timeNow).isAfter(event[0].EndDate)) {
       throw new ErrorResponseHandler(403, 'Forbidden. Event is not ongoing.');
-    }
-
-    const guestStatusResponse = await Event.getGuestStatusForEvent(userId, eventId);
-    if (guestStatusResponse[0] == null || guestStatusResponse[0].GuestStatus !== 'Going') {
-      throw new ErrorResponseHandler(403, 'Forbidden');
     }
 
     // TODO: Check if the track is in the event'
