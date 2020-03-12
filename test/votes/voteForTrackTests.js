@@ -28,6 +28,14 @@ describe('Vote', () => {
     await sql.query('DELETE FROM UserProfiles;');
   });
 
+  async function addVote(trackId, userId, vote) {
+    const query = 'INSERT INTO Votes (TrackId, UserId, Vote) VALUES ? ON DUPLICATE KEY UPDATE Vote = ?;';
+    const values = [[trackId, userId, vote]];
+
+    const voteInTable = await sql.query(query, [values, vote]).catch((err) => console.log(err));
+    return voteInTable;
+  }
+
   async function addEvent(nameId, creatorId) {
     const startDate = moment().add(3, 'd').format(DATETIME_FORMAT);
     const endDate = moment().add(4, 'd').format(DATETIME_FORMAT);
@@ -378,6 +386,120 @@ describe('Vote', () => {
       res.body.should.have.property('statusCode');
       res.body.should.have.property('message');
       res.body.message.should.be.eql('Forbidden');
+    });
+
+    it('should vote for a track', async () => {
+      const user1 = await addUserProfile(1);
+      const user2 = await addUserProfile(2);
+      //   const event1 = await addEvent(1, user1.insertId);
+      const ongoingEvent = await addOngoingEvent(1, user1.insertId);
+      //   const eventInPast = await addEventInPast(1, user1.insertId);
+      //   const eventInFuture = await addEventInFuture(1, user1.insertId);
+      await addEventGuest(ongoingEvent.insertId, user1.insertId, 'Going');
+      await addEventGuest(ongoingEvent.insertId, user2.insertId, 'Invited');
+
+
+      const track = await addTrack(user1.insertId, ongoingEvent.insertId, 'Rythm of the night');
+
+      const body = {
+        vote: 1,
+      };
+
+      const jwt = generateJwt(user1.insertId);
+
+      const res = await chai.request(server)
+        .post(`/api/events/${ongoingEvent.insertId}/tracks/${track.insertId}/vote`)
+        .set({ Authorization: `Bearer ${jwt}` })
+        .send(body);
+
+      res.should.have.status(200);
+      res.body.should.be.a('object');
+      res.body.should.have.property('statusCode');
+      res.body.should.have.property('message');
+      res.body.message.should.be.eql(`Vote 1 for track ${track.insertId} successfully added`);
+
+      const votes = await sql.query('SELECT * FROM Votes;');
+
+      votes.should.have.lengthOf(1);
+      votes[0].Vote.should.be.eql(1);
+      votes[0].TrackId.should.be.eql(track.insertId);
+      votes[0].UserId.should.be.eql(user1.insertId);
+    });
+
+    it('should vote for a track (even if vote already exists)', async () => {
+      const user1 = await addUserProfile(1);
+      const user2 = await addUserProfile(2);
+      const ongoingEvent = await addOngoingEvent(1, user1.insertId);
+      await addEventGuest(ongoingEvent.insertId, user1.insertId, 'Going');
+      await addEventGuest(ongoingEvent.insertId, user2.insertId, 'Invited');
+
+
+      const track = await addTrack(user1.insertId, ongoingEvent.insertId, 'Rythm of the night');
+
+      const vote1 = await addVote(track.insertId, user1.insertId, 1);
+      const vote2 = await addVote(track.insertId, user2.insertId, 1);
+
+      const body = {
+        vote: 1,
+      };
+
+      const jwt = generateJwt(user1.insertId);
+
+      const res = await chai.request(server)
+        .post(`/api/events/${ongoingEvent.insertId}/tracks/${track.insertId}/vote`)
+        .set({ Authorization: `Bearer ${jwt}` })
+        .send(body);
+
+      res.should.have.status(200);
+      res.body.should.be.a('object');
+      res.body.should.have.property('statusCode');
+      res.body.should.have.property('message');
+      res.body.message.should.be.eql(`Vote 1 for track ${track.insertId} successfully added`);
+
+      const votes = await sql.query('SELECT * FROM Votes;');
+
+      votes.should.have.lengthOf(2);
+      votes[0].Vote.should.be.eql(1);
+      votes[0].TrackId.should.be.eql(track.insertId);
+      votes[0].UserId.should.be.eql(user1.insertId);
+    });
+
+    it('should vote for a track (vote for opposite number even if vote already exists)', async () => {
+      const user1 = await addUserProfile(1);
+      const user2 = await addUserProfile(2);
+      const ongoingEvent = await addOngoingEvent(1, user1.insertId);
+      await addEventGuest(ongoingEvent.insertId, user1.insertId, 'Going');
+      await addEventGuest(ongoingEvent.insertId, user2.insertId, 'Invited');
+
+
+      const track = await addTrack(user1.insertId, ongoingEvent.insertId, 'Rythm of the night');
+
+      const vote1 = await addVote(track.insertId, user1.insertId, 1);
+      const vote2 = await addVote(track.insertId, user2.insertId, 1);
+
+      const body = {
+        vote: -1,
+      };
+
+      const jwt = generateJwt(user1.insertId);
+
+      const res = await chai.request(server)
+        .post(`/api/events/${ongoingEvent.insertId}/tracks/${track.insertId}/vote`)
+        .set({ Authorization: `Bearer ${jwt}` })
+        .send(body);
+
+      res.should.have.status(200);
+      res.body.should.be.a('object');
+      res.body.should.have.property('statusCode');
+      res.body.should.have.property('message');
+      res.body.message.should.be.eql(`Vote -1 for track ${track.insertId} successfully added`);
+
+      const votes = await sql.query('SELECT * FROM Votes;');
+
+      votes.should.have.lengthOf(2);
+      votes[0].Vote.should.be.eql(-1);
+      votes[0].TrackId.should.be.eql(track.insertId);
+      votes[0].UserId.should.be.eql(user1.insertId);
     });
   });
 });
