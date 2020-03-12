@@ -27,7 +27,6 @@ export default async function voteForTrack(req, res, next) {
 
     const guestStatusResponse = await Event.getGuestStatusForEvent(userId, eventId);
     if (guestStatusResponse[0] == null || guestStatusResponse[0].GuestStatus !== 'Going') {
-      console.log(guestStatusResponse);
       throw new ErrorResponseHandler(403, 'Forbidden');
     }
 

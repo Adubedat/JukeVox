@@ -317,5 +317,67 @@ describe('Vote', () => {
       res.body.should.have.property('message');
       res.body.message.should.be.eql('Field vote expected number received string');
     });
+
+    it('should not vote for a track if guest is not on the guest list', async () => {
+      const user1 = await addUserProfile(1);
+      const user2 = await addUserProfile(2);
+      //   const event1 = await addEvent(1, user1.insertId);
+      const ongoingEvent = await addOngoingEvent(1, user1.insertId);
+      //   const eventInPast = await addEventInPast(1, user1.insertId);
+      //   const eventInFuture = await addEventInFuture(1, user1.insertId);
+      await addEventGuest(ongoingEvent.insertId, user1.insertId, 'Going');
+      //   await addEventGuest(ongoingEvent.insertId, user2.insertId, 'Invited');
+
+
+      const track = await addTrack(user1.insertId, ongoingEvent.insertId, 'Rythm of the night');
+
+      const body = {
+        vote: 1,
+      };
+
+      const jwt = generateJwt(user2.insertId);
+
+      const res = await chai.request(server)
+        .post(`/api/events/${ongoingEvent.insertId}/tracks/${track.insertId}/vote`)
+        .set({ Authorization: `Bearer ${jwt}` })
+        .send(body);
+
+      res.should.have.status(403);
+      res.body.should.be.a('object');
+      res.body.should.have.property('statusCode');
+      res.body.should.have.property('message');
+      res.body.message.should.be.eql('Forbidden');
+    });
+
+    it('should not vote for a track if guest has not responded as going', async () => {
+      const user1 = await addUserProfile(1);
+      const user2 = await addUserProfile(2);
+      //   const event1 = await addEvent(1, user1.insertId);
+      const ongoingEvent = await addOngoingEvent(1, user1.insertId);
+      //   const eventInPast = await addEventInPast(1, user1.insertId);
+      //   const eventInFuture = await addEventInFuture(1, user1.insertId);
+      await addEventGuest(ongoingEvent.insertId, user1.insertId, 'Going');
+      await addEventGuest(ongoingEvent.insertId, user2.insertId, 'Invited');
+
+
+      const track = await addTrack(user1.insertId, ongoingEvent.insertId, 'Rythm of the night');
+
+      const body = {
+        vote: 1,
+      };
+
+      const jwt = generateJwt(user2.insertId);
+
+      const res = await chai.request(server)
+        .post(`/api/events/${ongoingEvent.insertId}/tracks/${track.insertId}/vote`)
+        .set({ Authorization: `Bearer ${jwt}` })
+        .send(body);
+
+      res.should.have.status(403);
+      res.body.should.be.a('object');
+      res.body.should.have.property('statusCode');
+      res.body.should.have.property('message');
+      res.body.message.should.be.eql('Forbidden');
+    });
   });
 });
