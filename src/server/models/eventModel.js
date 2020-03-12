@@ -80,6 +80,24 @@ Event.getEventsByUser = function getEventsByUser(userId, filters) {
   });
 };
 
+Event.getEventByUserAndEventId = function getEventByUserAndEventId(userId, eventId) {
+  return new Promise((resolve, reject) => {
+    const query = 'SELECT \
+        EventGuests.GuestStatus, \
+        Events.* \
+      FROM \
+        Events \
+        JOIN EventGuests ON Events.Id = EventGuests.EventId \
+      WHERE \
+        EventGuests.GuestId = ? \
+        AND Events.Id = ?';
+
+    sql.query(query, [userId, eventId])
+      .then((res) => resolve(res))
+      .catch((err) => reject(err));
+  });
+};
+
 Event.updateEvent = function updateEvent(eventId, body) {
   return new Promise((resolve, reject) => {
     const query = 'UPDATE Events SET Name = ?, Description = ?, \
