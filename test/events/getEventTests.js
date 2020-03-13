@@ -53,9 +53,17 @@ describe('Events', () => {
     return event;
   }
 
-  async function addUserProfile() {
+  async function addEventGuest(eventId, guestId, guestStatus) {
+    const eventGuestQuery = 'insert into EventGuests (EventId, GuestId, HasPlayerControl, GuestStatus) VALUES ?';
+    const eventGuestValues = [[eventId, guestId, false, guestStatus]];
+    const eventGuest = await sql.query(eventGuestQuery, [eventGuestValues])
+      .catch((err) => console.log(err));
+    return eventGuest;
+  }
+
+  async function addUserProfile(userNumber) {
     const userProfileQuery = 'INSERT INTO UserProfiles (Username, Email, CreatedAt) VALUES ?';
-    const userProfileValues = [['Daniel', 'daniel@mail.com', moment().format(DATETIME_FORMAT)]];
+    const userProfileValues = [[`Daniel${userNumber}`, `${userNumber}daniel@mail.com`, moment().format(DATETIME_FORMAT)]];
     const userProfile = await sql.query(userProfileQuery, [userProfileValues])
       .catch((err) => console.log(err));
     return userProfile;
@@ -66,6 +74,51 @@ describe('Events', () => {
       const user = await addUserProfile();
       const jwt = generateJwt(user.insertId);
       const event = await addEvent(user.insertId);
+      await addEventGuest(event.insertId, user.insertId, 'Going');
+
+      const res = await chai.request(server)
+        .get(`/api/events/${event.insertId}`)
+        .set({ Authorization: `Bearer ${jwt}` });
+
+      res.should.have.status(200);
+      res.body.should.be.a('object');
+      res.body.should.have.property('statusCode');
+      res.body.should.have.property('message');
+      res.body.should.have.property('data');
+      res.body.data.should.have.property('Id');
+      res.body.message.should.be.eql(`Event with Id: ${event.insertId}`);
+      res.body.data.Name.should.be.eql('House warming');
+      res.body.data.should.have.all.keys('CreatorId', 'Name', 'Description', 'EventPicture', 'StartDate',
+        'EndDate', 'Latitude', 'Longitude', 'StreamerDevice', 'IsPrivate', 'Id');
+    });
+
+    it('should GET an event (user is invited)', async () => {
+      const user = await addUserProfile();
+      const jwt = generateJwt(user.insertId);
+      const event = await addEvent(user.insertId);
+      await addEventGuest(event.insertId, user.insertId, 'Invited');
+
+      const res = await chai.request(server)
+        .get(`/api/events/${event.insertId}`)
+        .set({ Authorization: `Bearer ${jwt}` });
+
+      res.should.have.status(200);
+      res.body.should.be.a('object');
+      res.body.should.have.property('statusCode');
+      res.body.should.have.property('message');
+      res.body.should.have.property('data');
+      res.body.data.should.have.property('Id');
+      res.body.message.should.be.eql(`Event with Id: ${event.insertId}`);
+      res.body.data.Name.should.be.eql('House warming');
+      res.body.data.should.have.all.keys('CreatorId', 'Name', 'Description', 'EventPicture', 'StartDate',
+        'EndDate', 'Latitude', 'Longitude', 'StreamerDevice', 'IsPrivate', 'Id');
+    });
+
+    it('should GET an event (user is not going)', async () => {
+      const user = await addUserProfile();
+      const jwt = generateJwt(user.insertId);
+      const event = await addEvent(user.insertId);
+      await addEventGuest(event.insertId, user.insertId, 'NotGoing');
 
       const res = await chai.request(server)
         .get(`/api/events/${event.insertId}`)
@@ -97,6 +150,24 @@ describe('Events', () => {
       res.body.should.have.property('statusCode');
       res.body.should.have.property('message');
       res.body.message.should.eql('No event found with this ID');
+    });
+
+    it('should not GET an event if the guest is not on the guest list', async () => {
+      const user = await addUserProfile(1);
+      const user2 = await addUserProfile(2);
+      const jwt = generateJwt(user2.insertId);
+      const event = await addEvent(user.insertId);
+      await addEventGuest(event.insertId, user.insertId, 'Going');
+
+      const res = await chai.request(server)
+        .get(`/api/events/${event.insertId}`)
+        .set({ Authorization: `Bearer ${jwt}` });
+
+      res.should.have.status(403);
+      res.body.should.be.a('object');
+      res.body.should.have.property('statusCode');
+      res.body.should.have.property('message');
+      res.body.message.should.eql('Forbidden');
     });
   });
 });
