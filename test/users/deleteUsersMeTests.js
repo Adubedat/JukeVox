@@ -21,6 +21,12 @@ describe('Users', () => {
     await sql.query('DELETE FROM UserProfiles;');
   });
 
+  after(async () => {
+    await sql.query('DELETE FROM UserAccounts;');
+    await sql.query('DELETE FROM ProviderAccounts;');
+    await sql.query('DELETE FROM UserProfiles;');
+  });
+
   describe('/DELETE /api/me', () => {
     it('should DELETE personnal user account', async () => {
       const user1 = await sql.query('INSERT INTO UserProfiles (Username, Email, CreatedAt) VALUES (\'user1\', \'test@test.test\', \'2020-12-12 12:12:12\')');

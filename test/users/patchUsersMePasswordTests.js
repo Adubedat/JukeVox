@@ -17,7 +17,11 @@ chai.use(chaiHttp);
 describe('Users', () => {
   beforeEach(async () => {
     await sql.query('DELETE FROM UserAccounts;');
-    await sql.query('DELETE FROM ProviderAccounts;');
+    await sql.query('DELETE FROM UserProfiles;');
+  });
+
+  after(async () => {
+    await sql.query('DELETE FROM UserAccounts;');
     await sql.query('DELETE FROM UserProfiles;');
   });
 
