@@ -15,67 +15,40 @@ async function validateBody(userId, eventId, body) {
   if (typeof body.deezerSongId !== 'number') {
     throw new ErrorResponseHandler(400, `TypeError deezerSongId: expected number but received ${typeof body.deezerSongId}`);
   }
-  if (typeof body.title !== 'string') {
-    throw new ErrorResponseHandler(400, `TypeError title: expected string but received ${typeof body.title}`);
-  }
-  if (typeof body.duration !== 'number') {
-    throw new ErrorResponseHandler(400, `TypeError duration: expected number but received ${typeof body.duration}`);
-  }
-  if (typeof body.artistName !== 'string') {
-    throw new ErrorResponseHandler(400, `TypeError artistName: expected string but received ${typeof body.artistName}`);
-  }
-  if (typeof body.pictureSmall !== 'string') {
-    throw new ErrorResponseHandler(400, `TypeError pictureSmall: expected string but received ${typeof body.pictureSmall}`);
-  }
-  if (typeof body.pictureBig !== 'string') {
-    throw new ErrorResponseHandler(400, `TypeError pictureBig: expected string but received ${typeof body.pictureBig}`);
-  }
 }
 
-async function verifyTrackInfo(body) {
-  const url = `https://api.deezer.com/track/${body.deezerSongId}`;
-
-  const response = await axios.get(url);
-  if (response.data.error !== undefined) {
-    throw new ErrorResponseHandler(400, 'Invalid deezerSongId');
-  }
-  if (response.data.title !== body.title) {
-    throw new ErrorResponseHandler(400, 'The given title does not correspond to the deezer title');
-  }
-  if (response.data.duration !== body.duration) {
-    throw new ErrorResponseHandler(400, 'The given duration does not correspond to the deezer duration');
-  }
-  if (response.data.artist.name !== body.artistName) {
-    throw new ErrorResponseHandler(400, 'The given artistName does not correspond to the deezer artistName');
-  }
-}
-
-function formatData(trackId, userId, eventId, body) {
+function formatData(trackId, userId, eventId, track) {
   return ({
     id: trackId,
     eventId,
     userId,
-    deezerSongId: body.deezerSongId,
-    title: body.title,
-    duration: body.duration,
-    artistName: body.artistName,
-    pictureSmall: body.pictureSmall,
-    pictureBig: body.pictureBig,
+    deezerSongId: track.id,
+    title: track.title,
+    duration: track.duration,
+    artistName: track.artist.name,
+    pictureSmall: track.album.cover_small,
+    pictureBig: track.album.cover_big,
   });
 }
 
 export default async function addTrack(req, res, next) {
   const { userId } = req.decoded;
   const { eventId } = req.params;
+  const { deezerSongId } = req.body;
+  const url = `https://api.deezer.com/track/${deezerSongId}`;
 
   try {
     checkUnknownFields(['eventId'], req.params);
-    checkUnknownFields(['deezerSongId', 'title', 'duration', 'artistName', 'pictureSmall', 'pictureBig'], req.body);
+    checkUnknownFields(['deezerSongId'], req.body);
     await validateBody(userId, eventId, req.body);
-    await verifyTrackInfo(req.body);
+    const track = await axios.get(url);
 
-    const postTrack = await Tracks.addTrack(userId, eventId, req.body);
-    const data = formatData(postTrack.insertId, userId, eventId, req.body);
+    if (track.data.error !== undefined) {
+      throw new ErrorResponseHandler(400, 'Invalid deezerSongId');
+    }
+
+    const postTrack = await Tracks.addTrack(userId, eventId, track.data);
+    const data = formatData(postTrack.insertId, userId, eventId, track.data);
     res.status(201).send({
       message: 'Track successfully added to the event',
       statusCode: 201,
