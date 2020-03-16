@@ -8,7 +8,7 @@ const params = {
   },
   test: {
     database: {
-      port: 3306,
+      port: process.env.DB_PORT || 3306,
       host: '127.0.0.1',
       user: 'root',
       password: 'root',
