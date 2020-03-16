@@ -39,7 +39,7 @@ jobs:
       - name: Verify MySQL connection from host
         run: |
           sudo apt-get install -y mysql-client
-          mysql --host 127.0.0.1 -P 3306 -u root -proot < ./scripts/createTestDatabase.sql
+          mysql --host 127.0.0.1 -P ${{ job.services.mysql.ports[3306] }} -u root -proot < ./scripts/createTestDatabase.sql
       - name: npm install and test
         env:
           MAILTRAP_USER: ${{ secrets.MAILTRAP_USER }}
