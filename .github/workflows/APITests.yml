@@ -45,7 +45,7 @@ jobs:
       - name: npm install and test
         env:
           MAILTRAP_USER: ${{ secrets.MAILTRAP_USER }}
-          MAILTRAP_PASSWORD: ${{ secrets.MAILTRAP_PASSWORD }}
+          MAILTRAP_PASS: ${{ secrets.MAILTRAP_PASS }}
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
           MAILGUN_POST: ${{ secrets.MAILGUN_POST }}
           MAILGUN_HOST: ${{ secrets.MAILGUN_HOST }}
