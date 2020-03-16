@@ -47,6 +47,7 @@ describe('Events', () => {
     const eventQuery = 'INSERT INTO Events (CreatorId, Name, Description, \
         EventPicture, StartDate, EndDate, Latitude, Longitude, \
         StreamerDevice, IsPrivate) VALUES ?;';
+
     const eventValues = [[creatorId, content.name, content.description, content.eventPicture,
       content.startDate, content.endDate, content.latitude, content.longitude,
       content.streamerDevice, content.isPrivate]];
