@@ -31,15 +31,17 @@ jobs:
           node-version: ${{ matrix.node-version }}
       - name: Ensure mysql is launched
         env:
-          PORT: ${{ job.services.mysql.ports[3306] }}
+          DB_PORT: ${{ job.services.mysql.ports[3306] }}
         run: |
-          while ! mysqladmin ping -h"127.0.0.1" -P"$PORT" --silent; do
+          while ! mysqladmin ping -h"127.0.0.1" -P"$DB_PORT" --silent; do
             sleep 1
           done
       - name: Verify MySQL connection from host
+        env:
+          DB_PORT: ${{ job.services.mysql.ports[3306] }}
         run: |
           sudo apt-get install -y mysql-client
-          mysql --host 127.0.0.1 -P ${{ job.services.mysql.ports[3306] }} -u root -proot < ./scripts/createTestDatabase.sql
+          mysql --host 127.0.0.1 -P $DB_PORT -u root -proot < ./scripts/createTestDatabase.sql
       - name: npm install and test
         env:
           MAILTRAP_USER: ${{ secrets.MAILTRAP_USER }}
@@ -50,6 +52,7 @@ jobs:
           MAILGUN_USER: ${{ secrets.MAILGUN_USER }}
           MAILGUN_PASS: ${{ secrets.MAILGUN_PASS }}
           GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
+          DB_PORT: ${{ job.services.mysql.ports[3306] }}
         run: |
           npm install
           npm test
