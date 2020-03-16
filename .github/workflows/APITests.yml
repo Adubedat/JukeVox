@@ -1,6 +1,6 @@
 name: API Tests
 
-on: 
+on:       
   pull_request:
     branches:
       - dev
@@ -20,24 +20,39 @@ jobs:
         env:
           MYSQL_ROOT_PASSWORD: root
         ports:
-        - 3306
-        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+          - 3306
+        options: --health-cmd="mysqladmin ping" --health-interval=20s --health-timeout=10s --health-retries=5
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v1
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v1
         with:
           node-version: ${{ matrix.node-version }}
+      - name: Ensure mysql is launched
+        env:
+          DB_PORT: ${{ job.services.mysql.ports[3306] }}
+        run: |
+          while ! mysqladmin ping -h"127.0.0.1" -P"$DB_PORT" --silent; do
+            sleep 1
+          done
       - name: Verify MySQL connection from host
+        env:
+          DB_PORT: ${{ job.services.mysql.ports[3306] }}
         run: |
           sudo apt-get install -y mysql-client
-          mysql --host 127.0.0.1 -P 3306 -uroot -proot < ./scripts/createTestDatabase.sql
+          mysql --host 127.0.0.1 -P $DB_PORT -u root -proot < ./scripts/createTestDatabase.sql
       - name: npm install and test
         env:
           MAILTRAP_USER: ${{ secrets.MAILTRAP_USER }}
-          MAILTRAP_PASSWORD: ${{ secrets.MAILTRAP_PASSWORD }}
+          MAILTRAP_PASS: ${{ secrets.MAILTRAP_PASS }}
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          MAILGUN_POST: ${{ secrets.MAILGUN_POST }}
+          MAILGUN_HOST: ${{ secrets.MAILGUN_HOST }}
+          MAILGUN_USER: ${{ secrets.MAILGUN_USER }}
+          MAILGUN_PASS: ${{ secrets.MAILGUN_PASS }}
+          GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
+          DB_PORT: ${{ job.services.mysql.ports[3306] }}
         run: |
           npm install
           npm test
