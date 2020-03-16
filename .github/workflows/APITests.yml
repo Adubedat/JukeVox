@@ -1,6 +1,6 @@
 name: API Tests
 
-on: 
+on:       
   pull_request:
     branches:
       - dev
@@ -14,20 +14,21 @@ jobs:
       matrix:
         node-version: ['12.x']
 
+    services:
+      mysql:
+        image: mysql:5.7
+        env:
+          MYSQL_ROOT_PASSWORD: root
+        ports:
+        - 3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+
     steps:
-      - uses: actions/checkout@v2
-      - name: Shutdown Ubuntu MySQL (SUDO)
-        run: sudo service mysql stop
+      - uses: actions/checkout@v1
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v1
         with:
           node-version: ${{ matrix.node-version }}
-      - name: Set up MySQL 5.7
-        uses: mirromutth/mysql-action@master
-        with:
-          mysql version: 5.7
-          mysql database: test
-          mysql root password: root
       - name: Verify MySQL connection from host
         run: |
           sudo apt-get install -y mysql-client
