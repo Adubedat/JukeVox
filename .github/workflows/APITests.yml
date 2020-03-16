@@ -47,7 +47,7 @@ jobs:
           MAILTRAP_USER: ${{ secrets.MAILTRAP_USER }}
           MAILTRAP_PASS: ${{ secrets.MAILTRAP_PASS }}
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
-          MAILGUN_POST: ${{ secrets.MAILGUN_POST }}
+          MAILGUN_PORT: ${{ secrets.MAILGUN_PORT }}
           MAILGUN_HOST: ${{ secrets.MAILGUN_HOST }}
           MAILGUN_USER: ${{ secrets.MAILGUN_USER }}
           MAILGUN_PASS: ${{ secrets.MAILGUN_PASS }}
