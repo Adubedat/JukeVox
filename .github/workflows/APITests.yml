@@ -45,6 +45,11 @@ jobs:
           MAILTRAP_USER: ${{ secrets.MAILTRAP_USER }}
           MAILTRAP_PASSWORD: ${{ secrets.MAILTRAP_PASSWORD }}
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          MAILGUN_POST: ${{ secrets.MAILGUN_POST }}
+          MAILGUN_HOST: ${{ secrets.MAILGUN_HOST }}
+          MAILGUN_USER: ${{ secrets.MAILGUN_USER }}
+          MAILGUN_PASS: ${{ secrets.MAILGUN_PASS }}
+          GOOGLE_CREDENTIALS: {{ secrets.GOOGLE_CREDENTIALS }}
         run: |
           npm install
           npm test
