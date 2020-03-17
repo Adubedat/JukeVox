@@ -5,12 +5,14 @@ import getEvent from '../../controller/events/getEvent';
 import getEventGuests from '../../controller/events/getEventGuests';
 import getEventsByUser from '../../controller/events/getEventsByUser';
 import voteForTrack from '../../controller/votes/voteForTrack';
+import getPublicEvents from '../../controller/events/getPublicEvents';
 
 
 const router = express.Router();
 
 router.route('/events')
-  .post(createEvent);
+  .post(createEvent)
+  .get(getPublicEvents);
 
 router.get('/me/events', getEventsByUser);
 
