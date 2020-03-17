@@ -35,7 +35,7 @@ describe('Tracks', () => {
       };
 
       const user1 = await sql.query('INSERT INTO UserProfiles (Username, Email, CreatedAt) VALUES (\'user1\', \'test@test.test\', \'2020-12-12 12:12:12\')');
-      const event = await sql.query(`INSERT INTO Events (CreatorId, Name, StartDate, EndDate, Latitude, Longitude) VALUES (${user1.insertId}, 'user1', '2030-12-12 12:12:12', '2031-12-12 12:12:12', 30.24, 30.35)`);
+      const event = await sql.query(`INSERT INTO Events (CreatorId, Name, StartDate, EndDate, Location, Latitude, Longitude) VALUES (${user1.insertId}, 'user1', '2030-12-12 12:12:12', '2031-12-12 12:12:12', 'test', 30.24, 30.35)`);
       await sql.query(`INSERT INTO EventGuests (EventId, GuestId, GuestStatus) VALUES (${event.insertId}, ${user1.insertId}, 'Going')`);
       const jwt = generateJwt(user1.insertId);
 
@@ -65,7 +65,7 @@ describe('Tracks', () => {
       };
 
       const user1 = await sql.query('INSERT INTO UserProfiles (Username, Email, CreatedAt) VALUES (\'user1\', \'test@test.test\', \'2020-12-12 12:12:12\')');
-      const event = await sql.query(`INSERT INTO Events (CreatorId, Name, StartDate, EndDate, Latitude, Longitude) VALUES (${user1.insertId}, 'user1', '2030-12-12 12:12:12', '2031-12-12 12:12:12', 30.24, 30.35)`);
+      const event = await sql.query(`INSERT INTO Events (CreatorId, Name, StartDate, EndDate, Location, Latitude, Longitude) VALUES (${user1.insertId}, 'user1', '2030-12-12 12:12:12', '2031-12-12 12:12:12', 'test', 30.24, 30.35)`);
       await sql.query(`INSERT INTO EventGuests (EventId, GuestId, GuestStatus) VALUES (${event.insertId}, ${user1.insertId}, 'Going')`);
       const jwt = generateJwt(user1.insertId);
 
@@ -85,7 +85,7 @@ describe('Tracks', () => {
       };
 
       const user1 = await sql.query('INSERT INTO UserProfiles (Username, Email, CreatedAt) VALUES (\'user1\', \'test@test.test\', \'2020-12-12 12:12:12\')');
-      const event = await sql.query(`INSERT INTO Events (CreatorId, Name, StartDate, EndDate, Latitude, Longitude) VALUES (${user1.insertId}, 'user1', '2030-12-12 12:12:12', '2031-12-12 12:12:12', 30.24, 30.35)`);
+      const event = await sql.query(`INSERT INTO Events (CreatorId, Name, StartDate, EndDate, Location, Latitude, Longitude) VALUES (${user1.insertId}, 'user1', '2030-12-12 12:12:12', '2031-12-12 12:12:12', 'test', 30.24, 30.35)`);
       const jwt = generateJwt(user1.insertId);
 
       const res = await chai.request(server)
@@ -98,6 +98,27 @@ describe('Tracks', () => {
       res.body.message.should.eql('Forbidden : Event does not exist or you are not part of it');
       res.should.have.status(403);
     });
+    it('should not add a track if user is not going to the event', async () => {
+      const body = {
+        deezerSongId: 1109731,
+      };
+
+      const user1 = await sql.query('INSERT INTO UserProfiles (Username, Email, CreatedAt) VALUES (\'user1\', \'test@test.test\', \'2020-12-12 12:12:12\')');
+      const event = await sql.query(`INSERT INTO Events (CreatorId, Name, StartDate, EndDate, Location, Latitude, Longitude) VALUES (${user1.insertId}, 'user1', '2030-12-12 12:12:12', '2031-12-12 12:12:12', 'test', 30.24, 30.35)`);
+      await sql.query(`INSERT INTO EventGuests (EventId, GuestId, GuestStatus) VALUES (${event.insertId}, ${user1.insertId}, 'NotGoing')`);
+
+      const jwt = generateJwt(user1.insertId);
+
+      const res = await chai.request(server)
+        .post(`/api/events/${event.insertId}/tracks`)
+        .set({ Authorization: `Bearer ${jwt}` })
+        .send(body);
+
+      res.body.should.have.property('message');
+      res.body.should.have.property('statusCode');
+      res.body.message.should.eql('Forbidden : You must be going to the event to add a song');
+      res.should.have.status(403);
+    });
     it('should not add a track with an unknown field', async () => {
       const body = {
         deezerSongId: 1109731,
@@ -105,7 +126,7 @@ describe('Tracks', () => {
       };
 
       const user1 = await sql.query('INSERT INTO UserProfiles (Username, Email, CreatedAt) VALUES (\'user1\', \'test@test.test\', \'2020-12-12 12:12:12\')');
-      const event = await sql.query(`INSERT INTO Events (CreatorId, Name, StartDate, EndDate, Latitude, Longitude) VALUES (${user1.insertId}, 'user1', '2030-12-12 12:12:12', '2031-12-12 12:12:12', 30.24, 30.35)`);
+      const event = await sql.query(`INSERT INTO Events (CreatorId, Name, StartDate, EndDate, Location, Latitude, Longitude) VALUES (${user1.insertId}, 'user1', '2030-12-12 12:12:12', '2031-12-12 12:12:12', 'test', 30.24, 30.35)`);
       await sql.query(`INSERT INTO EventGuests (EventId, GuestId, GuestStatus) VALUES (${event.insertId}, ${user1.insertId}, 'Going')`);
       const jwt = generateJwt(user1.insertId);
 
@@ -125,7 +146,7 @@ describe('Tracks', () => {
       };
 
       const user1 = await sql.query('INSERT INTO UserProfiles (Username, Email, CreatedAt) VALUES (\'user1\', \'test@test.test\', \'2020-12-12 12:12:12\')');
-      const event = await sql.query(`INSERT INTO Events (CreatorId, Name, StartDate, EndDate, Latitude, Longitude) VALUES (${user1.insertId}, 'user1', '2030-12-12 12:12:12', '2031-12-12 12:12:12', 30.24, 30.35)`);
+      const event = await sql.query(`INSERT INTO Events (CreatorId, Name, StartDate, EndDate, Location, Latitude, Longitude) VALUES (${user1.insertId}, 'user1', '2030-12-12 12:12:12', '2031-12-12 12:12:12', 'test', 30.24, 30.35)`);
       await sql.query(`INSERT INTO EventGuests (EventId, GuestId, GuestStatus) VALUES (${event.insertId}, ${user1.insertId}, 'Going')`);
 
       const res = await chai.request(server)
@@ -142,7 +163,7 @@ describe('Tracks', () => {
       };
 
       const user1 = await sql.query('INSERT INTO UserProfiles (Username, Email, CreatedAt) VALUES (\'user1\', \'test@test.test\', \'2020-12-12 12:12:12\')');
-      const event = await sql.query(`INSERT INTO Events (CreatorId, Name, StartDate, EndDate, Latitude, Longitude) VALUES (${user1.insertId}, 'user1', '2030-12-12 12:12:12', '2031-12-12 12:12:12', 30.24, 30.35)`);
+      const event = await sql.query(`INSERT INTO Events (CreatorId, Name, StartDate, EndDate, Location, Latitude, Longitude) VALUES (${user1.insertId}, 'user1', '2030-12-12 12:12:12', '2031-12-12 12:12:12', 'test', 30.24, 30.35)`);
       await sql.query(`INSERT INTO EventGuests (EventId, GuestId, GuestStatus) VALUES (${event.insertId}, ${user1.insertId}, 'Going')`);
       const jwt = generateJwt(user1.insertId);
 
@@ -162,7 +183,7 @@ describe('Tracks', () => {
       };
 
       const user1 = await sql.query('INSERT INTO UserProfiles (Username, Email, CreatedAt) VALUES (\'user1\', \'test@test.test\', \'2020-12-12 12:12:12\')');
-      const event = await sql.query(`INSERT INTO Events (CreatorId, Name, StartDate, EndDate, Latitude, Longitude) VALUES (${user1.insertId}, 'user1', '2030-12-12 12:12:12', '2031-12-12 12:12:12', 30.24, 30.35)`);
+      const event = await sql.query(`INSERT INTO Events (CreatorId, Name, StartDate, EndDate, Location, Latitude, Longitude) VALUES (${user1.insertId}, 'user1', '2030-12-12 12:12:12', '2031-12-12 12:12:12', 'test', 30.24, 30.35)`);
       await sql.query(`INSERT INTO EventGuests (EventId, GuestId, GuestStatus) VALUES (${event.insertId}, ${user1.insertId}, 'Going')`);
       const jwt = generateJwt(user1.insertId);
 
