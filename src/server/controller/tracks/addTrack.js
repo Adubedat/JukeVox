@@ -8,9 +8,12 @@ async function validateBody(userId, eventId, body) {
   if (typeof eventId !== 'string') {
     throw new ErrorResponseHandler(400, `TypeError eventId: expected string but received ${typeof eventId}`);
   }
-  const [event] = await Event.getEventByUserAndEventId(userId, eventId);
+  const [event] = await Event.getGuestStatusForEvent(userId, eventId);
   if (event === undefined) {
     throw new ErrorResponseHandler(403, 'Forbidden : Event does not exist or you are not part of it');
+  }
+  if (event.GuestStatus !== 'Going') {
+    throw new ErrorResponseHandler(403, 'Forbidden : You must be going to the event to add a song');
   }
   if (typeof body.deezerSongId !== 'number') {
     throw new ErrorResponseHandler(400, `TypeError deezerSongId: expected number but received ${typeof body.deezerSongId}`);
