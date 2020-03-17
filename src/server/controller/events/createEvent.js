@@ -10,6 +10,7 @@ export default async function createEvent(req, res, next) {
     'eventPicture',
     'startDate',
     'endDate',
+    'location',
     'latitude',
     'longitude',
     'streamerDevice',

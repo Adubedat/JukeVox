@@ -12,6 +12,7 @@ export default async function updateEvent(req, res, next) {
     'eventPicture',
     'startDate',
     'endDate',
+    'location',
     'latitude',
     'longitude',
     'streamerDevice',
