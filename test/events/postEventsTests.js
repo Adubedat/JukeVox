@@ -37,47 +37,13 @@ describe('Events', () => {
     const startDate = moment().add(3, 'd').format(DATETIME_FORMAT);
     const endDate = moment().add(4, 'd').format(DATETIME_FORMAT);
 
-    it('should POST an event', async () => {
-      const body = {
-        name: 'House warming',
-        description: 'All come over on wednesday for our housewarming!',
-        startDate,
-        endDate,
-        latitude: 48.8915482,
-        longitude: 2.3170656,
-        streamerDevice: 'abcd',
-        isPrivate: true,
-        eventPicture: 'defaultPicture1',
-      };
-
-      const user = await addUserProfile();
-      const jwt = generateJwt(user.insertId);
-
-      const res = await chai.request(server)
-        .post('/api/events')
-        .set({ Authorization: `Bearer ${jwt}` })
-        .send(body);
-
-      res.should.have.status(200);
-      res.body.should.be.a('object');
-      res.body.should.have.property('statusCode');
-      res.body.should.have.property('message');
-      res.body.should.have.property('data');
-      res.body.data.should.have.property('Id');
-      res.body.message.should.be.eql('Event successfully created!');
-
-      const createdEvents = await sql.query('SELECT * FROM Events');
-      createdEvents.should.have.lengthOf(1);
-      createdEvents[0].CreatorId.should.eql(user.insertId);
-      // TODO (?): check the rest of the elements are eql
-    });
-
     it('should POST an event with a guest', async () => {
       const body = {
         name: 'House warming',
         description: 'All come over on wednesday for our housewarming!',
         startDate,
         endDate,
+        location: '46 tests street',
         latitude: 48.8915482,
         longitude: 2.3170656,
         streamerDevice: 'abcd',
@@ -147,73 +113,41 @@ describe('Events', () => {
     //   createdEvents.should.have.lengthOf(0);
     // });
 
-    // it('should not POST an event without a jwt', async () => {
-    //   const body = {
-    //     name: 'House warming',
-    //     description: 'All come over on wednesday for our housewarming!',
-    //     startDate,
-    //     endDate,
-    //     latitude: 48.8915482,
-    //     longitude: 2.3170656,
-    //     streamerDevice: 'abcd',
-    //     isPrivate: true,
-    //     eventPicture: 'defaultPicture1',
-    //   };
-
-    //   await addUserProfile();
-
-    //   const res = await chai.request(server)
-    //     .post('/api/events')
-    //     .send(body);
-
-    //   res.should.have.status(401);
-    //   res.body.should.be.a('object');
-    //   res.body.should.have.property('statusCode');
-    //   res.body.should.have.property('message');
-    //   res.body.message.should.eql('Authorization token is missing');
-    //   const createdEvents = await sql.query('SELECT * FROM Events');
-    //   createdEvents.should.have.lengthOf(0);
-    // });
-
-
-    // it('should not POST an event with an invalid jwt', async () => {
-    //   const body = {
-    //     name: 'House warming',
-    //     description: 'All come over on wednesday for our housewarming!',
-    //     startDate,
-    //     endDate,
-    //     latitude: 48.8915482,
-    //     longitude: 2.3170656,
-    //     streamerDevice: 'abcd',
-    //     isPrivate: true,
-    //     eventPicture: 'defaultPicture1',
-    //   };
-
-    //   const user = await addUserProfile();
-    //   let jwt = generateJwt(user.insertId);
-    //   jwt = jwt.substring(0, jwt.length - 1);
-
-    //   const res = await chai.request(server)
-    //     .post('/api/events')
-    //     .set({ Authorization: `Bearer ${jwt}` })
-    //     .send(body);
-
-    //   res.should.have.status(401);
-    //   res.body.should.be.a('object');
-    //   res.body.should.have.property('statusCode');
-    //   res.body.should.have.property('message');
-    //   res.body.message.should.eql('Invalid authorization token');
-    //   const createdEvents = await sql.query('SELECT * FROM Events');
-    //   createdEvents.should.have.lengthOf(0);
-    // });
-
-    it('should not POST an event with an unknown field', async () => {
+    it('should not POST an event without a jwt', async () => {
       const body = {
         name: 'House warming',
         description: 'All come over on wednesday for our housewarming!',
         startDate,
         endDate,
-        unknown: 'unknown',
+        latitude: 48.8915482,
+        longitude: 2.3170656,
+        streamerDevice: 'abcd',
+        isPrivate: true,
+        eventPicture: 'defaultPicture1',
+      };
+
+      await addUserProfile();
+
+      const res = await chai.request(server)
+        .post('/api/events')
+        .send(body);
+
+      res.should.have.status(401);
+      res.body.should.be.a('object');
+      res.body.should.have.property('statusCode');
+      res.body.should.have.property('message');
+      res.body.message.should.eql('Authorization token is missing');
+      const createdEvents = await sql.query('SELECT * FROM Events');
+      createdEvents.should.have.lengthOf(0);
+    });
+
+
+    it('should not POST an event with an invalid jwt', async () => {
+      const body = {
+        name: 'House warming',
+        description: 'All come over on wednesday for our housewarming!',
+        startDate,
+        endDate,
         latitude: 48.8915482,
         longitude: 2.3170656,
         streamerDevice: 'abcd',
@@ -222,18 +156,19 @@ describe('Events', () => {
       };
 
       const user = await addUserProfile();
-      const jwt = generateJwt(user.insertId);
+      let jwt = generateJwt(user.insertId);
+      jwt = jwt.substring(0, jwt.length - 1);
 
       const res = await chai.request(server)
         .post('/api/events')
         .set({ Authorization: `Bearer ${jwt}` })
         .send(body);
 
-      res.should.have.status(400);
+      res.should.have.status(401);
       res.body.should.be.a('object');
       res.body.should.have.property('statusCode');
       res.body.should.have.property('message');
-      res.body.message.should.eql('Unknown field: unknown');
+      res.body.message.should.eql('Invalid authorization token');
       const createdEvents = await sql.query('SELECT * FROM Events');
       createdEvents.should.have.lengthOf(0);
     });
@@ -245,6 +180,7 @@ describe('Events', () => {
         startDate,
         endDate,
         unknown: 'unknown',
+        location: '46 tests street',
         latitude: 48.8915482,
         longitude: 2.3170656,
         streamerDevice: 'abcd',
@@ -279,7 +215,7 @@ describe('Events', () => {
         description: 'All come over on wednesday for our housewarming!',
         startDate,
         endDate,
-
+        location: '46 tests street',
         latitude: 48.8915482,
         longitude: 2.3170656,
         streamerDevice: 'abcd',
@@ -310,7 +246,7 @@ describe('Events', () => {
         description: 'All come over on wednesday for our housewarming!',
         startDate,
         endDate,
-
+        location: '46 tests street',
         latitude: 48.8915482,
         longitude: 2.3170656,
         streamerDevice: 'abcd',
@@ -341,7 +277,7 @@ describe('Events', () => {
         description: 'a'.repeat(2049),
         startDate,
         endDate,
-
+        location: '46 tests street',
         latitude: 48.8915482,
         longitude: 2.3170656,
         streamerDevice: 'abcd',
@@ -373,7 +309,7 @@ describe('Events', () => {
         description: 'All come over on wednesday for our housewarming!',
         startDate: startDateBeforeNow,
         endDate,
-
+        location: '46 tests street',
         latitude: 48.8915482,
         longitude: 2.3170656,
         streamerDevice: 'abcd',
@@ -406,6 +342,7 @@ describe('Events', () => {
         description: 'All come over on wednesday for our housewarming!',
         startDate: startDateNow,
         endDate: endDateInHalfAnHour,
+        location: '46 tests street',
         latitude: 48.8915482,
         longitude: 2.3170656,
         streamerDevice: 'abcd',
@@ -437,6 +374,7 @@ describe('Events', () => {
         description: 'All come over on wednesday for our housewarming!',
         startDate: startDateHalfHourBeforeNow,
         endDate,
+        location: '46 tests street',
         latitude: 48.8915482,
         longitude: 2.3170656,
         streamerDevice: 'abcd',
@@ -473,6 +411,7 @@ describe('Events', () => {
         description: 'All come over on wednesday for our housewarming!',
         startDate: startDateNow,
         endDate: endDateInAWeek,
+        location: '46 tests street',
         latitude: 48.8915482,
         longitude: 2.3170656,
         streamerDevice: 'abcd',
@@ -502,6 +441,7 @@ describe('Events', () => {
         name: 'House warming',
         description: 'All come over on wednesday for our housewarming!',
         endDate,
+        location: '46 tests street',
         latitude: 48.8915482,
         longitude: 2.3170656,
         streamerDevice: 'abcd',
@@ -531,6 +471,7 @@ describe('Events', () => {
         name: 'House warming',
         description: 'All come over on wednesday for our housewarming!',
         startDate,
+        location: '46 tests street',
         latitude: 48.8915482,
         longitude: 2.3170656,
         streamerDevice: 'abcd',
@@ -561,7 +502,7 @@ describe('Events', () => {
         description: 'All come over on wednesday for our housewarming!',
         startDate: moment().add(3, 'd').format('DD-MM-YYY HH:mm:ss'),
         endDate,
-
+        location: '46 tests street',
         latitude: 48.8915482,
         longitude: 2.3170656,
         streamerDevice: 'abcd',
@@ -592,7 +533,7 @@ describe('Events', () => {
         description: 'All come over on wednesday for our housewarming!',
         startDate,
         endDate: moment().add(5, 'd').format('DD-MM-YYY HH:mm:ss'),
-
+        location: '46 tests street',
         latitude: 48.8915482,
         longitude: 2.3170656,
         streamerDevice: 'abcd',
@@ -623,7 +564,7 @@ describe('Events', () => {
         description: 'All come over on wednesday for our housewarming!',
         startDate,
         endDate,
-
+        location: '46 tests street',
         latitude: 91,
         longitude: 2.3170656,
         streamerDevice: 'abcd',
@@ -654,7 +595,7 @@ describe('Events', () => {
         description: 'All come over on wednesday for our housewarming!',
         startDate,
         endDate,
-
+        location: '46 tests street',
         latitude: 48.8915482,
         longitude: -181,
         streamerDevice: 'abcd',
@@ -685,7 +626,7 @@ describe('Events', () => {
         description: 'All come over on wednesday for our housewarming!',
         startDate,
         endDate,
-
+        location: '46 tests street',
         latitude: '48.8915482',
         longitude: 2.3170656,
         streamerDevice: 'abcd',
@@ -716,7 +657,7 @@ describe('Events', () => {
         description: 'All come over on wednesday for our housewarming!',
         startDate,
         endDate,
-
+        location: '46 tests street',
         latitude: 48.8915482,
         longitude: '2.3170656',
         streamerDevice: 'abcd',
@@ -747,7 +688,7 @@ describe('Events', () => {
         description: 'All come over on wednesday for our housewarming!',
         startDate,
         endDate,
-
+        location: '46 tests street',
         latitude: 48.8915482,
         longitude: 2.3170656,
         streamerDevice: true,
@@ -778,7 +719,7 @@ describe('Events', () => {
         description: 'All come over on wednesday for our housewarming!',
         startDate,
         endDate,
-
+        location: '46 tests street',
         latitude: 48.8915482,
         longitude: 2.3170656,
         streamerDevice: 'abc',
@@ -799,6 +740,68 @@ describe('Events', () => {
       res.body.should.have.property('statusCode');
       res.body.should.have.property('message');
       res.body.message.should.eql('Field isPrivate expected boolean received number');
+      const createdEvents = await sql.query('SELECT * FROM Events');
+      createdEvents.should.have.lengthOf(0);
+    });
+
+    it('should not POST an event with wrong location field type', async () => {
+      const body = {
+        name: 'House warming',
+        description: 'All come over on wednesday for our housewarming!',
+        startDate,
+        endDate,
+        location: 45,
+        latitude: 48.8915482,
+        longitude: 2.3170656,
+        streamerDevice: 'abc',
+        isPrivate: true,
+        eventPicture: 'defaultPicture1',
+      };
+
+      const user = await addUserProfile();
+      const jwt = generateJwt(user.insertId);
+
+      const res = await chai.request(server)
+        .post('/api/events')
+        .set({ Authorization: `Bearer ${jwt}` })
+        .send(body);
+
+      res.should.have.status(400);
+      res.body.should.be.a('object');
+      res.body.should.have.property('statusCode');
+      res.body.should.have.property('message');
+      res.body.message.should.eql('Field location expected string received number');
+      const createdEvents = await sql.query('SELECT * FROM Events');
+      createdEvents.should.have.lengthOf(0);
+    });
+
+    it('should not POST an event with location field too long', async () => {
+      const body = {
+        name: 'House warming',
+        description: 'All come over on wednesday for our housewarming!',
+        startDate,
+        endDate,
+        location: 'a'.repeat(101),
+        latitude: 48.8915482,
+        longitude: 2.3170656,
+        streamerDevice: 'abc',
+        isPrivate: true,
+        eventPicture: 'defaultPicture1',
+      };
+
+      const user = await addUserProfile();
+      const jwt = generateJwt(user.insertId);
+
+      const res = await chai.request(server)
+        .post('/api/events')
+        .set({ Authorization: `Bearer ${jwt}` })
+        .send(body);
+
+      res.should.have.status(400);
+      res.body.should.be.a('object');
+      res.body.should.have.property('statusCode');
+      res.body.should.have.property('message');
+      res.body.message.should.eql('Location is too long');
       const createdEvents = await sql.query('SELECT * FROM Events');
       createdEvents.should.have.lengthOf(0);
     });
