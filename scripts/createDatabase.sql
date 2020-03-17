@@ -43,6 +43,7 @@ CREATE TABLE IF NOT EXISTS `Events` (
   `EventPicture` varchar(100),
   `StartDate` datetime NOT NULL,
   `EndDate` datetime NOT NULL,
+  `Location` varchar(100) NOT NULL,
   `Latitude` float NOT NULL,
   `Longitude` float NOT NULL,
   `StreamerDevice` varchar(100),
