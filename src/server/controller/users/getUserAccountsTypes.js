@@ -22,7 +22,7 @@ export default async function getUserAccountsTypes(req, res, next) {
     const accountTypes = await getAccountTypes(userProfile.Id);
 
     if (accountTypes.length === 0) {
-      throw new ErrorResponseHandler(404, 'Please contact an administrator');
+      throw new ErrorResponseHandler(409, 'Please contact an administrator');
     }
 
     res.send({
