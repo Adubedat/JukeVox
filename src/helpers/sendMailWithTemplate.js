@@ -4,26 +4,14 @@ import ejs from 'ejs';
 
 export function sendEmailConfirmationLink(email, username, token) {
   return new Promise((resolve, reject) => {
-    let transporter;
-    if (process.env.NODE_ENV === 'production') {
-      transporter = nodemailer.createTransport({
-        host: process.env.MAILGUN_HOST,
-        port: process.env.MAILGUN_PORT,
-        auth: {
-          user: process.env.MAILGUN_USER,
-          pass: process.env.MAILGUN_PASS,
-        },
-      });
-    } else {
-      transporter = nodemailer.createTransport({
-        host: 'smtp.mailtrap.io',
-        port: 2525,
-        auth: {
-          user: process.env.MAILTRAP_USER,
-          pass: process.env.MAILTRAP_PASS,
-        },
-      });
-    }
+    const transporter = nodemailer.createTransport({
+      host: 'smtp.mailtrap.io',
+      port: 2525,
+      auth: {
+        user: process.env.MAILTRAP_USER,
+        pass: process.env.MAILTRAP_PASS,
+      },
+    });
     const link = `https://jukevox.herokuapp.com/confirmEmail/${token}`;
     ejs.renderFile(`${__dirname}/../../templates/emailConfirmation.ejs`, { username, link }, (err, data) => {
       if (err) {
@@ -34,10 +22,10 @@ export function sendEmailConfirmationLink(email, username, token) {
           subject: 'Jukevox - Email confirmation',
           html: data,
         };
-        transporter.sendMail(mainOptions, (err, info) => {
-          if (err) {
-            reject(err);
-            console.log(err);
+        transporter.sendMail(mainOptions, (error, info) => {
+          if (error) {
+            reject(error);
+            console.log(error);
           } else {
             resolve();
           }

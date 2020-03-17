@@ -4,6 +4,7 @@ import updateEvent from '../../controller/events/updateEvent';
 import getEvent from '../../controller/events/getEvent';
 import getEventGuests from '../../controller/events/getEventGuests';
 import getEventsByUser from '../../controller/events/getEventsByUser';
+import voteForTrack from '../../controller/votes/voteForTrack';
 
 
 const router = express.Router();
@@ -18,5 +19,7 @@ router.route('/events/:eventId')
   .patch(updateEvent);
 
 router.get('/events/:eventId/guests', getEventGuests);
+
+router.post('/events/:eventId/tracks/:trackId/vote', voteForTrack);
 
 export default router;

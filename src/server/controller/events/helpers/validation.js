@@ -43,9 +43,13 @@ function validateStreamerDevice(streamerDevice) {
   validateType('streamerDevice', streamerDevice, 'string');
 }
 
-function validateLocation(latitude, longitude) {
+function validateLocation(location, latitude, longitude) {
+  validateType('location', location, 'string');
   validateType('latitude', latitude, 'number');
   validateType('longitude', longitude, 'number');
+  if (location.length > 100) {
+    throw new ErrorResponseHandler(400, 'Location is too long');
+  }
   if (!isValidLatitude(latitude)) {
     throw new ErrorResponseHandler(400, 'Unknown latitude');
   }
@@ -98,7 +102,7 @@ export default function validateBody(body) {
   validateName(body.name);
   validateDescription(body.description);
   validateDates(body.startDate, body.endDate);
-  validateLocation(body.latitude, body.longitude);
+  validateLocation(body.location, body.latitude, body.longitude);
   validateStreamerDevice(body.streamerDevice);
   validatePrivacy(body.isPrivate);
 }

@@ -9,10 +9,10 @@ const Event = function () {
 Event.createNewEvent = function createNewEvent(creatorId, content) {
   return new Promise((resolve, reject) => {
     const query = 'INSERT INTO Events (CreatorId, Name, Description, \
-            EventPicture, StartDate, EndDate, Latitude, Longitude, \
+            EventPicture, StartDate, EndDate, Location, Latitude, Longitude, \
             StreamerDevice, IsPrivate) VALUES ?;';
     const values = [[creatorId, content.name, content.description, content.eventPicture,
-      content.startDate, content.endDate, content.latitude, content.longitude,
+      content.startDate, content.endDate, content.location, content.latitude, content.longitude,
       content.streamerDevice, content.isPrivate]];
 
     sql.query(query, [values])
@@ -101,8 +101,8 @@ Event.getEventByUserAndEventId = function getEventByUserAndEventId(userId, event
 Event.updateEvent = function updateEvent(eventId, body) {
   return new Promise((resolve, reject) => {
     const query = 'UPDATE Events SET Name = ?, Description = ?, \
-    EventPicture = ?, StartDate = ?, EndDate = ?, Latitude = ?, \
-    Longitude = ?, StreamerDevice = ?, isPrivate = ? \
+    EventPicture = ?, StartDate = ?, EndDate = ?, Location = ?, \
+    Latitude = ?, Longitude = ?, StreamerDevice = ?, isPrivate = ? \
     WHERE Id = ?;';
 
     const values = [
@@ -111,6 +111,7 @@ Event.updateEvent = function updateEvent(eventId, body) {
       body.eventPicture,
       body.startDate,
       body.endDate,
+      body.location,
       body.latitude,
       body.longitude,
       body.streamerDevice,
@@ -148,6 +149,21 @@ Event.getEventGuests = function getEventGuests(eventId, filters) {
     }
 
     sql.query(query, eventId)
+      .then((res) => resolve(res))
+      .catch((err) => reject(err));
+  });
+};
+
+Event.getGuestStatusForEvent = function getGuestStatusForEvent(userId, eventId) {
+  return new Promise((resolve, reject) => {
+    const query = 'SELECT \
+        GuestStatus \
+      FROM \
+        EventGuests \
+      WHERE \
+        GuestId = ? AND EventId = ?;';
+
+    sql.query(query, [userId, eventId])
       .then((res) => resolve(res))
       .catch((err) => reject(err));
   });
