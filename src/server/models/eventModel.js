@@ -151,4 +151,15 @@ Event.getGuestStatusForEvent = function getGuestStatusForEvent(userId, eventId) 
   });
 };
 
+Event.updateGuestStatus = function updateGuestStatus(userId, eventId, guestStatus) {
+  return new Promise((resolve, reject) => {
+    const query = 'UPDATE EventGuests SET GuestStatus = ? \
+    WHERE GuestId = ? AND EventId = ?;';
+
+    sql.query(query, [guestStatus, userId, eventId])
+      .then((res) => resolve(res))
+      .catch((err) => reject(err));
+  });
+};
+
 export default Event;
