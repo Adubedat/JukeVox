@@ -39,10 +39,12 @@ export default async function googleLogin(req, res, next) {
       userProfile = userProfileByEmail;
       await User.createProviderAccount(userProfile.Id, providerId, 'Google');
     } else if (providerAccount !== undefined) {
-      userProfile = await User.getUserProfile(['Id'], [providerAccount.UserProfileId]);
+      [userProfile] = await User.getUserProfile(['Id'], [providerAccount.UserProfileId]);
     }
+    console.log(userProfile);
 
     const jwt = generateJwt(userProfile.Id);
+    console.log(jwt);
     res.send({
       message: 'User succesfully connected !',
       statusCode: 200,
