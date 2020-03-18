@@ -5,9 +5,6 @@ import Event from '../../models/eventModel';
 import Tracks from '../../models/tracksModel';
 
 async function validateBody(userId, eventId, body) {
-  if (typeof eventId !== 'string') {
-    throw new ErrorResponseHandler(400, `TypeError eventId: expected string but received ${typeof eventId}`);
-  }
   const [event] = await Event.getGuestStatusForEvent(userId, eventId);
   if (event === undefined) {
     throw new ErrorResponseHandler(403, 'Forbidden : Event does not exist or you are not part of it');

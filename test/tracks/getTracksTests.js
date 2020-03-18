@@ -63,6 +63,20 @@ describe('Tracks', () => {
       res.body.message.should.eql('TypeError query: expected string but received undefined');
     });
 
+    it('should not GET a track list with an empty query param', async () => {
+      const user1 = await sql.query('INSERT INTO UserProfiles (Username, Email, CreatedAt) VALUES (\'user1\', \'test@test.test\', \'2020-12-12 12:12:12\')');
+      const jwt = generateJwt(user1.insertId);
+
+      const res = await chai.request(server)
+        .get('/api/tracks?query=')
+        .set({ Authorization: `Bearer ${jwt}` });
+
+      res.should.have.status(500);
+      res.body.should.have.property('statusCode');
+      res.body.should.have.property('message');
+      res.body.message.should.eql('empty parameter');
+    });
+
     it('should not GET a track list without jwt', async () => {
       const query = {
         query: 'eminem',

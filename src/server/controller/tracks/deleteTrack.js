@@ -4,12 +4,6 @@ import Event from '../../models/eventModel';
 import Tracks from '../../models/tracksModel';
 
 async function validateParams(userId, eventId, trackId) {
-  if (typeof eventId !== 'string') {
-    throw new ErrorResponseHandler(400, `TypeError eventId: expected string but received ${typeof eventId}`);
-  }
-  if (typeof trackId !== 'string') {
-    throw new ErrorResponseHandler(400, `TypeError trackId: expected string but received ${typeof trackId}`);
-  }
   const [[track], [event]] = await Promise.all([Tracks.getTrack(trackId), Event.getEvent(eventId)]);
   if (event === undefined) {
     throw new ErrorResponseHandler(404, 'Event not found');
@@ -30,7 +24,10 @@ export default async function deleteTrack(req, res, next) {
     checkUnknownFields(['eventId', 'trackId'], req.params);
     await validateParams(userId, eventId, trackId);
 
-    await Tracks.deleteTrack(trackId);
+    const response = await Tracks.deleteTrack(trackId);
+    if (response.affectedRows !== 1) {
+      throw new ErrorResponseHandler(500, 'Internal server error');
+    }
     res.status(200).send({
       message: 'Track successfully deleted',
       statusCode: 200,

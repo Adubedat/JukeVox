@@ -58,6 +58,9 @@ describe('Tracks', () => {
       res.body.data.should.have.property('artistName');
       res.body.data.should.have.property('pictureSmall');
       res.body.data.should.have.property('pictureBig');
+
+      const tracks = await sql.query('SELECT * FROM Tracks');
+      tracks.should.have.lengthOf(1);
     });
     it('should not add a track if event does not exist', async () => {
       const body = {
@@ -78,6 +81,9 @@ describe('Tracks', () => {
       res.body.should.have.property('statusCode');
       res.body.message.should.eql('Forbidden : Event does not exist or you are not part of it');
       res.should.have.status(403);
+
+      const tracks = await sql.query('SELECT * FROM Tracks');
+      tracks.should.have.lengthOf(0);
     });
     it('should not add a track if user is not part of the event', async () => {
       const body = {
@@ -97,6 +103,9 @@ describe('Tracks', () => {
       res.body.should.have.property('statusCode');
       res.body.message.should.eql('Forbidden : Event does not exist or you are not part of it');
       res.should.have.status(403);
+
+      const tracks = await sql.query('SELECT * FROM Tracks');
+      tracks.should.have.lengthOf(0);
     });
     it('should not add a track if user is not going to the event', async () => {
       const body = {
@@ -118,6 +127,9 @@ describe('Tracks', () => {
       res.body.should.have.property('statusCode');
       res.body.message.should.eql('Forbidden : You must be going to the event to add a song');
       res.should.have.status(403);
+
+      const tracks = await sql.query('SELECT * FROM Tracks');
+      tracks.should.have.lengthOf(0);
     });
     it('should not add a track with an unknown field', async () => {
       const body = {
@@ -139,6 +151,9 @@ describe('Tracks', () => {
       res.body.should.have.property('statusCode');
       res.body.message.should.eql('Unknown field: unknown');
       res.should.have.status(400);
+
+      const tracks = await sql.query('SELECT * FROM Tracks');
+      tracks.should.have.lengthOf(0);
     });
     it('should not add a track without jwt', async () => {
       const body = {
@@ -157,6 +172,9 @@ describe('Tracks', () => {
       res.body.should.have.property('statusCode');
       res.body.message.should.eql('Authorization token is missing');
       res.should.have.status(401);
+
+      const tracks = await sql.query('SELECT * FROM Tracks');
+      tracks.should.have.lengthOf(0);
     });
     it('should not add a track without deezerSongId', async () => {
       const body = {
@@ -176,6 +194,9 @@ describe('Tracks', () => {
       res.body.should.have.property('statusCode');
       res.body.message.should.eql('TypeError deezerSongId: expected number but received undefined');
       res.should.have.status(400);
+
+      const tracks = await sql.query('SELECT * FROM Tracks');
+      tracks.should.have.lengthOf(0);
     });
     it('should not add a track with an invalid deezerSongId', async () => {
       const body = {
@@ -196,6 +217,9 @@ describe('Tracks', () => {
       res.body.should.have.property('statusCode');
       res.body.message.should.eql('Invalid deezerSongId');
       res.should.have.status(400);
+
+      const tracks = await sql.query('SELECT * FROM Tracks');
+      tracks.should.have.lengthOf(0);
     });
   });
 });

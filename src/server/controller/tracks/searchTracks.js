@@ -28,6 +28,10 @@ export default async function searchTracks(req, res, next) {
     validateBody(query);
 
     const response = await axios.get(url, { params: { q: query } });
+    const { error } = response.data;
+    if (error) {
+      throw new ErrorResponseHandler(error.code, error.message);
+    }
     const tracks = formatTracks(response.data.data);
     res.send({
       message: 'Tracks found',
