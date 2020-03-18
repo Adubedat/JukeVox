@@ -35,6 +35,7 @@ describe('Events', () => {
       description: 'All come over on wednesday for our housewarming!',
       startDate,
       endDate,
+      location: '46 tests street',
       latitude: 48.8915482,
       longitude: 2.3170656,
       streamerDevice: 'abcd',
@@ -43,10 +44,10 @@ describe('Events', () => {
     };
 
     const eventQuery = 'INSERT INTO Events (CreatorId, Name, Description, \
-        EventPicture, StartDate, EndDate, Latitude, Longitude, \
+        EventPicture, StartDate, EndDate, Location, Latitude, Longitude, \
         StreamerDevice, IsPrivate) VALUES ?;';
     const eventValues = [[creatorId, content.name, content.description, content.eventPicture,
-      content.startDate, content.endDate, content.latitude, content.longitude,
+      content.startDate, content.endDate, content.location, content.latitude, content.longitude,
       content.streamerDevice, content.isPrivate]];
     const event = await sql.query(eventQuery, [eventValues])
       .catch((err) => console.log(err));
@@ -113,7 +114,7 @@ describe('Events', () => {
       res.body.data.should.be.a('array');
       res.body.data.length.should.be.eql(4);
       res.body.data[0].should.have.all.keys('CreatorId', 'Name', 'Description', 'EventPicture', 'StartDate',
-        'EndDate', 'Latitude', 'Longitude', 'StreamerDevice', 'IsPrivate', 'Id', 'GuestStatus');
+        'EndDate', 'Location', 'Latitude', 'Longitude', 'StreamerDevice', 'IsPrivate', 'Id', 'GuestStatus');
     });
 
     it('should GET a list of 2 events that the user is going (with filter)', async () => {
@@ -138,7 +139,7 @@ describe('Events', () => {
       res.body.data.should.be.a('array');
       res.body.data.length.should.be.eql(2);
       res.body.data[0].should.have.all.keys('CreatorId', 'Name', 'Description', 'EventPicture', 'StartDate',
-        'EndDate', 'Latitude', 'Longitude', 'StreamerDevice', 'IsPrivate', 'Id', 'GuestStatus');
+        'EndDate', 'Location', 'Latitude', 'Longitude', 'StreamerDevice', 'IsPrivate', 'Id', 'GuestStatus');
     });
 
     it('should GET a list of 1 events that the user is invited (with filter)', async () => {
@@ -163,7 +164,7 @@ describe('Events', () => {
       res.body.data.should.be.a('array');
       res.body.data.length.should.be.eql(1);
       res.body.data[0].should.have.all.keys('CreatorId', 'Name', 'Description', 'EventPicture', 'StartDate',
-        'EndDate', 'Latitude', 'Longitude', 'StreamerDevice', 'IsPrivate', 'Id', 'GuestStatus');
+        'EndDate', 'Location', 'Latitude', 'Longitude', 'StreamerDevice', 'IsPrivate', 'Id', 'GuestStatus');
     });
 
     it('should GET a list of 1 events that the user is notgoing (with filter)', async () => {
@@ -188,7 +189,7 @@ describe('Events', () => {
       res.body.data.should.be.a('array');
       res.body.data.length.should.be.eql(1);
       res.body.data[0].should.have.all.keys('CreatorId', 'Name', 'Description', 'EventPicture', 'StartDate',
-        'EndDate', 'Latitude', 'Longitude', 'StreamerDevice', 'IsPrivate', 'Id', 'GuestStatus');
+        'EndDate', 'Location', 'Latitude', 'Longitude', 'StreamerDevice', 'IsPrivate', 'Id', 'GuestStatus');
     });
 
     it('should GET a list of 2 events that the user is notgoing AND invited (with filter)', async () => {
@@ -213,7 +214,7 @@ describe('Events', () => {
       res.body.data.should.be.a('array');
       res.body.data.length.should.be.eql(2);
       res.body.data[0].should.have.all.keys('CreatorId', 'Name', 'Description', 'EventPicture', 'StartDate',
-        'EndDate', 'Latitude', 'Longitude', 'StreamerDevice', 'IsPrivate', 'Id', 'GuestStatus');
+        'EndDate', 'Location', 'Latitude', 'Longitude', 'StreamerDevice', 'IsPrivate', 'Id', 'GuestStatus');
     });
 
     it('should GET a list of 2 events that the user is notgoing AND invited (with filter and going = false)', async () => {
@@ -238,7 +239,7 @@ describe('Events', () => {
       res.body.data.should.be.a('array');
       res.body.data.length.should.be.eql(2);
       res.body.data[0].should.have.all.keys('CreatorId', 'Name', 'Description', 'EventPicture', 'StartDate',
-        'EndDate', 'Latitude', 'Longitude', 'StreamerDevice', 'IsPrivate', 'Id', 'GuestStatus');
+        'EndDate', 'Location', 'Latitude', 'Longitude', 'StreamerDevice', 'IsPrivate', 'Id', 'GuestStatus');
     });
 
     it('should GET a list of 4 events that the user is notgoing AND invited AND going (with filter)', async () => {
@@ -263,7 +264,7 @@ describe('Events', () => {
       res.body.data.should.be.a('array');
       res.body.data.length.should.be.eql(4);
       res.body.data[0].should.have.all.keys('CreatorId', 'Name', 'Description', 'EventPicture', 'StartDate',
-        'EndDate', 'Latitude', 'Longitude', 'StreamerDevice', 'IsPrivate', 'Id', 'GuestStatus');
+        'EndDate', 'Location', 'Latitude', 'Longitude', 'StreamerDevice', 'IsPrivate', 'Id', 'GuestStatus');
     });
 
     it('should not GET events if the type of one of the filters is wrong', async () => {

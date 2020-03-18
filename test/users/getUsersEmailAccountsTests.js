@@ -222,7 +222,7 @@ describe('Users', () => {
       await addUserProfile(email);
 
       const res = await chai.request(server).get(`/users/${email}/accounts`);
-      res.should.have.status(404);
+      res.should.have.status(409);
       res.body.should.be.a('object');
       res.body.should.have.property('status').eql('error');
       res.body.should.have.property('statusCode');
