@@ -15,21 +15,23 @@ export default function initListeners(io) {
       next(new Error('Authentication error'));
     }
   })
-    .on('connection', (userSocket) => {
+    .on('connection', (socket) => {
       // connection now authenticated to receive further events
-      const { userId } = userSocket.decoded;
+      const { userId } = socket.decoded;
 
       console.log(`User ${userId} Connected`);
 
-      userSocket.on('join_event', (eventId) => {
-        joinEvent(eventId, userSocket, io);
+      socket.on('join_event', (data) => {
+        const { eventId } = data;
+        joinEvent(userId, eventId, socket, io);
       });
 
-      userSocket.on('leave_event', (eventId) => {
-        leaveEvent(eventId, userSocket, io);
+      socket.on('leave_event', (data) => {
+        const { eventId } = data;
+        leaveEvent(userId, eventId, socket, io);
       });
 
-      userSocket.on('disconnect', () => {
+      socket.on('disconnect', () => {
         console.log('User disconnected');
       });
     });

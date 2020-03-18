@@ -1,15 +1,27 @@
-export function joinEvent(eventId, userSocket, io) {
-  // TODO : If user is valid
-  // TODO : If event is valid
+import Event from '../../models/eventModel';
+
+export async function joinEvent(userId, eventId, socket, io) {
+  const event = await Event.getEvent(eventId);
+
+  if (event[0] === undefined) {
+    // TODO: Throw error
+    console.log('No event found with this ID');
+    return;
+  }
+
+  const guestStatusResponse = await Event.getGuestStatusForEvent(userId, eventId);
+  if (guestStatusResponse[0] == null || guestStatusResponse[0].GuestStatus !== 'Going') {
+    // TODO: Throw error
+    console.log('Can only connect if going to event');
+  }
+
   // TODO : If event is ongoing
 
-  // TODO: If event does not exist - create it
-
-  userSocket.join(eventId);
-  console.log(`User just joined event ${eventId}`);
+  socket.join(eventId);
+  console.log(`User ${userId} just joined event ${eventId}`);
 }
 
-export function leaveEvent(eventId, userSocket, io) {
-  userSocket.leave(eventId);
-  console.log(`User just left the event ${eventId}`);
+export function leaveEvent(userId, eventId, socket, io) {
+  socket.leave(eventId);
+  console.log(`User ${userId} just left the event ${eventId}`);
 }
