@@ -26,6 +26,14 @@ describe('Events', () => {
     await sql.query('DELETE FROM UserProfiles;');
   });
 
+  afterEach(async () => {
+    await sql.query('DELETE FROM UserAccounts;');
+    await sql.query('DELETE FROM ProviderAccounts;');
+    await sql.query('DELETE FROM EventGuests');
+    await sql.query('DELETE FROM Events;');
+    await sql.query('DELETE FROM UserProfiles;');
+  });
+
   async function addUserProfile(userNumber) {
     const userProfileQuery = 'INSERT INTO UserProfiles (Username, Email, CreatedAt) VALUES ?';
     const userProfileValues = [[`Daniel${userNumber}`, `${userNumber}daniel@mail.com`, moment().format(DATETIME_FORMAT)]];
