@@ -1,19 +1,36 @@
+import jwt from 'jsonwebtoken';
 import { joinEvent, leaveEvent } from './socketControllers/eventSocketController';
 
 export default function initListeners(io) {
-  io.on('connection', (userSocket) => {
-    console.log('User Connected');
+  io.use((socket, next) => {
+    if (socket.handshake.query && socket.handshake.query.token) {
+      jwt.verify(socket.handshake.query.token, process.env.JWT_SECRET, (err, decoded) => {
+        if (err) {
+          return next(new Error('Authentication error'));
+        }
+        socket.decoded = decoded;
+        next();
+      });
+    } else {
+      next(new Error('Authentication error'));
+    }
+  })
+    .on('connection', (userSocket) => {
+      // connection now authenticated to receive further events
+      const { userId } = userSocket.decoded;
 
-    userSocket.on('join_event', (eventId) => {
-      joinEvent(eventId, userSocket, io);
-    });
+      console.log(`User ${userId} Connected`);
 
-    userSocket.on('leave_event', (eventId) => {
-      leaveEvent(eventId, userSocket, io);
-    });
+      userSocket.on('join_event', (eventId) => {
+        joinEvent(eventId, userSocket, io);
+      });
 
-    userSocket.on('disconnect', () => {
-      console.log('User disconnected');
+      userSocket.on('leave_event', (eventId) => {
+        leaveEvent(eventId, userSocket, io);
+      });
+
+      userSocket.on('disconnect', () => {
+        console.log('User disconnected');
+      });
     });
-  });
 }
