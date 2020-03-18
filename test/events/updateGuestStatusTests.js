@@ -26,7 +26,7 @@ describe('Events', () => {
     await sql.query('DELETE FROM UserProfiles;');
   });
 
-  afterEach(async () => {
+  after(async () => {
     await sql.query('DELETE FROM UserAccounts;');
     await sql.query('DELETE FROM ProviderAccounts;');
     await sql.query('DELETE FROM EventGuests');
