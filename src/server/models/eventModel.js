@@ -36,7 +36,7 @@ Event.addGuest = function addGuestToEvent(eventId, guestId, hasPlayerControl, gu
       .catch((err) => {
         // TODO: Check if this is best practice. Also see if useful printing console log in the error handling
         if (err.code === 'ER_DUP_ENTRY') {
-          const customError = new ErrorResponseHandler(400, 'Guest already invited or attending');
+          const customError = new ErrorResponseHandler(409, 'Guest already invited or attending');
           reject(customError);
         }
         reject(err);
@@ -155,6 +155,17 @@ Event.getGuestStatusForEvent = function getGuestStatusForEvent(userId, eventId) 
         GuestId = ? AND EventId = ?;';
 
     sql.query(query, [userId, eventId])
+      .then((res) => resolve(res))
+      .catch((err) => reject(err));
+  });
+};
+
+Event.updateGuestStatus = function updateGuestStatus(userId, eventId, guestStatus) {
+  return new Promise((resolve, reject) => {
+    const query = 'UPDATE EventGuests SET GuestStatus = ? \
+    WHERE GuestId = ? AND EventId = ?;';
+
+    sql.query(query, [guestStatus, userId, eventId])
       .then((res) => resolve(res))
       .catch((err) => reject(err));
   });
