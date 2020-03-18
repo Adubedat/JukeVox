@@ -21,4 +21,26 @@ Tracks.addTrack = function addTrack(userId, eventId, track) {
   });
 };
 
+Tracks.deleteTrack = function deleteTrack(trackId) {
+  return new Promise((resolve, reject) => {
+    const query = 'DELETE FROM Tracks WHERE Id = ?';
+    const values = [trackId];
+
+    sql.query(query, [values])
+      .then((res) => resolve(res))
+      .catch((err) => reject(err));
+  });
+};
+
+Tracks.getTrack = function getTrack(trackId) {
+  return new Promise((resolve, reject) => {
+    const query = 'SELECT * FROM Tracks WHERE Id = ?';
+    const values = [trackId];
+
+    sql.query(query, [values])
+      .then((res) => resolve(res))
+      .catch((err) => reject(err));
+  });
+};
+
 export default Tracks;
