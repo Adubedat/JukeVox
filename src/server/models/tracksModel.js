@@ -43,4 +43,24 @@ Tracks.getTrack = function getTrack(trackId) {
   });
 };
 
+Tracks.getTracksForEvent = function getTracksForEvent(eventId, userId) {
+  return new Promise((resolve, reject) => {
+    const query = 'SELECT \
+      Tracks.*, \
+      SUM(Votes.Vote) as VotesSum, \
+      (SELECT vote FROM Votes WHERE TrackId = Tracks.Id AND UserId = ?) as UserVote \
+    FROM \
+      Tracks  \
+      LEFT JOIN Votes ON Tracks.Id = Votes.TrackId \
+    WHERE Tracks.EventId = ? \
+    GROUP BY Tracks.Id';
+
+    const values = [userId, eventId];
+
+    sql.query(query, values)
+      .then((res) => resolve(res))
+      .catch((err) => reject(err));
+  });
+};
+
 export default Tracks;
