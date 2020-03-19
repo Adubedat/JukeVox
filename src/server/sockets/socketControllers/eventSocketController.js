@@ -1,4 +1,6 @@
+import moment from 'moment';
 import Event from '../../models/eventModel';
+import DATETIME_FORMAT from '../../constants';
 
 export async function joinEvent(userId, eventId, socket, io) {
   const event = await Event.getEvent(eventId);
@@ -15,7 +17,11 @@ export async function joinEvent(userId, eventId, socket, io) {
     console.log('Can only connect if going to event');
   }
 
-  // TODO : If event is ongoing
+  const timeNow = moment().format(DATETIME_FORMAT);
+  if (moment(timeNow).isBefore(event[0].StartDate) || moment(timeNow).isAfter(event[0].EndDate)) {
+    // TODO: Throw error
+    console.log('Forbidden. Event is not ongoing');
+  }
 
   socket.join(eventId);
   console.log(`User ${userId} just joined event ${eventId}`);
