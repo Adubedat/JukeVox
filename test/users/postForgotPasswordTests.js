@@ -53,7 +53,7 @@ describe('Users', () => {
       const user1 = await addUserProfile(email);
       await addUserAccount(user1.insertId, email, true);
 
-      const userAccountBefore = await sql.query(`SELECT * FROM UserAccounts WHERE Email = ${email}`);
+      const [userAccountBefore] = await sql.query(`SELECT * FROM UserAccounts WHERE Email = '${email}'`);
       expect(userAccountBefore.ConfirmationToken).to.equal(null);
       expect(userAccountBefore.TokenExpiration).to.equal(null);
 
@@ -70,7 +70,7 @@ describe('Users', () => {
       res.body.should.have.property('message');
       res.body.message.should.eql('Reset password mail sent');
 
-      const userAccountAfter = await sql.query(`SELECT * FROM UserAccounts WHERE Email = ${email}`);
+      const [userAccountAfter] = await sql.query(`SELECT * FROM UserAccounts WHERE Email = '${email}'`);
       expect(userAccountAfter.ConfirmationToken).to.exist; //eslint-disable-line
       expect(userAccountAfter.TokenExpiration).to.exist; //eslint-disable-line
     });
@@ -80,7 +80,7 @@ describe('Users', () => {
       const user1 = await addUserProfile(email);
       await addUserAccount(user1.insertId, email, false);
 
-      const userAccountBefore = await sql.query(`SELECT * FROM UserAccounts WHERE Email = ${email}`);
+      const [userAccountBefore] = await sql.query(`SELECT * FROM UserAccounts WHERE Email = '${email}'`);
       expect(userAccountBefore.ConfirmationToken).to.equal(null);
       expect(userAccountBefore.TokenExpiration).to.equal(null);
 
@@ -97,7 +97,7 @@ describe('Users', () => {
       res.body.should.have.property('message');
       res.body.message.should.eql('Your account is not confirmed');
 
-      const userAccountAfter = await sql.query(`SELECT * FROM UserAccounts WHERE Email = ${email}`);
+      const [userAccountAfter] = await sql.query(`SELECT * FROM UserAccounts WHERE Email = '${email}'`);
       expect(userAccountAfter.ConfirmationToken).to.equal(null);
       expect(userAccountAfter.TokenExpiration).to.equal(null);
     });
@@ -107,12 +107,12 @@ describe('Users', () => {
       const user1 = await addUserProfile(email);
       await addUserAccount(user1.insertId, email, true);
 
-      const userAccountBefore = await sql.query(`SELECT * FROM UserAccounts WHERE Email = ${email}`);
+      const [userAccountBefore] = await sql.query(`SELECT * FROM UserAccounts WHERE Email = '${email}'`);
       expect(userAccountBefore.ConfirmationToken).to.equal(null);
       expect(userAccountBefore.TokenExpiration).to.equal(null);
 
       const body = {
-        email,
+        email: 'false email',
       };
       const res = await chai.request(server)
         .post('/forgotPassword')
@@ -122,9 +122,9 @@ describe('Users', () => {
       res.body.should.be.a('object');
       res.body.should.have.property('statusCode');
       res.body.should.have.property('message');
-      res.body.message.should.eql('Email not found');
+      res.body.message.should.eql('No account found for this email');
 
-      const userAccountAfter = await sql.query(`SELECT * FROM UserAccounts WHERE Email = ${email}`);
+      const [userAccountAfter] = await sql.query(`SELECT * FROM UserAccounts WHERE Email = '${email}'`);
       expect(userAccountAfter.ConfirmationToken).to.equal(null);
       expect(userAccountAfter.TokenExpiration).to.equal(null);
     });
@@ -134,7 +134,7 @@ describe('Users', () => {
       const user1 = await addUserProfile(email);
       await addUserAccount(user1.insertId, email, true);
 
-      const userAccountBefore = await sql.query(`SELECT * FROM UserAccounts WHERE Email = ${email}`);
+      const [userAccountBefore] = await sql.query(`SELECT * FROM UserAccounts WHERE Email = '${email}'`);
       expect(userAccountBefore.ConfirmationToken).to.equal(null);
       expect(userAccountBefore.TokenExpiration).to.equal(null);
 
@@ -147,7 +147,7 @@ describe('Users', () => {
       res.body.should.have.property('message');
       res.body.message.should.eql('TypeError email: expected string but received undefined');
 
-      const userAccountAfter = await sql.query(`SELECT * FROM UserAccounts WHERE Email = ${email}`);
+      const [userAccountAfter] = await sql.query(`SELECT * FROM UserAccounts WHERE Email = '${email}'`);
       expect(userAccountAfter.ConfirmationToken).to.equal(null);
       expect(userAccountAfter.TokenExpiration).to.equal(null);
     });
@@ -157,7 +157,7 @@ describe('Users', () => {
       const user1 = await addUserProfile(email);
       await addUserAccount(user1.insertId, email, true);
 
-      const userAccountBefore = await sql.query(`SELECT * FROM UserAccounts WHERE Email = ${email}`);
+      const [userAccountBefore] = await sql.query(`SELECT * FROM UserAccounts WHERE Email = '${email}'`);
       expect(userAccountBefore.ConfirmationToken).to.equal(null);
       expect(userAccountBefore.TokenExpiration).to.equal(null);
 
@@ -173,9 +173,9 @@ describe('Users', () => {
       res.body.should.be.a('object');
       res.body.should.have.property('statusCode');
       res.body.should.have.property('message');
-      res.body.message.should.eql('Unknown parameter: unknown');
+      res.body.message.should.eql('Unknown field: unknown');
 
-      const userAccountAfter = await sql.query(`SELECT * FROM UserAccounts WHERE Email = ${email}`);
+      const [userAccountAfter] = await sql.query(`SELECT * FROM UserAccounts WHERE Email = '${email}'`);
       expect(userAccountAfter.ConfirmationToken).to.equal(null);
       expect(userAccountAfter.TokenExpiration).to.equal(null);
     });
