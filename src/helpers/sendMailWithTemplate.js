@@ -27,7 +27,6 @@ export function sendEmailConfirmationLink(email, username, token) {
             reject(error);
             console.log(error);
           } else {
-            console.log(`Message sent: ${info.response}`);
             resolve();
           }
         });

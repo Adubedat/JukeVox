@@ -35,7 +35,7 @@ export default async function facebookLogin(req, res, next) {
         userProfile = userProfileByEmail;
         await User.createProviderAccount(userProfile.Id, providerId, 'Facebook');
       } else if (providerAccount !== undefined) {
-        userProfile = await User.getUserProfile(['Id'], [providerAccount.UserProfileId]);
+        [userProfile] = await User.getUserProfile(['Id'], [providerAccount.UserProfileId]);
       }
 
       const jwt = generateJwt(userProfile.Id);
