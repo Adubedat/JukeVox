@@ -76,8 +76,11 @@ User.updateUserProfile = function updateUserProfile(userId, username, email, pro
 
 User.updateUserAccount = function updateUserAccount(userId, userAccount) {
   return new Promise((resolve, reject) => {
-    const query = 'UPDATE UserAccounts SET Password = ?, ConfirmationToken = ? WHERE UserProfileId = ?';
-    const values = [userAccount.Password, userAccount.ConfirmationToken, userId];
+    const query = 'UPDATE UserAccounts SET Password = ?, ConfirmationToken = ?, \
+      TokenExpiration = ? WHERE UserProfileId = ?';
+    const values = [userAccount.Password, userAccount.ConfirmationToken,
+      userAccount.TokenExpiration, userId];
+
     sql.query(query, values)
       .then((res) => resolve(res))
       .catch((err) => reject(err));

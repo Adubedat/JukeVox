@@ -4,6 +4,7 @@ import confirmEmail from '../../controller/users/confirmEmail';
 import login from '../../controller/users/login';
 import facebookLogin from '../../controller/users/facebookLogin';
 import googleLogin from '../../controller/users/googleLogin';
+import forgotPassword from '../../controller/users/forgotPassword';
 
 const router = express.Router();
 
@@ -21,5 +22,7 @@ router.post('/login', login);
 router.post('/facebookLogin', facebookLogin);
 
 router.post('/googleLogin', googleLogin);
+
+router.post('/forgotPassword', forgotPassword);
 
 export default router;
