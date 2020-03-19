@@ -22,13 +22,13 @@ User.createUserAccount = function createUserAccount(userProfileId, email, passwo
   return new Promise((resolve, reject) => {
     const expirationDate = moment().add(3, 'd').format(DATETIME_FORMAT);
 
-    const query = 'INSERT INTO UserAccounts (UserProfileId, Email, Password, EmailConfirmationString, AccountExpiration) \
+    const query = 'INSERT INTO UserAccounts (UserProfileId, Email, Password, ConfirmationToken, TokenExpiration) \
     VALUES ?';
     const values = [[userProfileId, email, password, token, expirationDate]];
 
     sql.query(query, [values])
       .then((res) => {
-        res.emailConfirmationString = token;
+        res.ConfirmationToken = token;
         resolve(res);
       })
       .catch((err) => reject(err));
@@ -76,8 +76,8 @@ User.updateUserProfile = function updateUserProfile(userId, username, email, pro
 
 User.updateUserAccount = function updateUserAccount(userId, userAccount) {
   return new Promise((resolve, reject) => {
-    const query = 'UPDATE UserAccounts SET Password = ?, EmailConfirmationString = ? WHERE UserProfileId = ?';
-    const values = [userAccount.Password, userAccount.EmailConfirmationString, userId];
+    const query = 'UPDATE UserAccounts SET Password = ?, ConfirmationToken = ? WHERE UserProfileId = ?';
+    const values = [userAccount.Password, userAccount.ConfirmationToken, userId];
     sql.query(query, values)
       .then((res) => resolve(res))
       .catch((err) => reject(err));
@@ -128,7 +128,7 @@ User.getProviderAccounts = function getProviderAccounts(filters, values) {
 
 User.confirmUserEmail = function confirmUserEmail(token) {
   return new Promise((resolve, reject) => {
-    const query = 'UPDATE UserAccounts SET EmailConfirmed = true, EmailConfirmationString = NULL, AccountExpiration = NULL WHERE EmailConfirmationString = ?';
+    const query = 'UPDATE UserAccounts SET EmailConfirmed = true, ConfirmationToken = NULL, TokenExpiration = NULL WHERE ConfirmationToken = ?';
     sql.query(query, token)
       .then((res) => resolve(res))
       .catch((err) => reject(err));

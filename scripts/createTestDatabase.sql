@@ -13,9 +13,9 @@ CREATE TABLE IF NOT EXISTS `UserAccounts` (
   `UserProfileId` int UNIQUE PRIMARY KEY NOT NULL,
   `Email` varchar(50) UNIQUE NOT NULL,
   `Password` varchar(100),
-  `EmailConfirmationString` char(48) UNIQUE,
+  `ConfirmationToken` char(48) UNIQUE,
   `EmailConfirmed` boolean DEFAULT false,
-  `AccountExpiration` datetime,
+  `TokenExpiration` datetime,
   FOREIGN KEY (`UserProfileId`) REFERENCES `UserProfiles` (`Id`)
 );
 

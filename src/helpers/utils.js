@@ -3,7 +3,7 @@ import jwt from 'jsonwebtoken';
 import User from '../server/models/userModel';
 
 async function checkTokenIsUnique(token) {
-  const response = await User.getUserAccount(['EmailConfirmationString'], [token]);
+  const response = await User.getUserAccount(['ConfirmationToken'], [token]);
   if (response.length > 0) {
     return false;
   }
