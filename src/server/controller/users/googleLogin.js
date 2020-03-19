@@ -23,7 +23,6 @@ export default async function googleLogin(req, res, next) {
     validateBody(idToken);
     checkUnknownFields(['idToken'], req.body);
     const decodedToken = await admin.auth().verifyIdToken(idToken).catch((error) => {
-      console.log(error);
       throw new ErrorResponseHandler(400, error.errorInfo.message);
     });
     const providerId = decodedToken.uid;
@@ -39,7 +38,7 @@ export default async function googleLogin(req, res, next) {
       userProfile = userProfileByEmail;
       await User.createProviderAccount(userProfile.Id, providerId, 'Google');
     } else if (providerAccount !== undefined) {
-      userProfile = await User.getUserProfile(['Id'], [providerAccount.UserProfileId]);
+      [userProfile] = await User.getUserProfile(['Id'], [providerAccount.UserProfileId]);
     }
 
     const jwt = generateJwt(userProfile.Id);
