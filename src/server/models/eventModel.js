@@ -53,6 +53,15 @@ Event.getEvent = function getEvent(eventId) {
   });
 };
 
+Event.getPublicEvents = function getPublicEvents() {
+  return new Promise((resolve, reject) => {
+    const query = 'SELECT * FROM Events WHERE IsPrivate = false';
+    sql.query(query)
+      .then((res) => resolve(res))
+      .catch((err) => reject(err));
+  });
+};
+
 Event.getEventsByUser = function getEventsByUser(userId, filters) {
   return new Promise((resolve, reject) => {
     let query = 'SELECT \
