@@ -39,6 +39,8 @@ export default async function voteForTrack(req, res, next) {
 
     await Vote.addVote(trackIdAsInt, userId, vote);
 
+    req.io.to(eventId).emit('new_vote', `User ${userId} voted ${vote} for track ${trackIdAsInt}`);
+
     res.status(200).send({
       statusCode: 200,
       message: `Vote ${vote} for track ${trackId} successfully added`,

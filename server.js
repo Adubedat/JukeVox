@@ -22,6 +22,12 @@ initListeners(socketio);
 socketio.listen(5001);
 
 app.listen(port);
+
+app.use((req, res, next) => {
+  req.io = socketio;
+  next();
+});
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use('/', openRoutes);
