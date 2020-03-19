@@ -10,7 +10,6 @@ const chaiHttp = require('chai-http');
 const server = require('../../server');
 
 const should = chai.should();
-const { expect } = chai;
 
 chai.use(chaiHttp);
 
@@ -34,13 +33,10 @@ describe('Friendships', () => {
       await sql.query(`INSERT INTO Friendships (RequesterId, AddresseeId) VALUES (${user1.insertId}, ${user3.insertId})`);
 
       const jwt = generateJwt(user1.insertId);
-      const body = {
-        addresseeId: user2.insertId,
-      };
+
       const res = await chai.request(server)
-        .delete('/api/me/friendships')
-        .set({ Authorization: `Bearer ${jwt}` })
-        .send(body);
+        .delete(`/api/me/friendships/${user2.insertId}`)
+        .set({ Authorization: `Bearer ${jwt}` });
 
       res.should.have.status(200);
       res.body.should.be.a('object');
@@ -55,14 +51,11 @@ describe('Friendships', () => {
       const user1 = await sql.query('INSERT INTO UserProfiles (Username, Email, CreatedAt) VALUES (\'user1\', \'test@test.test\', \'2020-12-12 12:12:12\')');
       const user2 = await sql.query('INSERT INTO UserProfiles (Username, Email, CreatedAt) VALUES (\'user2\', \'test2@test.test\', \'2020-12-12 12:12:12\')');
       await sql.query(`INSERT INTO Friendships (RequesterId, AddresseeId) VALUES (${user1.insertId}, ${user2.insertId})`);
-      const body = {
-        addresseeId: -1,
-      };
+
       const jwt = generateJwt(user1.insertId);
       const res = await chai.request(server)
-        .delete('/api/me/friendships')
-        .set({ Authorization: `Bearer ${jwt}` })
-        .send(body);
+        .delete('/api/me/friendships/-1')
+        .set({ Authorization: `Bearer ${jwt}` });
 
       res.should.have.status(400);
       res.body.should.be.a('object');
@@ -74,66 +67,19 @@ describe('Friendships', () => {
       friendships.should.have.lengthOf(1);
       friendships[0].AddresseeId.should.eql(user2.insertId);
     });
-    it('should not delete friendship without addresseeId', async () => {
-      const user1 = await sql.query('INSERT INTO UserProfiles (Username, Email, CreatedAt) VALUES (\'user1\', \'test@test.test\', \'2020-12-12 12:12:12\')');
-      const user2 = await sql.query('INSERT INTO UserProfiles (Username, Email, CreatedAt) VALUES (\'user2\', \'test2@test.test\', \'2020-12-12 12:12:12\')');
-      await sql.query(`INSERT INTO Friendships (RequesterId, AddresseeId) VALUES (${user1.insertId}, ${user2.insertId})`);
-
-      const jwt = generateJwt(user1.insertId);
-      const res = await chai.request(server)
-        .delete('/api/me/friendships')
-        .set({ Authorization: `Bearer ${jwt}` });
-
-      res.should.have.status(400);
-      res.body.should.be.a('object');
-      res.body.should.have.property('statusCode');
-      res.body.should.have.property('message');
-      res.body.message.should.eql('TypeError addresseeId: expected number but received undefined');
-
-      const friendships = await sql.query('SELECT * FROM Friendships');
-      friendships.should.have.lengthOf(1);
-      friendships[0].AddresseeId.should.eql(user2.insertId);
-    });
     it('should not delete friendship without jwt', async () => {
       const user1 = await sql.query('INSERT INTO UserProfiles (Username, Email, CreatedAt) VALUES (\'user1\', \'test@test.test\', \'2020-12-12 12:12:12\')');
       const user2 = await sql.query('INSERT INTO UserProfiles (Username, Email, CreatedAt) VALUES (\'user2\', \'test2@test.test\', \'2020-12-12 12:12:12\')');
       await sql.query(`INSERT INTO Friendships (RequesterId, AddresseeId) VALUES (${user1.insertId}, ${user2.insertId})`);
-      const body = {
-        addresseeId: user2.insertId,
-      };
+
       const res = await chai.request(server)
-        .delete('/api/me/friendships')
-        .send(body);
+        .delete(`/api/me/friendships/${user2.insertId}`);
 
       res.should.have.status(401);
       res.body.should.be.a('object');
       res.body.should.have.property('statusCode');
       res.body.should.have.property('message');
       res.body.message.should.eql('Authorization token is missing');
-
-      const friendships = await sql.query('SELECT * FROM Friendships');
-      friendships.should.have.lengthOf(1);
-      friendships[0].AddresseeId.should.eql(user2.insertId);
-    });
-    it('should not delete friendship with an unknown field', async () => {
-      const user1 = await sql.query('INSERT INTO UserProfiles (Username, Email, CreatedAt) VALUES (\'user1\', \'test@test.test\', \'2020-12-12 12:12:12\')');
-      const user2 = await sql.query('INSERT INTO UserProfiles (Username, Email, CreatedAt) VALUES (\'user2\', \'test2@test.test\', \'2020-12-12 12:12:12\')');
-      await sql.query(`INSERT INTO Friendships (RequesterId, AddresseeId) VALUES (${user1.insertId}, ${user2.insertId})`);
-      const body = {
-        addresseeId: user2.insertId,
-        unknown: 'unknown',
-      };
-      const jwt = generateJwt(user1.insertId);
-      const res = await chai.request(server)
-        .delete('/api/me/friendships')
-        .set({ Authorization: `Bearer ${jwt}` })
-        .send(body);
-
-      res.should.have.status(400);
-      res.body.should.be.a('object');
-      res.body.should.have.property('statusCode');
-      res.body.should.have.property('message');
-      res.body.message.should.eql('Unknown field: unknown');
 
       const friendships = await sql.query('SELECT * FROM Friendships');
       friendships.should.have.lengthOf(1);
