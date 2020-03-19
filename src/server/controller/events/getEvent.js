@@ -1,5 +1,6 @@
 import { ErrorResponseHandler } from '../../../helpers/error';
 import Event from '../../models/eventModel';
+import Tracks from '../../models/tracksModel';
 
 export default async function getEvent(req, res, next) {
   const { eventId } = req.params;
@@ -17,9 +18,8 @@ export default async function getEvent(req, res, next) {
       throw new ErrorResponseHandler(403, 'Forbidden');
     }
 
-    // TODO: Get list of tracks associated with event to add to return
-    // TODO: Get list of votes associated with tracks to add to return
-
+    const tracks = await Tracks.getTracksForEvent(eventId, userId);
+    event[0].Tracks = tracks;
     res.status(200).send({
       statusCode: 200,
       message: `Event with Id: ${eventId}`,
