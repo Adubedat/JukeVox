@@ -10,7 +10,7 @@ export default async function getResetPasswordForm(req, res, next) {
     if (userAccount === undefined) {
       throw new ErrorResponseHandler(404, 'Token does not exist');
     }
-    const link = `http://localhost:5000/resetPassword/${token}`;
+    const link = `httpa://jukevox.herokuapp.com/resetPassword/${token}`;
     ejs.renderFile(`${__dirname}/../../../../templates/resetPasswordForm.ejs`, { link }, (err, data) => {
       res.send(data);
     });
