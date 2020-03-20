@@ -43,7 +43,7 @@ describe('Users', () => {
       const token = crypto.randomBytes(24).toString('hex');
       const expirationDate = moment().add(3, 'd').format(DATETIME_FORMAT);
 
-      const userAccountQuery = 'INSERT INTO UserAccounts (UserProfileId, Email, Password, EmailConfirmationString, AccountExpiration) \
+      const userAccountQuery = 'INSERT INTO UserAccounts (UserProfileId, Email, Password, ConfirmationToken, TokenExpiration) \
       VALUES ?';
       const userAccountValues = [[id, email, password, token, expirationDate]];
       const userAccount = await sql.query(userAccountQuery, [userAccountValues]).catch((err) => console.log(err));

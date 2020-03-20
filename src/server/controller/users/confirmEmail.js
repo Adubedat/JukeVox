@@ -6,7 +6,7 @@ export default async function confirmEmail(req, res, next) {
   const { token } = req.params;
 
   try {
-    const userAccount = await User.getUserAccount(['EmailConfirmationString'], [token]);
+    const userAccount = await User.getUserAccount(['ConfirmationToken'], [token]);
     if (userAccount.length === 0) {
       throw new ErrorResponseHandler(404, 'Token does not exist');
     }

@@ -36,5 +36,34 @@ export function sendEmailConfirmationLink(email, username, token) {
 }
 
 export function sendResetPasswordLink(email, token) {
-  console.log('TODO');
+  return new Promise((resolve, reject) => {
+    const transporter = nodemailer.createTransport({
+      host: 'smtp.mailtrap.io',
+      port: 2525,
+      auth: {
+        user: process.env.MAILTRAP_USER,
+        pass: process.env.MAILTRAP_PASS,
+      },
+    });
+    const link = `https://jukevox.herokuapp.com/resetPassword/${token}`;
+    ejs.renderFile(`${__dirname}/../../templates/resetPasswordMail.ejs`, { email, link }, (err, data) => {
+      if (err) {
+        console.log(err);
+      } else {
+        const mainOptions = {
+          to: email,
+          subject: 'Jukevox - Reset Password',
+          html: data,
+        };
+        transporter.sendMail(mainOptions, (error, info) => {
+          if (error) {
+            reject(error);
+            console.log(error);
+          } else {
+            resolve();
+          }
+        });
+      }
+    });
+  });
 }
