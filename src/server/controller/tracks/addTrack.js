@@ -49,6 +49,9 @@ export default async function addTrack(req, res, next) {
 
     const postTrack = await Tracks.addTrack(userId, eventId, track.data);
     const data = formatData(postTrack.insertId, userId, eventId, track.data);
+
+    req.io.to(eventId).emit('new_track', { data });
+
     res.status(201).send({
       message: 'Track successfully added to the event',
       statusCode: 201,
