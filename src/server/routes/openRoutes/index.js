@@ -6,6 +6,7 @@ import facebookLogin from '../../controller/users/facebookLogin';
 import googleLogin from '../../controller/users/googleLogin';
 import forgotPassword from '../../controller/users/forgotPassword';
 import getResetPasswordForm from '../../controller/users/getResetPasswordForm';
+import resetPassword from '../../controller/users/resetPassword';
 
 const router = express.Router();
 
@@ -26,6 +27,8 @@ router.post('/googleLogin', googleLogin);
 
 router.post('/forgotPassword', forgotPassword);
 
-router.get('/resetPassword/:token', getResetPasswordForm);
+router.route('/resetPassword/:token')
+  .get(getResetPasswordForm)
+  .post(resetPassword);
 
 export default router;
