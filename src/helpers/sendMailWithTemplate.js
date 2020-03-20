@@ -46,7 +46,7 @@ export function sendResetPasswordLink(email, token) {
       },
     });
     const link = `https://jukevox.herokuapp.com/resetPassword/${token}`;
-    ejs.renderFile(`${__dirname}/../../templates/resetPassword.ejs`, { email, link }, (err, data) => {
+    ejs.renderFile(`${__dirname}/../../templates/resetPasswordMail.ejs`, { email, link }, (err, data) => {
       if (err) {
         console.log(err);
       } else {
