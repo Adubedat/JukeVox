@@ -16,12 +16,6 @@ export async function joinEvent(userId, eventId, socket, io) {
       return;
     }
 
-    const timeNow = moment().format(DATETIME_FORMAT);
-    if (moment(timeNow).isBefore(event[0].StartDate) || moment(timeNow).isAfter(event[0].EndDate)) {
-      socket.emit('exception', { code: 403, message: 'Forbidden. Event not ongoing' });
-      return;
-    }
-
     socket.join(eventId);
     socket.emit('success', { code: 200, message: 'Successfully joined event' });
   } catch (err) {
@@ -30,7 +24,18 @@ export async function joinEvent(userId, eventId, socket, io) {
   }
 }
 
-export function leaveEvent(userId, eventId, socket, io) {
-  socket.leave(eventId);
-  console.log(`User ${userId} just left the event ${eventId}`);
+export async function leaveEvent(userId, eventId, socket, io) {
+  try {
+    const guestStatusResponse = await Event.getGuestStatusForEvent(userId, eventId);
+    if (guestStatusResponse[0] == null || guestStatusResponse[0].GuestStatus !== 'Going') {
+      socket.emit('exception', { code: 403, message: 'Forbidden. User not going' });
+      return;
+    }
+    socket.leave(eventId);
+    console.log(`User ${userId} just left the event ${eventId}`);
+    socket.emit('success', { code: 200, message: 'Successfully left event' });
+  } catch (err) {
+    console.log(err);
+    socket.emit('exception', { code: 500, message: 'Internal Server Error' });
+  }
 }
