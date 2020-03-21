@@ -26,7 +26,7 @@ export default async function voteForTrack(req, res, next) {
     }
 
     const track = await Tracks.getTrack(trackIdAsInt);
-    if (track[0] === undefined) {
+    if (track[0] === undefined || track[0].EventId.toString() !== eventId) {
       throw new ErrorResponseHandler(404, 'Track not found');
     }
 
@@ -39,8 +39,6 @@ export default async function voteForTrack(req, res, next) {
     if (moment(timeNow).isBefore(event[0].StartDate) || moment(timeNow).isAfter(event[0].EndDate)) {
       throw new ErrorResponseHandler(403, 'Forbidden. Event is not ongoing');
     }
-
-    // TODO: Check if the track is in the event'
 
     await Vote.addVote(trackIdAsInt, userId, vote);
 
