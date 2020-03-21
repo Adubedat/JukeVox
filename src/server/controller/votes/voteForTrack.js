@@ -5,12 +5,12 @@ import Vote from '../../models/voteModel';
 import Event from '../../models/eventModel';
 import { ErrorResponseHandler } from '../../../helpers/error';
 import DATETIME_FORMAT from '../../constants';
+import Tracks from '../../models/tracksModel';
 
 
 export default async function voteForTrack(req, res, next) {
   const { userId } = req.decoded;
   const { eventId, trackId } = req.params;
-  const trackIdAsInt = parseInt(trackId, 10);
   const { vote } = req.body;
 
   try {
@@ -18,11 +18,16 @@ export default async function voteForTrack(req, res, next) {
 
     validateType('vote', vote, 'number');
 
-    // TODO: Check that trackId exists
+    const trackIdAsInt = parseInt(trackId, 10);
 
     const event = await Event.getEvent(eventId);
-    if (event[0] == null) {
+    if (event[0] === undefined) {
       throw new ErrorResponseHandler(404, 'Event not found');
+    }
+
+    const track = await Tracks.getTrack(trackIdAsInt);
+    if (track[0] === undefined) {
+      throw new ErrorResponseHandler(404, 'Track not found');
     }
 
     const guestStatusResponse = await Event.getGuestStatusForEvent(userId, eventId);
