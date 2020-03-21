@@ -211,6 +211,35 @@ describe('Vote', () => {
       res.body.message.should.be.eql('Event not found');
     });
 
+    it('should not vote for a track if the track does not exist', async () => {
+      const user1 = await addUserProfile(1);
+      const user2 = await addUserProfile(2);
+      //   const event1 = await addEvent(1, user1.insertId);
+      const ongoingEvent = await addOngoingEvent(1, user1.insertId);
+      await addEventGuest(ongoingEvent.insertId, user1.insertId, 'Going');
+      await addEventGuest(ongoingEvent.insertId, user2.insertId, 'Invited');
+
+
+      const track = await addTrack(user1.insertId, ongoingEvent.insertId, 'Rythm of the night');
+
+      const body = {
+        vote: 1,
+      };
+
+      const jwt = generateJwt(user1.insertId);
+
+      const res = await chai.request(server)
+        .post(`/api/events/${ongoingEvent.insertId}/tracks/${track.insertId + 1}/vote`)
+        .set({ Authorization: `Bearer ${jwt}` })
+        .send(body);
+
+      res.should.have.status(404);
+      res.body.should.be.a('object');
+      res.body.should.have.property('statusCode');
+      res.body.should.have.property('message');
+      res.body.message.should.be.eql('Track not found');
+    });
+
     it('should not vote for a track if the event is in the past', async () => {
       const user1 = await addUserProfile(1);
       const user2 = await addUserProfile(2);
