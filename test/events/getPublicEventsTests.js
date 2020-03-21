@@ -15,8 +15,6 @@ const should = chai.should();
 
 chai.use(chaiHttp);
 
-// TODO : Write tests for JWT
-
 describe('Events', () => {
   beforeEach(async () => {
     await sql.query('DELETE FROM UserAccounts;');
@@ -86,6 +84,24 @@ describe('Events', () => {
         'EndDate', 'Location', 'Latitude', 'Longitude', 'StreamerDevice', 'IsPrivate', 'Id');
       res.body.data[0].Id.should.be.eql(event2.insertId);
       res.body.data.length.should.be.eql(2);
+    });
+
+    it('should not GET an event with an invalid jwt', async () => {
+      const user = await addUserProfile();
+      const jwt = generateJwt(user.insertId);
+      const event = await addEvent(user.insertId, true);
+      const event2 = await addEvent(user.insertId, false);
+      const event3 = await addEvent(user.insertId, false);
+
+      const res = await chai.request(server)
+        .get('/api/events')
+        .set({ Authorization: `Bearer ${jwt}a` });
+
+      res.should.have.status(401);
+      res.body.should.be.a('object');
+      res.body.should.have.property('statusCode');
+      res.body.should.have.property('message');
+      res.body.message.should.be.eql('Invalid authorization token');
     });
 
 
