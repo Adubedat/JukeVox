@@ -23,9 +23,9 @@ export default async function addPlayerControl(req, res, next) {
       throw new ErrorResponseHandler(403, 'Forbidden');
     }
 
-    const guestStatusResponse = await Event.getGuestStatusForEvent(userId, eventId);
+    const guestStatusResponse = await Event.getGuestStatusForEvent(guestId, eventId);
     if (guestStatusResponse[0] == null || guestStatusResponse[0].GuestStatus !== 'Going') {
-      throw new ErrorResponseHandler(403, 'Forbidden');
+      throw new ErrorResponseHandler(404, 'User not attending event');
     }
 
     await Event.changePlayerControl(eventId, guestId, true);
