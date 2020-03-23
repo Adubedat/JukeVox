@@ -28,8 +28,11 @@ export default async function addPlayerControl(req, res, next) {
       throw new ErrorResponseHandler(404, 'User not attending event');
     }
 
-    await Event.changePlayerControl(eventId, guestId, true);
+    const update = await Event.changePlayerControl(eventId, guestId, true);
 
+    if (update.affectedRows !== 1) {
+      throw new ErrorResponseHandler(500, 'Unexpected error occured');
+    }
     res.status(200).send({
       statusCode: 200,
       message: `User ${guestId} can now control the player`,
