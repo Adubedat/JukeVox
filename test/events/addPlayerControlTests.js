@@ -15,8 +15,6 @@ const should = chai.should();
 
 chai.use(chaiHttp);
 
-// TODO : Write tests for JWT
-
 describe('Events', () => {
   beforeEach(async () => {
     await sql.query('DELETE FROM UserAccounts;');
@@ -313,6 +311,40 @@ describe('Events', () => {
       res.body.should.have.property('statusCode');
       res.body.should.have.property('message');
       res.body.message.should.be.eql('User not attending event');
+
+      guestStatuses = await sql.query('SELECT * FROM EventGuests;');
+      guestStatuses.should.have.lengthOf(2);
+      guestStatuses[1].HasPlayerControl.should.eql(0);
+    });
+
+    it('should not update the player control of a guest with invalid jwt', async () => {
+      const host = await addUserProfile(1);
+      const user2 = await addUserProfile(2);
+      const event = await addEvent(1, host.insertId);
+      const eventGuest = await addEventGuest(event.insertId, host.insertId, 'Going');
+      const eventGuest2 = await addEventGuest(event.insertId, user2.insertId, 'Going');
+
+
+      let guestStatuses = await sql.query('SELECT * FROM EventGuests;');
+      guestStatuses.should.have.lengthOf(2);
+      guestStatuses[1].HasPlayerControl.should.eql(0);
+
+      const jwt = generateJwt(host.insertId);
+
+      const body = {
+        guestId: user2.insertId,
+      };
+
+      const res = await chai.request(server)
+        .post(`/api/events/${event.insertId}/playerControl`)
+        .set({ Authorization: `Bearer ${jwt}a` })
+        .send(body);
+
+      res.should.have.status(401);
+      res.body.should.be.a('object');
+      res.body.should.have.property('statusCode');
+      res.body.should.have.property('message');
+      res.body.message.should.be.eql('Invalid authorization token');
 
       guestStatuses = await sql.query('SELECT * FROM EventGuests;');
       guestStatuses.should.have.lengthOf(2);
