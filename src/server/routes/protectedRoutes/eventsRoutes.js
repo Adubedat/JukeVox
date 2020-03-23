@@ -7,7 +7,7 @@ import getEventsByUser from '../../controller/events/getEventsByUser';
 import voteForTrack from '../../controller/votes/voteForTrack';
 import getPublicEvents from '../../controller/events/getPublicEvents';
 import updateGuestStatus from '../../controller/events/updateGuestStatus';
-import addPlayerControl from '../../controller/events/addPlayerControl';
+import changePlayerControl from '../../controller/events/updatePlayerControl';
 import getPlayerControl from '../../controller/events/getPlayerControl';
 
 const router = express.Router();
@@ -29,7 +29,7 @@ router.get('/events/:eventId/guests', getEventGuests);
 router.post('/events/:eventId/tracks/:trackId/vote', voteForTrack);
 
 router.route('/events/:eventId/playerControl')
-  .post(addPlayerControl)
+  .post(changePlayerControl)
   .get(getPlayerControl);
 
 export default router;
