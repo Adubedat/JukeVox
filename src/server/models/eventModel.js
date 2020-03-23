@@ -182,4 +182,15 @@ Event.changePlayerControl = function changePlayerControl(eventId, guestId, hasPl
   });
 };
 
+Event.getPlayerControl = function getPlayerControl(eventId) {
+  return new Promise((resolve, reject) => {
+    const query = 'SELECT GuestId FROM EventGuests \
+    WHERE EventId = ? AND GuestStatus = "Going" AND HasPlayerControl = true';
+
+    sql.query(query, eventId)
+      .then((res) => resolve(res))
+      .catch((err) => reject(err));
+  });
+};
+
 export default Event;
