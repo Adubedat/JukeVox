@@ -171,4 +171,15 @@ Event.updateGuestStatus = function updateGuestStatus(userId, eventId, guestStatu
   });
 };
 
+Event.changePlayerControl = function changePlayerControl(eventId, guestId, hasPlayerControl) {
+  return new Promise((resolve, reject) => {
+    const query = 'UPDATE EventGuests SET HasPlayerControl = ? \
+    WHERE GuestId = ? AND EventId = ?;';
+
+    sql.query(query, [hasPlayerControl, guestId, eventId])
+      .then((res) => resolve(res))
+      .catch((err) => reject(err));
+  });
+};
+
 export default Event;
