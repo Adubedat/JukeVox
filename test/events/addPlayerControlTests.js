@@ -113,5 +113,210 @@ describe('Events', () => {
       guestStatuses.should.have.lengthOf(2);
       guestStatuses[1].HasPlayerControl.should.eql(1);
     });
+
+    it('should not update the player control of a guest with unknown fields', async () => {
+      const host = await addUserProfile(1);
+      const user2 = await addUserProfile(2);
+      const event = await addEvent(1, host.insertId);
+      const eventGuest = await addEventGuest(event.insertId, host.insertId, 'Going');
+      const eventGuest2 = await addEventGuest(event.insertId, user2.insertId, 'Going');
+
+
+      let guestStatuses = await sql.query('SELECT * FROM EventGuests;');
+      guestStatuses.should.have.lengthOf(2);
+      guestStatuses[1].HasPlayerControl.should.eql(0);
+
+      const jwt = generateJwt(host.insertId);
+
+      const body = {
+        guestId: user2.insertId,
+        unknown: 'unknown',
+      };
+
+      const res = await chai.request(server)
+        .post(`/api/events/${event.insertId}/playerControl`)
+        .set({ Authorization: `Bearer ${jwt}` })
+        .send(body);
+
+      res.should.have.status(400);
+      res.body.should.be.a('object');
+      res.body.should.have.property('statusCode');
+      res.body.should.have.property('message');
+      res.body.message.should.be.eql('Unknown field: unknown');
+
+      guestStatuses = await sql.query('SELECT * FROM EventGuests;');
+      guestStatuses.should.have.lengthOf(2);
+      guestStatuses[1].HasPlayerControl.should.eql(0);
+    });
+
+    it('should not update the player control of a guest with wrong type', async () => {
+      const host = await addUserProfile(1);
+      const user2 = await addUserProfile(2);
+      const event = await addEvent(1, host.insertId);
+      const eventGuest = await addEventGuest(event.insertId, host.insertId, 'Going');
+      const eventGuest2 = await addEventGuest(event.insertId, user2.insertId, 'Going');
+
+
+      let guestStatuses = await sql.query('SELECT * FROM EventGuests;');
+      guestStatuses.should.have.lengthOf(2);
+      guestStatuses[1].HasPlayerControl.should.eql(0);
+
+      const jwt = generateJwt(host.insertId);
+
+      const body = {
+        guestId: '1',
+      };
+
+      const res = await chai.request(server)
+        .post(`/api/events/${event.insertId}/playerControl`)
+        .set({ Authorization: `Bearer ${jwt}` })
+        .send(body);
+
+      res.should.have.status(400);
+      res.body.should.be.a('object');
+      res.body.should.have.property('statusCode');
+      res.body.should.have.property('message');
+      res.body.message.should.be.eql('Field guestId expected number received string');
+
+      guestStatuses = await sql.query('SELECT * FROM EventGuests;');
+      guestStatuses.should.have.lengthOf(2);
+      guestStatuses[1].HasPlayerControl.should.eql(0);
+    });
+
+    it('should not update the player control of a guest with unknown event', async () => {
+      const host = await addUserProfile(1);
+      const user2 = await addUserProfile(2);
+      const event = await addEvent(1, host.insertId);
+      const eventGuest = await addEventGuest(event.insertId, host.insertId, 'Going');
+      const eventGuest2 = await addEventGuest(event.insertId, user2.insertId, 'Going');
+
+
+      let guestStatuses = await sql.query('SELECT * FROM EventGuests;');
+      guestStatuses.should.have.lengthOf(2);
+      guestStatuses[1].HasPlayerControl.should.eql(0);
+
+      const jwt = generateJwt(host.insertId);
+
+      const body = {
+        guestId: user2.insertId,
+      };
+
+      const res = await chai.request(server)
+        .post(`/api/events/${event.insertId + 1}/playerControl`)
+        .set({ Authorization: `Bearer ${jwt}` })
+        .send(body);
+
+      res.should.have.status(404);
+      res.body.should.be.a('object');
+      res.body.should.have.property('statusCode');
+      res.body.should.have.property('message');
+      res.body.message.should.be.eql('No event with this ID');
+
+      guestStatuses = await sql.query('SELECT * FROM EventGuests;');
+      guestStatuses.should.have.lengthOf(2);
+      guestStatuses[1].HasPlayerControl.should.eql(0);
+    });
+
+    it('should not update the player control of a guest with jwt != event creator', async () => {
+      const host = await addUserProfile(1);
+      const user2 = await addUserProfile(2);
+      const event = await addEvent(1, host.insertId);
+      const eventGuest = await addEventGuest(event.insertId, host.insertId, 'Going');
+      const eventGuest2 = await addEventGuest(event.insertId, user2.insertId, 'Going');
+
+
+      let guestStatuses = await sql.query('SELECT * FROM EventGuests;');
+      guestStatuses.should.have.lengthOf(2);
+      guestStatuses[1].HasPlayerControl.should.eql(0);
+
+      const jwt = generateJwt(user2.insertId);
+
+      const body = {
+        guestId: user2.insertId,
+      };
+
+      const res = await chai.request(server)
+        .post(`/api/events/${event.insertId}/playerControl`)
+        .set({ Authorization: `Bearer ${jwt}` })
+        .send(body);
+
+      res.should.have.status(403);
+      res.body.should.be.a('object');
+      res.body.should.have.property('statusCode');
+      res.body.should.have.property('message');
+      res.body.message.should.be.eql('Forbidden');
+
+      guestStatuses = await sql.query('SELECT * FROM EventGuests;');
+      guestStatuses.should.have.lengthOf(2);
+      guestStatuses[1].HasPlayerControl.should.eql(0);
+    });
+
+    it('should not update the player control of a guest with unknown guest ID', async () => {
+      const host = await addUserProfile(1);
+      const user2 = await addUserProfile(2);
+      const event = await addEvent(1, host.insertId);
+      const eventGuest = await addEventGuest(event.insertId, host.insertId, 'Going');
+      const eventGuest2 = await addEventGuest(event.insertId, user2.insertId, 'Going');
+
+
+      let guestStatuses = await sql.query('SELECT * FROM EventGuests;');
+      guestStatuses.should.have.lengthOf(2);
+      guestStatuses[1].HasPlayerControl.should.eql(0);
+
+      const jwt = generateJwt(host.insertId);
+
+      const body = {
+        guestId: -1,
+      };
+
+      const res = await chai.request(server)
+        .post(`/api/events/${event.insertId}/playerControl`)
+        .set({ Authorization: `Bearer ${jwt}` })
+        .send(body);
+
+      res.should.have.status(404);
+      res.body.should.be.a('object');
+      res.body.should.have.property('statusCode');
+      res.body.should.have.property('message');
+      res.body.message.should.be.eql('User not attending event');
+
+      guestStatuses = await sql.query('SELECT * FROM EventGuests;');
+      guestStatuses.should.have.lengthOf(2);
+      guestStatuses[1].HasPlayerControl.should.eql(0);
+    });
+
+    it('should not update the player control of a guest if they are not going', async () => {
+      const host = await addUserProfile(1);
+      const user2 = await addUserProfile(2);
+      const event = await addEvent(1, host.insertId);
+      const eventGuest = await addEventGuest(event.insertId, host.insertId, 'Going');
+      const eventGuest2 = await addEventGuest(event.insertId, user2.insertId, 'Invited');
+
+
+      let guestStatuses = await sql.query('SELECT * FROM EventGuests;');
+      guestStatuses.should.have.lengthOf(2);
+      guestStatuses[1].HasPlayerControl.should.eql(0);
+
+      const jwt = generateJwt(host.insertId);
+
+      const body = {
+        guestId: user2.insertId,
+      };
+
+      const res = await chai.request(server)
+        .post(`/api/events/${event.insertId}/playerControl`)
+        .set({ Authorization: `Bearer ${jwt}` })
+        .send(body);
+
+      res.should.have.status(404);
+      res.body.should.be.a('object');
+      res.body.should.have.property('statusCode');
+      res.body.should.have.property('message');
+      res.body.message.should.be.eql('User not attending event');
+
+      guestStatuses = await sql.query('SELECT * FROM EventGuests;');
+      guestStatuses.should.have.lengthOf(2);
+      guestStatuses[1].HasPlayerControl.should.eql(0);
+    });
   });
 });
