@@ -15,8 +15,6 @@ const should = chai.should();
 
 chai.use(chaiHttp);
 
-
-// TODO : Write tests for JWT
 describe('Invite', () => {
   beforeEach(async () => {
     await sql.query('DELETE FROM EventGuests');
@@ -96,6 +94,29 @@ describe('Invite', () => {
       res.body.should.have.property('statusCode');
       res.body.should.have.property('message');
       res.body.message.should.be.eql(`User ${user2.insertId} invited to event ${event1.insertId}`);
+    });
+
+    it('should not POST a guest to an event (invite) with invalid jwt', async () => {
+      const user1 = await addUserProfile(1);
+      const user2 = await addUserProfile(2);
+      const event1 = await addEvent(1, user1.insertId);
+
+      const body = {
+        eventId: event1.insertId,
+        guestId: user2.insertId,
+      };
+
+      const jwt = generateJwt(user1.insertId);
+      const res = await chai.request(server)
+        .post('/api/invite')
+        .set({ Authorization: `Bearer ${jwt}a` })
+        .send(body);
+
+      res.should.have.status(401);
+      res.body.should.be.a('object');
+      res.body.should.have.property('statusCode');
+      res.body.should.have.property('message');
+      res.body.message.should.be.eql('Invalid authorization token');
     });
 
     it('should not POST a guest to an event with unknown field in body', async () => {

@@ -15,8 +15,6 @@ const should = chai.should();
 
 chai.use(chaiHttp);
 
-
-// TODO : Write tests for JWT
 describe('Vote', () => {
   beforeEach(async () => {
     await sql.query('DELETE FROM Votes;');
@@ -491,6 +489,37 @@ describe('Vote', () => {
       votes[0].Vote.should.be.eql(1);
       votes[0].TrackId.should.be.eql(track.insertId);
       votes[0].UserId.should.be.eql(user1.insertId);
+    });
+
+    it('should not vote for a track if invalid jwt', async () => {
+      const user1 = await addUserProfile(1);
+      const user2 = await addUserProfile(2);
+      //   const event1 = await addEvent(1, user1.insertId);
+      const ongoingEvent = await addOngoingEvent(1, user1.insertId);
+      //   const eventInPast = await addEventInPast(1, user1.insertId);
+      //   const eventInFuture = await addEventInFuture(1, user1.insertId);
+      await addEventGuest(ongoingEvent.insertId, user1.insertId, 'Going');
+      await addEventGuest(ongoingEvent.insertId, user2.insertId, 'Invited');
+
+
+      const track = await addTrack(user1.insertId, ongoingEvent.insertId, 'Rythm of the night');
+
+      const body = {
+        vote: 1,
+      };
+
+      const jwt = generateJwt(user1.insertId);
+
+      const res = await chai.request(server)
+        .post(`/api/events/${ongoingEvent.insertId}/tracks/${track.insertId}/vote`)
+        .set({ Authorization: `Bearer ${jwt}a` })
+        .send(body);
+
+      res.should.have.status(401);
+      res.body.should.be.a('object');
+      res.body.should.have.property('statusCode');
+      res.body.should.have.property('message');
+      res.body.message.should.be.eql('Invalid authorization token');
     });
 
     it('should vote for a track (even if vote already exists)', async () => {
