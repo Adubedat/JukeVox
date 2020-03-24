@@ -39,6 +39,11 @@ export default async function voteForTrack(req, res, next) {
 
     await Vote.addVote(trackIdAsInt, userId, vote);
 
+
+    const votesSum = await Vote.getVotesSumForTrack(trackIdAsInt);
+
+    req.io.to(eventId).emit('new_vote', { data: votesSum });
+
     res.status(200).send({
       statusCode: 200,
       message: `Vote ${vote} for track ${trackId} successfully added`,
