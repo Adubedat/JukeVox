@@ -81,8 +81,9 @@ Event.getEventsByUser = function getEventsByUser(userId, filters) {
       query += ` ${conjunction} EventGuests.GuestStatus = '${filter}'`;
     });
     if (filters[0]) {
-      query += ');';
+      query += ')';
     }
+    query += ' ORDER BY StartDate;';
     sql.query(query, userId)
       .then((res) => resolve(res))
       .catch((err) => reject(err));
