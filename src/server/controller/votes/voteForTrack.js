@@ -5,12 +5,12 @@ import Vote from '../../models/voteModel';
 import Event from '../../models/eventModel';
 import { ErrorResponseHandler } from '../../../helpers/error';
 import DATETIME_FORMAT from '../../constants';
+import Tracks from '../../models/tracksModel';
 
 
 export default async function voteForTrack(req, res, next) {
   const { userId } = req.decoded;
   const { eventId, trackId } = req.params;
-  const trackIdAsInt = parseInt(trackId, 10);
   const { vote } = req.body;
 
   try {
@@ -18,11 +18,16 @@ export default async function voteForTrack(req, res, next) {
 
     validateType('vote', vote, 'number');
 
-    // TODO: Check that trackId exists
+    const trackIdAsInt = parseInt(trackId, 10);
 
     const event = await Event.getEvent(eventId);
-    if (event[0] == null) {
+    if (event[0] === undefined) {
       throw new ErrorResponseHandler(404, 'Event not found');
+    }
+
+    const track = await Tracks.getTrack(trackIdAsInt);
+    if (track[0] === undefined || track[0].EventId.toString() !== eventId) {
+      throw new ErrorResponseHandler(404, 'Track not found');
     }
 
     const guestStatusResponse = await Event.getGuestStatusForEvent(userId, eventId);
@@ -35,9 +40,12 @@ export default async function voteForTrack(req, res, next) {
       throw new ErrorResponseHandler(403, 'Forbidden. Event is not ongoing');
     }
 
-    // TODO: Check if the track is in the event'
-
     await Vote.addVote(trackIdAsInt, userId, vote);
+
+
+    const votesSum = await Vote.getVotesSumForTrack(trackIdAsInt);
+
+    req.io.to(eventId).emit('new_vote', { data: votesSum });
 
     res.status(200).send({
       statusCode: 200,

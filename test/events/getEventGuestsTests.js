@@ -15,8 +15,6 @@ const should = chai.should();
 
 chai.use(chaiHttp);
 
-
-// TODO : Write tests for JWT
 describe('Events', () => {
   beforeEach(async () => {
     await sql.query('DELETE FROM EventGuests');
@@ -327,6 +325,27 @@ describe('Events', () => {
       res.body.should.have.property('statusCode');
       res.body.should.have.property('message');
       res.body.message.should.be.eql('Forbidden');
+    });
+
+    it('should not GET a list of users with invalid jwt', async () => {
+      const user1 = await addUserProfile(1);
+      const user2 = await addUserProfile(2);
+      const user3 = await addUserProfile(3);
+      const event1 = await addEvent(1, user1.insertId);
+      const event2 = await addEvent(2, user1.insertId);
+      const event3 = await addEvent(3, user2.insertId);
+      await populateTables(user1, user2, user3, event1, event2, event3);
+
+      const jwt = generateJwt(user1.insertId);
+      const res = await chai.request(server)
+        .get(`/api/events/${event3.insertId}/guests`)
+        .set({ Authorization: `Bearer ${jwt}a` });
+
+      res.should.have.status(401);
+      res.body.should.be.a('object');
+      res.body.should.have.property('statusCode');
+      res.body.should.have.property('message');
+      res.body.message.should.be.eql('Invalid authorization token');
     });
   });
 });
