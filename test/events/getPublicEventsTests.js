@@ -24,12 +24,12 @@ describe('Events', () => {
     await sql.query('DELETE FROM UserProfiles;');
   });
 
-  async function addEvent(creatorId, isPrivate) {
-    const startDate = moment().add(3, 'd').format(DATETIME_FORMAT);
+  async function addEvent(creatorId, isPrivate, day = 3) {
+    const startDate = moment().add(day, 'd').format(DATETIME_FORMAT);
     const endDate = moment().add(4, 'd').format(DATETIME_FORMAT);
 
     const content = {
-      name: 'House warming',
+      name: `House warming${day}`,
       description: 'All come over on wednesday for our housewarming!',
       startDate,
       endDate,
@@ -79,11 +79,39 @@ describe('Events', () => {
       res.body.should.have.property('data');
       res.body.data[0].should.have.property('Id');
       res.body.message.should.be.eql('The public events are: ');
-      res.body.data[0].Name.should.be.eql('House warming');
+      res.body.data[0].Name.should.be.eql('House warming3');
       res.body.data[0].should.have.all.keys('CreatorId', 'Name', 'Description', 'EventPicture', 'StartDate',
         'EndDate', 'Location', 'Latitude', 'Longitude', 'StreamerDevice', 'IsPrivate', 'Id');
       res.body.data[0].Id.should.be.eql(event2.insertId);
       res.body.data.length.should.be.eql(2);
+    });
+
+    it('should GET events in chronological order', async () => {
+      const user = await addUserProfile();
+      const jwt = generateJwt(user.insertId);
+      const event = await addEvent(user.insertId, true);
+      const event2 = await addEvent(user.insertId, false, 1);
+      const event3 = await addEvent(user.insertId, false, 3);
+      const event4 = await addEvent(user.insertId, false, 2);
+
+      const res = await chai.request(server)
+        .get('/api/events')
+        .set({ Authorization: `Bearer ${jwt}` });
+
+      res.should.have.status(200);
+      res.body.should.be.a('object');
+      res.body.should.have.property('statusCode');
+      res.body.should.have.property('message');
+      res.body.should.have.property('data');
+      res.body.data[0].should.have.property('Id');
+      res.body.message.should.be.eql('The public events are: ');
+      res.body.data[0].Name.should.be.eql('House warming1');
+      res.body.data[0].should.have.all.keys('CreatorId', 'Name', 'Description', 'EventPicture', 'StartDate',
+        'EndDate', 'Location', 'Latitude', 'Longitude', 'StreamerDevice', 'IsPrivate', 'Id');
+      res.body.data.length.should.be.eql(3);
+      res.body.data[0].Id.should.be.eql(event2.insertId);
+      res.body.data[1].Id.should.be.eql(event4.insertId);
+      res.body.data[2].Id.should.be.eql(event3.insertId);
     });
 
     it('should not GET an event with an invalid jwt', async () => {
