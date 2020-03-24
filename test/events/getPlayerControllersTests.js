@@ -78,7 +78,7 @@ describe('Events', () => {
     return event;
   }
 
-  describe('GET /api/me/events/:eventId/playerControl', () => {
+  describe('GET /api/me/events/:eventId/playerControllers', () => {
     it('should get the player controllers of an event', async () => {
       const host = await addUserProfile(1);
       const user2 = await addUserProfile(2);
@@ -91,7 +91,7 @@ describe('Events', () => {
       const jwt = generateJwt(host.insertId);
 
       const res = await chai.request(server)
-        .get(`/api/events/${event.insertId}/playerControl`)
+        .get(`/api/events/${event.insertId}/playerControllers`)
         .set({ Authorization: `Bearer ${jwt}` });
 
       res.should.have.status(200);
@@ -117,7 +117,7 @@ describe('Events', () => {
       const jwt = generateJwt(host.insertId);
 
       const res = await chai.request(server)
-        .get(`/api/events/${event.insertId}/playerControl`)
+        .get(`/api/events/${event.insertId}/playerControllers`)
         .set({ Authorization: `Bearer ${jwt}` });
 
       res.should.have.status(200);
@@ -142,7 +142,7 @@ describe('Events', () => {
       const jwt = generateJwt(host.insertId);
 
       const res = await chai.request(server)
-        .get(`/api/events/${event.insertId + 1}/playerControl`)
+        .get(`/api/events/${event.insertId + 1}/playerControllers`)
         .set({ Authorization: `Bearer ${jwt}` });
 
       res.should.have.status(404);
@@ -164,7 +164,7 @@ describe('Events', () => {
       const jwt = generateJwt(host.insertId);
 
       const res = await chai.request(server)
-        .get(`/api/events/${event.insertId}/playerControl`)
+        .get(`/api/events/${event.insertId}/playerControllers`)
         .set({ Authorization: `Bearer ${jwt}` });
 
       res.should.have.status(403);
@@ -185,7 +185,7 @@ describe('Events', () => {
       const jwt = generateJwt(host.insertId);
 
       const res = await chai.request(server)
-        .get(`/api/events/${event.insertId}/playerControl`)
+        .get(`/api/events/${event.insertId}/playerControllers`)
         .set({ Authorization: `Bearer ${jwt}` });
 
       res.should.have.status(403);
@@ -207,7 +207,7 @@ describe('Events', () => {
       const jwt = generateJwt(host.insertId);
 
       const res = await chai.request(server)
-        .get(`/api/events/${event.insertId}/playerControl`)
+        .get(`/api/events/${event.insertId}/playerControllers`)
         .set({ Authorization: `Bearer ${jwt}a` });
 
       res.should.have.status(401);

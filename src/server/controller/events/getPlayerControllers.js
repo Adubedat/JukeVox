@@ -2,7 +2,7 @@ import { ErrorResponseHandler } from '../../../helpers/error';
 import Event from '../../models/eventModel';
 import { checkUnknownFields } from '../../../helpers/validation';
 
-export default async function getPlayerControl(req, res, next) {
+export default async function getPlayerControllers(req, res, next) {
   const { userId } = req.decoded;
   const { eventId } = req.params;
 
@@ -19,7 +19,7 @@ export default async function getPlayerControl(req, res, next) {
       throw new ErrorResponseHandler(403, 'Forbidden');
     }
 
-    const controllers = await Event.getPlayerControl(eventId);
+    const controllers = await Event.getPlayerControllers(eventId);
 
     res.send({
       statusCode: 200,

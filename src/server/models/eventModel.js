@@ -171,18 +171,18 @@ Event.updateGuestStatus = function updateGuestStatus(userId, eventId, guestStatu
   });
 };
 
-Event.changePlayerControl = function changePlayerControl(eventId, guestId, hasPlayerControl) {
+Event.changePlayerControllers = function changePlayerControllers(eventId, guestId, hasControl) {
   return new Promise((resolve, reject) => {
     const query = 'UPDATE EventGuests SET HasPlayerControl = ? \
     WHERE GuestId = ? AND EventId = ?;';
 
-    sql.query(query, [hasPlayerControl, guestId, eventId])
+    sql.query(query, [hasControl, guestId, eventId])
       .then((res) => resolve(res))
       .catch((err) => reject(err));
   });
 };
 
-Event.getPlayerControl = function getPlayerControl(eventId) {
+Event.getPlayerControllers = function getPlayerControllers(eventId) {
   return new Promise((resolve, reject) => {
     const query = 'SELECT GuestId FROM EventGuests \
     WHERE EventId = ? AND GuestStatus = "Going" AND HasPlayerControl = true';

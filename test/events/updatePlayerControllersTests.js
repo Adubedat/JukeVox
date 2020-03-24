@@ -77,7 +77,7 @@ describe('Events', () => {
     return event;
   }
 
-  describe('POST /api/me/events/:eventId/playerControl', () => {
+  describe('POST /api/me/events/:eventId/playerControllers', () => {
     it('should update the player control of a guest', async () => {
       const host = await addUserProfile(1);
       const user2 = await addUserProfile(2);
@@ -98,7 +98,7 @@ describe('Events', () => {
       };
 
       const res = await chai.request(server)
-        .post(`/api/events/${event.insertId}/playerControl`)
+        .post(`/api/events/${event.insertId}/playerControllers`)
         .set({ Authorization: `Bearer ${jwt}` })
         .send(body);
 
@@ -133,7 +133,7 @@ describe('Events', () => {
       };
 
       const res = await chai.request(server)
-        .post(`/api/events/${event.insertId}/playerControl`)
+        .post(`/api/events/${event.insertId}/playerControllers`)
         .set({ Authorization: `Bearer ${jwt}` })
         .send(body);
 
@@ -169,7 +169,7 @@ describe('Events', () => {
       };
 
       const res = await chai.request(server)
-        .post(`/api/events/${event.insertId}/playerControl`)
+        .post(`/api/events/${event.insertId}/playerControllers`)
         .set({ Authorization: `Bearer ${jwt}` })
         .send(body);
 
@@ -204,7 +204,7 @@ describe('Events', () => {
       };
 
       const res = await chai.request(server)
-        .post(`/api/events/${event.insertId}/playerControl`)
+        .post(`/api/events/${event.insertId}/playerControllers`)
         .set({ Authorization: `Bearer ${jwt}` })
         .send(body);
 
@@ -239,7 +239,7 @@ describe('Events', () => {
       };
 
       const res = await chai.request(server)
-        .post(`/api/events/${event.insertId}/playerControl`)
+        .post(`/api/events/${event.insertId}/playerControllers`)
         .set({ Authorization: `Bearer ${jwt}` })
         .send(body);
 
@@ -274,7 +274,7 @@ describe('Events', () => {
       };
 
       const res = await chai.request(server)
-        .post(`/api/events/${event.insertId + 1}/playerControl`)
+        .post(`/api/events/${event.insertId + 1}/playerControllers`)
         .set({ Authorization: `Bearer ${jwt}` })
         .send(body);
 
@@ -309,7 +309,7 @@ describe('Events', () => {
       };
 
       const res = await chai.request(server)
-        .post(`/api/events/${event.insertId}/playerControl`)
+        .post(`/api/events/${event.insertId}/playerControllers`)
         .set({ Authorization: `Bearer ${jwt}` })
         .send(body);
 
@@ -344,7 +344,7 @@ describe('Events', () => {
       };
 
       const res = await chai.request(server)
-        .post(`/api/events/${event.insertId}/playerControl`)
+        .post(`/api/events/${event.insertId}/playerControllers`)
         .set({ Authorization: `Bearer ${jwt}` })
         .send(body);
 
@@ -379,7 +379,7 @@ describe('Events', () => {
       };
 
       const res = await chai.request(server)
-        .post(`/api/events/${event.insertId}/playerControl`)
+        .post(`/api/events/${event.insertId}/playerControllers`)
         .set({ Authorization: `Bearer ${jwt}` })
         .send(body);
 
@@ -414,7 +414,7 @@ describe('Events', () => {
       };
 
       const res = await chai.request(server)
-        .post(`/api/events/${event.insertId}/playerControl`)
+        .post(`/api/events/${event.insertId}/playerControllers`)
         .set({ Authorization: `Bearer ${jwt}a` })
         .send(body);
 

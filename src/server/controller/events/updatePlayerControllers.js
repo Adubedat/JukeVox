@@ -9,7 +9,7 @@ function validateBool(toTest) {
   }
 }
 
-export default async function changePlayerControl(req, res, next) {
+export default async function changePlayerControllers(req, res, next) {
   const { userId } = req.decoded;
   const { eventId } = req.params;
   const { guestId, hasPlayerControl } = req.body;
@@ -35,7 +35,7 @@ export default async function changePlayerControl(req, res, next) {
       throw new ErrorResponseHandler(404, 'User not attending event');
     }
 
-    const update = await Event.changePlayerControl(eventId, guestId, hasPlayerControl);
+    const update = await Event.changePlayerControllers(eventId, guestId, hasPlayerControl);
 
     if (update.affectedRows !== 1) {
       throw new ErrorResponseHandler(500, 'Unexpected error occured');
