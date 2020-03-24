@@ -53,7 +53,8 @@ Tracks.getTracksForEvent = function getTracksForEvent(eventId, userId) {
       Tracks  \
       LEFT JOIN Votes ON Tracks.Id = Votes.TrackId \
     WHERE Tracks.EventId = ? \
-    GROUP BY Tracks.Id';
+    GROUP BY Tracks.Id \
+    ORDER BY VotesSum DESC, AddedAt';
 
     const values = [userId, eventId];
 
