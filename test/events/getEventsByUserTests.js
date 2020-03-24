@@ -15,8 +15,6 @@ const should = chai.should();
 
 chai.use(chaiHttp);
 
-// TODO : Write tests for JWT
-
 describe('Events', () => {
   beforeEach(async () => {
     await sql.query('DELETE FROM EventGuests');
@@ -353,6 +351,26 @@ describe('Events', () => {
       res.body.data.length.should.be.eql(4);
       res.body.data[0].should.have.all.keys('CreatorId', 'Name', 'Description', 'EventPicture', 'StartDate',
         'EndDate', 'Location', 'Latitude', 'Longitude', 'StreamerDevice', 'IsPrivate', 'Id', 'GuestStatus');
+    });
+
+    it('should not GET a list of 4 events with invalid token', async () => {
+      const user1 = await addUserProfile(1);
+      const user2 = await addUserProfile(2);
+      const user3 = await addUserProfile(3);
+      await populateTables(user1, user2, user3);
+      // User1 is going to event 1, going to event 2, invited to event 3 and notgoing to event 4
+
+      const jwt = generateJwt(user1.insertId);
+      const res = await chai.request(server)
+        .get('/api/me/events')
+        .query({ Invited: true, NotGoing: true, Going: true })
+        .set({ Authorization: `Bearer ${jwt}1` });
+
+      res.should.have.status(401);
+      res.body.should.be.a('object');
+      res.body.should.have.property('statusCode');
+      res.body.should.have.property('message');
+      res.body.message.should.be.eql('Invalid authorization token');
     });
 
     it('should not GET events if the type of one of the filters is wrong', async () => {

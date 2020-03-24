@@ -3,15 +3,31 @@ import openRoutes from './src/server/routes/openRoutes'; // eslint-disable-line
 import protectedRoutes from './src/server/routes/protectedRoutes'; // eslint-disable-line
 import params from './params'; // eslint-disable-line
 import { handleError } from './src/helpers/error'; // eslint-disable-line
+import initListeners from './src/server/sockets/listeners';
 
 // TODO: Fix return codes
 
 const express = require('express');
 
 const port = process.env.PORT || params.port;
+
 const app = express();
 
+const http = require('http').createServer(app);
+const socketio = require('socket.io')(http);
+
+initListeners(socketio);
+
+// TODO: Make port into env or params port
+socketio.listen(5001);
+
 app.listen(port);
+
+app.use((req, res, next) => {
+  req.io = socketio;
+  next();
+});
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use('/', openRoutes);

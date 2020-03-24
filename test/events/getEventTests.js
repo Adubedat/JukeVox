@@ -16,8 +16,6 @@ const { expect } = chai;
 
 chai.use(chaiHttp);
 
-// TODO : Write tests for JWT
-
 describe('Events', () => {
   beforeEach(async () => {
     await sql.query('DELETE FROM Votes');
@@ -140,6 +138,29 @@ describe('Events', () => {
       res.body.data.Tracks[0].UserVote.should.eql(1);
       res.body.data.Tracks[0].Title.should.eql('Song title');
       expect(res.body.data.Tracks[1].VotesSum).to.equal(null);
+    });
+
+    it('should not GET an event with invalid jwt', async () => {
+      const user = await addUserProfile('user1');
+      const user2 = await addUserProfile('user2');
+      const jwt = generateJwt(user.insertId);
+      const event = await addEvent(user.insertId);
+      const track1 = await addTrack(event.insertId, user.insertId);
+      await addTrack(event.insertId, user2.insertId);
+      await addVote(track1.insertId, user.insertId, 1);
+      await addVote(track1.insertId, user2.insertId, 1);
+
+      await addEventGuest(event.insertId, user.insertId, 'Going');
+
+      const res = await chai.request(server)
+        .get(`/api/events/${event.insertId}`)
+        .set({ Authorization: `Bearer ${jwt}a` });
+
+      res.should.have.status(401);
+      res.body.should.be.a('object');
+      res.body.should.have.property('statusCode');
+      res.body.should.have.property('message');
+      res.body.message.should.be.eql('Invalid authorization token');
     });
 
     it('should GET an event and have correct votes sum with negative vote', async () => {
