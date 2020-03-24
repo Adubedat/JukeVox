@@ -64,4 +64,31 @@ Tracks.getTracksForEvent = function getTracksForEvent(eventId, userId) {
   });
 };
 
+Tracks.getTrackHistoryForEvent = function getTrackHistoryForEvent(eventId) {
+  return new Promise((resolve, reject) => {
+    const query = 'SELECT * FROM TrackHistory \
+    WHERE EventId = ? \
+    ORDER BY PlayedAt DESC;';
+
+    sql.query(query, eventId)
+      .then((res) => resolve(res))
+      .catch((err) => reject(err));
+  });
+};
+
+Tracks.getCurrentTrackForEvent = function getCurrentTrackForEvent(eventId) {
+  return new Promise((resolve, reject) => {
+    const query = ' SELECT * FROM Tracks \
+    WHERE TrackId = \
+    (SELECT TrackId FROM TrackHistory \
+    WHERE EventId = ? \
+    ORDER BY PlayedAt DESC \
+    LIMIT 1);';
+
+    sql.query(query, eventId)
+      .then((res) => resolve(res))
+      .catch((err) => reject(err));
+  });
+};
+
 export default Tracks;
