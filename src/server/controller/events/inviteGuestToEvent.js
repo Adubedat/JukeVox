@@ -4,6 +4,15 @@ import { checkUnknownFields } from '../../../helpers/validation';
 import { validateType } from './helpers/validation';
 import User from '../../models/userModel';
 
+function checkIfForbidden(isPrivate, event, userId, guestId) {
+  if (isPrivate) {
+    if (event[0].CreatorId !== userId) {
+      throw new ErrorResponseHandler(403, 'Forbidden');
+    }
+  } else if (userId !== guestId) {
+    throw new ErrorResponseHandler(403, 'Forbidden');
+  }
+}
 
 export default async function inviteGuestToEvent(req, res, next) {
   const { userId } = req.decoded;
@@ -20,16 +29,17 @@ export default async function inviteGuestToEvent(req, res, next) {
       throw new ErrorResponseHandler(404, 'No event with this ID');
     }
 
-    if (event[0].CreatorId !== userId) {
-      throw new ErrorResponseHandler(403, 'Forbidden');
-    }
+    const isPrivate = event[0].IsPrivate;
+
+    checkIfForbidden(isPrivate, event, userId, guestId);
 
     const guest = await User.getUserProfile(['id'], guestId);
     if (guest[0] === undefined) {
       throw new ErrorResponseHandler(404, 'No user with this ID');
     }
 
-    await Event.addGuest(eventId, guestId, false, 'Invited');
+    const status = isPrivate ? 'Invited' : 'Going';
+    await Event.addGuest(eventId, guestId, false, status);
 
     res.status(200).send({
       statusCode: 200,
