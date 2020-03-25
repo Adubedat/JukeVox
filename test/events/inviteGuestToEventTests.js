@@ -15,8 +15,6 @@ const should = chai.should();
 
 chai.use(chaiHttp);
 
-
-// TODO : Write tests for JWT
 describe('Invite', () => {
   beforeEach(async () => {
     await sql.query('DELETE FROM EventGuests');
@@ -30,7 +28,7 @@ describe('Invite', () => {
     await sql.query('DELETE FROM UserProfiles;');
   });
 
-  async function addEvent(nameId, creatorId) {
+  async function addEvent(nameId, creatorId, isPrivate = true) {
     const startDate = moment().add(3, 'd').format(DATETIME_FORMAT);
     const endDate = moment().add(4, 'd').format(DATETIME_FORMAT);
 
@@ -43,7 +41,7 @@ describe('Invite', () => {
       latitude: 48.8915482,
       longitude: 2.3170656,
       streamerDevice: 'abcd',
-      isPrivate: true,
+      isPrivate,
       eventPicture: 'defaultPicture1',
     };
 
@@ -96,6 +94,86 @@ describe('Invite', () => {
       res.body.should.have.property('statusCode');
       res.body.should.have.property('message');
       res.body.message.should.be.eql(`User ${user2.insertId} invited to event ${event1.insertId}`);
+
+      const guestStatuses = await sql.query('SELECT * FROM EventGuests;');
+      guestStatuses.should.have.lengthOf(1);
+      guestStatuses[0].GuestStatus.should.eql('Invited');
+    });
+
+    it('should POST a guest to a public event (going)', async () => {
+      const user1 = await addUserProfile(1);
+      const user2 = await addUserProfile(2);
+      const event1 = await addEvent(1, user1.insertId, false);
+
+      const body = {
+        eventId: event1.insertId,
+        guestId: user1.insertId,
+      };
+
+      const jwt = generateJwt(user1.insertId);
+      const res = await chai.request(server)
+        .post('/api/invite')
+        .set({ Authorization: `Bearer ${jwt}` })
+        .send(body);
+
+      res.should.have.status(200);
+      res.body.should.be.a('object');
+      res.body.should.have.property('statusCode');
+      res.body.should.have.property('message');
+      res.body.message.should.be.eql(`User ${user1.insertId} invited to event ${event1.insertId}`);
+
+      const guestStatuses = await sql.query('SELECT * FROM EventGuests;');
+      guestStatuses.should.have.lengthOf(1);
+      guestStatuses[0].GuestStatus.should.eql('Going');
+    });
+
+    it('should not POST a guest to a public event (going) if requester != guest', async () => {
+      const user1 = await addUserProfile(1);
+      const user2 = await addUserProfile(2);
+      const event1 = await addEvent(1, user1.insertId, false);
+
+      const body = {
+        eventId: event1.insertId,
+        guestId: user2.insertId,
+      };
+
+      const jwt = generateJwt(user1.insertId);
+      const res = await chai.request(server)
+        .post('/api/invite')
+        .set({ Authorization: `Bearer ${jwt}` })
+        .send(body);
+
+      res.should.have.status(403);
+      res.body.should.be.a('object');
+      res.body.should.have.property('statusCode');
+      res.body.should.have.property('message');
+      res.body.message.should.be.eql('Forbidden');
+
+      const guestStatuses = await sql.query('SELECT * FROM EventGuests;');
+      guestStatuses.should.have.lengthOf(0);
+    });
+
+    it('should not POST a guest to an event (invite) with invalid jwt', async () => {
+      const user1 = await addUserProfile(1);
+      const user2 = await addUserProfile(2);
+      const event1 = await addEvent(1, user1.insertId);
+
+      const body = {
+        eventId: event1.insertId,
+        guestId: user2.insertId,
+      };
+
+      const jwt = generateJwt(user1.insertId);
+      const res = await chai.request(server)
+        .post('/api/invite')
+        .set({ Authorization: `Bearer ${jwt}a` })
+        .send(body);
+
+      res.should.have.status(401);
+      res.body.should.be.a('object');
+      res.body.should.have.property('statusCode');
+      res.body.should.have.property('message');
+      res.body.message.should.be.eql('Invalid authorization token');
     });
 
     it('should not POST a guest to an event with unknown field in body', async () => {

@@ -15,8 +15,6 @@ const should = chai.should();
 
 chai.use(chaiHttp);
 
-// TODO : Write tests for JWT
-
 describe('Events', () => {
   beforeEach(async () => {
     await sql.query('DELETE FROM UserAccounts;');
@@ -105,6 +103,29 @@ describe('Events', () => {
       const guestStatuses = await sql.query('SELECT * FROM EventGuests;');
       guestStatuses.should.have.lengthOf(1);
       guestStatuses[0].GuestStatus.should.eql('NotGoing');
+    });
+
+    it('should not update the guest status of a guest with invalid jwt', async () => {
+      const user1 = await addUserProfile(1);
+      const event = await addEvent(1, user1.insertId);
+      const eventGuest = await addEventGuest(event.insertId, user1.insertId, 'Going');
+
+      const jwt = generateJwt(user1.insertId);
+
+      const body = {
+        guestStatus: 'NotGoing',
+      };
+
+      const res = await chai.request(server)
+        .patch(`/api/me/events/${event.insertId}/guestStatus`)
+        .set({ Authorization: `Bearer ${jwt}a` })
+        .send(body);
+
+      res.should.have.status(401);
+      res.body.should.be.a('object');
+      res.body.should.have.property('statusCode');
+      res.body.should.have.property('message');
+      res.body.message.should.be.eql('Invalid authorization token');
     });
 
     it('should not update the guest status if the body has wrong string', async () => {

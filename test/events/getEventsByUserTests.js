@@ -15,8 +15,6 @@ const should = chai.should();
 
 chai.use(chaiHttp);
 
-// TODO : Write tests for JWT
-
 describe('Events', () => {
   beforeEach(async () => {
     await sql.query('DELETE FROM EventGuests');
@@ -30,13 +28,13 @@ describe('Events', () => {
     await sql.query('DELETE FROM UserProfiles;');
   });
 
-  async function addEvent(nameId, creatorId) {
-    const startDate = moment().add(3, 'd').format(DATETIME_FORMAT);
+  async function addEvent(nameId, creatorId, day = 3) {
+    const startDate = moment().add(day, 'd').format(DATETIME_FORMAT);
     const endDate = moment().add(4, 'd').format(DATETIME_FORMAT);
 
     const content = {
       name: `House warming #${nameId}`,
-      description: 'All come over on wednesday for our housewarming!',
+      description: `All come over on wednesday for our housewarming! ${day}`,
       startDate,
       endDate,
       location: '46 tests street',
@@ -121,6 +119,49 @@ describe('Events', () => {
         'EndDate', 'Location', 'Latitude', 'Longitude', 'StreamerDevice', 'IsPrivate', 'Id', 'GuestStatus');
     });
 
+    it('should GET a list of 4 events that user is attending / invited / not going in chronological order', async () => {
+      const user1 = await addUserProfile(1);
+      const user2 = await addUserProfile(2);
+      const user3 = await addUserProfile(3);
+
+      const event1 = await addEvent(1, user1.insertId, 1);
+      const event2 = await addEvent(2, user1.insertId, 4);
+      const event3 = await addEvent(3, user2.insertId, 3);
+      const event4 = await addEvent(4, user2.insertId, 2);
+
+      await addEventGuest(event1.insertId, user1.insertId, 'Going');
+      await addEventGuest(event1.insertId, user2.insertId, 'Going');
+      await addEventGuest(event1.insertId, user3.insertId, 'Invited');
+
+      await addEventGuest(event2.insertId, user1.insertId, 'Going');
+      await addEventGuest(event2.insertId, user2.insertId, 'NotGoing');
+
+      await addEventGuest(event3.insertId, user1.insertId, 'Invited');
+
+      await addEventGuest(event4.insertId, user1.insertId, 'NotGoing');
+
+
+      const jwt = generateJwt(user1.insertId);
+      const res = await chai.request(server)
+        .get('/api/me/events')
+        .set({ Authorization: `Bearer ${jwt}` });
+
+      res.should.have.status(200);
+      res.body.should.be.a('object');
+      res.body.should.have.property('statusCode');
+      res.body.should.have.property('message');
+      res.body.should.have.property('data');
+      res.body.message.should.be.eql(`The events for the user ${user1.insertId}`);
+      res.body.data.should.be.a('array');
+      res.body.data.length.should.be.eql(4);
+      res.body.data[0].should.have.all.keys('CreatorId', 'Name', 'Description', 'EventPicture', 'StartDate',
+        'EndDate', 'Location', 'Latitude', 'Longitude', 'StreamerDevice', 'IsPrivate', 'Id', 'GuestStatus');
+      res.body.data[0].Id.should.be.eql(event1.insertId);
+      res.body.data[1].Id.should.be.eql(event4.insertId);
+      res.body.data[2].Id.should.be.eql(event3.insertId);
+      res.body.data[3].Id.should.be.eql(event2.insertId);
+    });
+
     it('should GET a list of 2 events that the user is going (with filter)', async () => {
       const user1 = await addUserProfile(1);
       const user2 = await addUserProfile(2);
@@ -144,6 +185,47 @@ describe('Events', () => {
       res.body.data.length.should.be.eql(2);
       res.body.data[0].should.have.all.keys('CreatorId', 'Name', 'Description', 'EventPicture', 'StartDate',
         'EndDate', 'Location', 'Latitude', 'Longitude', 'StreamerDevice', 'IsPrivate', 'Id', 'GuestStatus');
+    });
+
+    it('should GET a list of 2 events that the user is going (with filter) - check chronological', async () => {
+      const user1 = await addUserProfile(1);
+      const user2 = await addUserProfile(2);
+      const user3 = await addUserProfile(3);
+      const event1 = await addEvent(1, user1.insertId, 6);
+      const event2 = await addEvent(2, user1.insertId, 4);
+      const event3 = await addEvent(3, user2.insertId, 3);
+      const event4 = await addEvent(4, user2.insertId, 2);
+
+      await addEventGuest(event1.insertId, user1.insertId, 'Going');
+      await addEventGuest(event1.insertId, user2.insertId, 'Going');
+      await addEventGuest(event1.insertId, user3.insertId, 'Invited');
+
+      await addEventGuest(event2.insertId, user1.insertId, 'Going');
+      await addEventGuest(event2.insertId, user2.insertId, 'NotGoing');
+
+      await addEventGuest(event3.insertId, user1.insertId, 'Invited');
+
+      await addEventGuest(event4.insertId, user1.insertId, 'NotGoing');
+      // User1 is going to event 1, going to event 2, invited to event 3 and notgoing to event 4
+
+      const jwt = generateJwt(user1.insertId);
+      const res = await chai.request(server)
+        .get('/api/me/events')
+        .query({ Going: true })
+        .set({ Authorization: `Bearer ${jwt}` });
+
+      res.should.have.status(200);
+      res.body.should.be.a('object');
+      res.body.should.have.property('statusCode');
+      res.body.should.have.property('message');
+      res.body.should.have.property('data');
+      res.body.message.should.be.eql(`The events for the user ${user1.insertId}`);
+      res.body.data.should.be.a('array');
+      res.body.data.length.should.be.eql(2);
+      res.body.data[0].should.have.all.keys('CreatorId', 'Name', 'Description', 'EventPicture', 'StartDate',
+        'EndDate', 'Location', 'Latitude', 'Longitude', 'StreamerDevice', 'IsPrivate', 'Id', 'GuestStatus');
+      res.body.data[0].Id.should.be.eql(event2.insertId);
+      res.body.data[1].Id.should.be.eql(event1.insertId);
     });
 
     it('should GET a list of 1 events that the user is invited (with filter)', async () => {
@@ -269,6 +351,26 @@ describe('Events', () => {
       res.body.data.length.should.be.eql(4);
       res.body.data[0].should.have.all.keys('CreatorId', 'Name', 'Description', 'EventPicture', 'StartDate',
         'EndDate', 'Location', 'Latitude', 'Longitude', 'StreamerDevice', 'IsPrivate', 'Id', 'GuestStatus');
+    });
+
+    it('should not GET a list of 4 events with invalid token', async () => {
+      const user1 = await addUserProfile(1);
+      const user2 = await addUserProfile(2);
+      const user3 = await addUserProfile(3);
+      await populateTables(user1, user2, user3);
+      // User1 is going to event 1, going to event 2, invited to event 3 and notgoing to event 4
+
+      const jwt = generateJwt(user1.insertId);
+      const res = await chai.request(server)
+        .get('/api/me/events')
+        .query({ Invited: true, NotGoing: true, Going: true })
+        .set({ Authorization: `Bearer ${jwt}1` });
+
+      res.should.have.status(401);
+      res.body.should.be.a('object');
+      res.body.should.have.property('statusCode');
+      res.body.should.have.property('message');
+      res.body.message.should.be.eql('Invalid authorization token');
     });
 
     it('should not GET events if the type of one of the filters is wrong', async () => {

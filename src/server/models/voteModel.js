@@ -15,4 +15,14 @@ Votes.addVote = function addVote(trackId, userId, vote) {
   });
 };
 
+Votes.getVotesSumForTrack = function getVotesSumForTrack(trackId) {
+  return new Promise((resolve, reject) => {
+    const query = 'SELECT TrackId, SUM(Vote) AS SumOfVotesForTrack FROM Votes WHERE TrackId = ?;';
+
+    sql.query(query, trackId)
+      .then((res) => resolve(res))
+      .catch((err) => reject(err));
+  });
+};
+
 export default Votes;

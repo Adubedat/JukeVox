@@ -15,8 +15,6 @@ const should = chai.should();
 
 chai.use(chaiHttp);
 
-// TODO : Write tests for JWT
-
 describe('Events', () => {
   beforeEach(async () => {
     await sql.query('DELETE FROM Events;');
@@ -113,6 +111,37 @@ describe('Events', () => {
       createdEvents.should.have.lengthOf(1);
       createdEvents[0].CreatorId.should.eql(user.insertId);
       createdEvents[0].Name.should.eql('Warming house');
+    });
+
+    it('should not PATCH an event with invalid jwt', async () => {
+      const user = await addUserProfile();
+      const jwt = generateJwt(user.insertId);
+
+      const event = await addEvent(user.insertId);
+
+      const updatedBody = {
+        name: 'Warming house',
+        description: 'All come over on wednesday for our housewarming!',
+        startDate,
+        endDate,
+        location: '46 tests street',
+        latitude: 48.8915482,
+        longitude: 2.3170656,
+        streamerDevice: 'abcd',
+        isPrivate: true,
+        eventPicture: 'defaultPicture1',
+      };
+
+      const res = await chai.request(server)
+        .patch(`/api/events/${event.insertId}`)
+        .set({ Authorization: `Bearer ${jwt}a` })
+        .send(updatedBody);
+
+      res.should.have.status(401);
+      res.body.should.be.a('object');
+      res.body.should.have.property('statusCode');
+      res.body.should.have.property('message');
+      res.body.message.should.be.eql('Invalid authorization token');
     });
 
     it('should not PATCH an event with unknown id', async () => {

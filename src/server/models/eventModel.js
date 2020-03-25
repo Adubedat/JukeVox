@@ -55,7 +55,7 @@ Event.getEvent = function getEvent(eventId) {
 
 Event.getPublicEvents = function getPublicEvents() {
   return new Promise((resolve, reject) => {
-    const query = 'SELECT * FROM Events WHERE IsPrivate = false';
+    const query = 'SELECT * FROM Events WHERE IsPrivate = false ORDER BY StartDate;';
     sql.query(query)
       .then((res) => resolve(res))
       .catch((err) => reject(err));
@@ -81,8 +81,9 @@ Event.getEventsByUser = function getEventsByUser(userId, filters) {
       query += ` ${conjunction} EventGuests.GuestStatus = '${filter}'`;
     });
     if (filters[0]) {
-      query += ');';
+      query += ')';
     }
+    query += ' ORDER BY StartDate;';
     sql.query(query, userId)
       .then((res) => resolve(res))
       .catch((err) => reject(err));
@@ -166,6 +167,28 @@ Event.updateGuestStatus = function updateGuestStatus(userId, eventId, guestStatu
     WHERE GuestId = ? AND EventId = ?;';
 
     sql.query(query, [guestStatus, userId, eventId])
+      .then((res) => resolve(res))
+      .catch((err) => reject(err));
+  });
+};
+
+Event.changePlayerControllers = function changePlayerControllers(eventId, guestId, hasControl) {
+  return new Promise((resolve, reject) => {
+    const query = 'UPDATE EventGuests SET HasPlayerControl = ? \
+    WHERE GuestId = ? AND EventId = ?;';
+
+    sql.query(query, [hasControl, guestId, eventId])
+      .then((res) => resolve(res))
+      .catch((err) => reject(err));
+  });
+};
+
+Event.getPlayerControllers = function getPlayerControllers(eventId) {
+  return new Promise((resolve, reject) => {
+    const query = 'SELECT GuestId FROM EventGuests \
+    WHERE EventId = ? AND GuestStatus = "Going" AND HasPlayerControl = true';
+
+    sql.query(query, eventId)
       .then((res) => resolve(res))
       .catch((err) => reject(err));
   });

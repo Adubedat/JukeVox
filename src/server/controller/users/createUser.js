@@ -15,7 +15,7 @@ export default async function createUser(req, res, next) {
     const [token, userProfile] = await Promise.all([generateUniqueToken(),
       User.createUserProfile(username, email)]);
     const userAccount = await User.createUserAccount(userProfile.insertId, email, hash, token);
-    await sendEmailConfirmationLink(email, username, userAccount.emailConfirmationString);
+    await sendEmailConfirmationLink(email, username, userAccount.ConfirmationToken);
     res.status(201).send({
       message: 'User created. Please check your mail!',
       statusCode: 201,
