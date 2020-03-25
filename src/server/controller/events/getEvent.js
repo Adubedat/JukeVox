@@ -26,7 +26,7 @@ export default async function getEvent(req, res, next) {
     const currentTrack = await Tracks.getCurrentTrackForEvent(eventId);
 
     event[0].Tracks = tracks;
-    event[0].currentTrack = currentTrack;
+    event[0].CurrentTrack = currentTrack;
     event[0].TrackHistory = trackHistory;
 
     res.status(200).send({
