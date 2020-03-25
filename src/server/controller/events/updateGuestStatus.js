@@ -3,7 +3,7 @@ import Event from '../../models/eventModel';
 import { checkUnknownFields } from '../../../helpers/validation';
 import { validateType } from './helpers/validation';
 
-export default async function updateEvent(req, res, next) {
+export default async function updateGuestStatus(req, res, next) {
   const { userId } = req.decoded;
   const { eventId } = req.params;
   const { guestStatus } = req.body;
