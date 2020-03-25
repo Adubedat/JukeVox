@@ -79,7 +79,7 @@ Tracks.getTrackHistoryForEvent = function getTrackHistoryForEvent(eventId) {
 Tracks.getCurrentTrackForEvent = function getCurrentTrackForEvent(eventId) {
   return new Promise((resolve, reject) => {
     const query = ' SELECT * FROM Tracks \
-    WHERE TrackId = \
+    WHERE Id = \
     (SELECT TrackId FROM TrackHistory \
     WHERE EventId = ? \
     ORDER BY PlayedAt DESC \
