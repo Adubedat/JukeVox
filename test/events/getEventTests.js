@@ -231,7 +231,7 @@ describe('Events', () => {
         'EndDate', 'Location', 'Latitude', 'Longitude', 'StreamerDevice', 'IsPrivate', 'Id', 'Tracks', 'CurrentTrack', 'TrackHistory');
       res.body.data.Tracks[0].should.have.all.keys('Id', 'EventId', 'UserId', 'DeezerSongId', 'Title', 'Duration',
         'ArtistName', 'PictureSmall', 'PictureBig', 'AddedAt', 'VotesSum', 'UserVote');
-      res.body.data.Tracks.should.have.lengthOf(5);
+      res.body.data.Tracks.should.have.lengthOf(3);
       res.body.data.TrackHistory.should.have.lengthOf(2);
       res.body.data.TrackHistory[0].TrackId.should.be.eql(track1.insertId);
       res.body.data.TrackHistory[1].TrackId.should.be.eql(track2.insertId);
@@ -318,10 +318,56 @@ describe('Events', () => {
         'EndDate', 'Location', 'Latitude', 'Longitude', 'StreamerDevice', 'IsPrivate', 'Id', 'Tracks', 'CurrentTrack', 'TrackHistory');
       res.body.data.Tracks[0].should.have.all.keys('Id', 'EventId', 'UserId', 'DeezerSongId', 'Title', 'Duration',
         'ArtistName', 'PictureSmall', 'PictureBig', 'AddedAt', 'VotesSum', 'UserVote');
-      res.body.data.Tracks.should.have.lengthOf(5);
+      res.body.data.Tracks.should.have.lengthOf(2);
       res.body.data.TrackHistory.should.have.lengthOf(3);
       res.body.data.CurrentTrack.should.have.lengthOf(1);
       res.body.data.CurrentTrack[0].Id.should.be.eql(track1.insertId);
+    });
+
+    it('should GET an event (check that tracks are removed from track list if in history)', async () => {
+      const user = await addUserProfile('user1');
+      const user2 = await addUserProfile('user2');
+      const jwt = generateJwt(user.insertId);
+      const event = await addEvent(user.insertId);
+      const track1 = await addTrack(event.insertId, user.insertId, 1);
+      const track1bis = await addTrack(event.insertId, user.insertId, 1);
+      const track2 = await addTrack(event.insertId, user.insertId, 3);
+      const track3 = await addTrack(event.insertId, user.insertId, 30);
+      const track4 = await addTrack(event.insertId, user2.insertId, 2);
+      await addVote(track1.insertId, user.insertId, 1);
+      await addVote(track1.insertId, user2.insertId, 1);
+      await addVote(track1bis.insertId, user.insertId, 1);
+      await addVote(track1bis.insertId, user2.insertId, 1);
+      await addVote(track2.insertId, user2.insertId, 5);
+
+      const trackInHistory1 = await addTrackToHistory(track2.insertId, event.insertId, '09');
+      const trackInHistory2 = await addTrackToHistory(track1.insertId, event.insertId, '11');
+      const trackInHistory3 = await addTrackToHistory(track1bis.insertId, event.insertId, '10');
+
+      await addEventGuest(event.insertId, user.insertId, 'Going');
+
+      const res = await chai.request(server)
+        .get(`/api/events/${event.insertId}`)
+        .set({ Authorization: `Bearer ${jwt}` });
+
+      res.should.have.status(200);
+      res.body.should.be.a('object');
+      res.body.should.have.property('statusCode');
+      res.body.should.have.property('message');
+      res.body.should.have.property('data');
+      res.body.data.should.have.property('Id');
+      res.body.message.should.be.eql(`Event with Id: ${event.insertId}`);
+      res.body.data.Name.should.be.eql('House warming');
+      res.body.data.should.have.all.keys('CreatorId', 'Name', 'Description', 'EventPicture', 'StartDate',
+        'EndDate', 'Location', 'Latitude', 'Longitude', 'StreamerDevice', 'IsPrivate', 'Id', 'Tracks', 'CurrentTrack', 'TrackHistory');
+      res.body.data.Tracks[0].should.have.all.keys('Id', 'EventId', 'UserId', 'DeezerSongId', 'Title', 'Duration',
+        'ArtistName', 'PictureSmall', 'PictureBig', 'AddedAt', 'VotesSum', 'UserVote');
+      res.body.data.Tracks.should.have.lengthOf(2);
+      res.body.data.TrackHistory.should.have.lengthOf(3);
+      res.body.data.CurrentTrack.should.have.lengthOf(1);
+      res.body.data.CurrentTrack[0].Id.should.be.eql(track1.insertId);
+      res.body.data.Tracks[0].Id.should.be.eql(track4.insertId);
+      res.body.data.Tracks[1].Id.should.be.eql(track3.insertId);
     });
 
     it('should GET an event (check that current track is correct even if empty)', async () => {
