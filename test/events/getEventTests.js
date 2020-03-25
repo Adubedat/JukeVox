@@ -18,6 +18,7 @@ chai.use(chaiHttp);
 
 describe('Events', () => {
   beforeEach(async () => {
+    await sql.query('DELETE FROM TrackHistory');
     await sql.query('DELETE FROM Votes');
     await sql.query('DELETE FROM Tracks');
     await sql.query('DELETE FROM EventGuests;');
@@ -26,6 +27,7 @@ describe('Events', () => {
   });
 
   after(async () => {
+    await sql.query('DELETE FROM TrackHistory');
     await sql.query('DELETE FROM Votes');
     await sql.query('DELETE FROM Tracks');
     await sql.query('DELETE FROM EventGuests;');
@@ -104,6 +106,15 @@ describe('Events', () => {
     return userProfile;
   }
 
+  async function addTrackToHistory(trackId, eventId, day) {
+    const trackHistoryQuery = 'INSERT INTO TrackHistory (TrackId, EventID, PlayedAt) \
+    VALUES ?;';
+    const trackHistoryValues = [[trackId, eventId, `2031-05-${day} 05:05:05`]];
+    const trackInHistory = await sql.query(trackHistoryQuery, [trackHistoryValues])
+      .catch((err) => console.log(err));
+    return trackInHistory;
+  }
+
   describe('GET /events/:eventId', () => {
     it('should GET an event', async () => {
       const user = await addUserProfile('user1');
@@ -130,7 +141,7 @@ describe('Events', () => {
       res.body.message.should.be.eql(`Event with Id: ${event.insertId}`);
       res.body.data.Name.should.be.eql('House warming');
       res.body.data.should.have.all.keys('CreatorId', 'Name', 'Description', 'EventPicture', 'StartDate',
-        'EndDate', 'Location', 'Latitude', 'Longitude', 'StreamerDevice', 'IsPrivate', 'Id', 'Tracks');
+        'EndDate', 'Location', 'Latitude', 'Longitude', 'StreamerDevice', 'IsPrivate', 'Id', 'Tracks', 'CurrentTrack', 'TrackHistory');
       res.body.data.Tracks[0].should.have.all.keys('Id', 'EventId', 'UserId', 'DeezerSongId', 'Title', 'Duration',
         'ArtistName', 'PictureSmall', 'PictureBig', 'AddedAt', 'VotesSum', 'UserVote');
       res.body.data.Tracks.should.have.lengthOf(2);
@@ -140,7 +151,7 @@ describe('Events', () => {
       expect(res.body.data.Tracks[1].VotesSum).to.equal(null);
     });
 
-    it('should GET an event (check tracks are in order', async () => {
+    it('should GET an event (check tracks are in order)', async () => {
       const user = await addUserProfile('user1');
       const user2 = await addUserProfile('user2');
       const jwt = generateJwt(user.insertId);
@@ -171,7 +182,7 @@ describe('Events', () => {
       res.body.message.should.be.eql(`Event with Id: ${event.insertId}`);
       res.body.data.Name.should.be.eql('House warming');
       res.body.data.should.have.all.keys('CreatorId', 'Name', 'Description', 'EventPicture', 'StartDate',
-        'EndDate', 'Location', 'Latitude', 'Longitude', 'StreamerDevice', 'IsPrivate', 'Id', 'Tracks');
+        'EndDate', 'Location', 'Latitude', 'Longitude', 'StreamerDevice', 'IsPrivate', 'Id', 'Tracks', 'CurrentTrack', 'TrackHistory');
       res.body.data.Tracks[0].should.have.all.keys('Id', 'EventId', 'UserId', 'DeezerSongId', 'Title', 'Duration',
         'ArtistName', 'PictureSmall', 'PictureBig', 'AddedAt', 'VotesSum', 'UserVote');
       res.body.data.Tracks.should.have.lengthOf(5);
@@ -181,6 +192,54 @@ describe('Events', () => {
       res.body.data.Tracks[2].Id.should.eql(track1bis.insertId);
       res.body.data.Tracks[3].Id.should.eql(track4.insertId);
       res.body.data.Tracks[4].Id.should.eql(track3.insertId);
+    });
+
+    it('should GET an event (check track history)', async () => {
+      const user = await addUserProfile('user1');
+      const user2 = await addUserProfile('user2');
+      const jwt = generateJwt(user.insertId);
+      const event = await addEvent(user.insertId);
+      const track1 = await addTrack(event.insertId, user.insertId, 1);
+      const track1bis = await addTrack(event.insertId, user.insertId, 1);
+      const track2 = await addTrack(event.insertId, user.insertId, 3);
+      const track3 = await addTrack(event.insertId, user.insertId, 30);
+      const track4 = await addTrack(event.insertId, user2.insertId, 2);
+      await addVote(track1.insertId, user.insertId, 1);
+      await addVote(track1.insertId, user2.insertId, 1);
+      await addVote(track1bis.insertId, user.insertId, 1);
+      await addVote(track1bis.insertId, user2.insertId, 1);
+      await addVote(track2.insertId, user2.insertId, 5);
+
+      const trackInHistory1 = await addTrackToHistory(track2.insertId, event.insertId, '10');
+      const trackInHistory2 = await addTrackToHistory(track1.insertId, event.insertId, '11');
+
+      await addEventGuest(event.insertId, user.insertId, 'Going');
+
+      const res = await chai.request(server)
+        .get(`/api/events/${event.insertId}`)
+        .set({ Authorization: `Bearer ${jwt}` });
+
+      console.log(res.body);
+      console.log('currentTrack');
+      console.log(res.body.data.CurrentTrack);
+      console.log('TrackHistory');
+      console.log(res.body.data.TrackHistory);
+      res.should.have.status(200);
+      res.body.should.be.a('object');
+      res.body.should.have.property('statusCode');
+      res.body.should.have.property('message');
+      res.body.should.have.property('data');
+      res.body.data.should.have.property('Id');
+      res.body.message.should.be.eql(`Event with Id: ${event.insertId}`);
+      res.body.data.Name.should.be.eql('House warming');
+      res.body.data.should.have.all.keys('CreatorId', 'Name', 'Description', 'EventPicture', 'StartDate',
+        'EndDate', 'Location', 'Latitude', 'Longitude', 'StreamerDevice', 'IsPrivate', 'Id', 'Tracks', 'CurrentTrack', 'TrackHistory');
+      res.body.data.Tracks[0].should.have.all.keys('Id', 'EventId', 'UserId', 'DeezerSongId', 'Title', 'Duration',
+        'ArtistName', 'PictureSmall', 'PictureBig', 'AddedAt', 'VotesSum', 'UserVote');
+      res.body.data.Tracks.should.have.lengthOf(5);
+      res.body.data.TrackHistory.should.have.lengthOf(2);
+      res.body.data.TrackHistory[0].TrackId.should.be.eql(track1.insertId);
+      res.body.data.TrackHistory[1].TrackId.should.be.eql(track2.insertId);
     });
 
     it('should not GET an event with invalid jwt', async () => {
@@ -242,7 +301,7 @@ describe('Events', () => {
       res.body.message.should.be.eql(`Event with Id: ${event.insertId}`);
       res.body.data.Name.should.be.eql('House warming');
       res.body.data.should.have.all.keys('CreatorId', 'Name', 'Description', 'EventPicture', 'StartDate',
-        'EndDate', 'Location', 'Latitude', 'Longitude', 'StreamerDevice', 'IsPrivate', 'Id', 'Tracks');
+        'EndDate', 'Location', 'Latitude', 'Longitude', 'StreamerDevice', 'IsPrivate', 'Id', 'Tracks', 'CurrentTrack', 'TrackHistory');
       res.body.data.Tracks[0].should.have.all.keys('Id', 'EventId', 'UserId', 'DeezerSongId', 'Title', 'Duration',
         'ArtistName', 'PictureSmall', 'PictureBig', 'AddedAt', 'VotesSum', 'UserVote');
       res.body.data.Tracks.should.have.lengthOf(1);
@@ -270,7 +329,7 @@ describe('Events', () => {
       res.body.message.should.be.eql(`Event with Id: ${event.insertId}`);
       res.body.data.Name.should.be.eql('House warming');
       res.body.data.should.have.all.keys('CreatorId', 'Name', 'Description', 'EventPicture', 'StartDate',
-        'EndDate', 'Location', 'Latitude', 'Longitude', 'StreamerDevice', 'IsPrivate', 'Id', 'Tracks');
+        'EndDate', 'Location', 'Latitude', 'Longitude', 'StreamerDevice', 'IsPrivate', 'Id', 'Tracks', 'CurrentTrack', 'TrackHistory');
     });
 
     it('should GET an event (user is not going)', async () => {
@@ -292,7 +351,7 @@ describe('Events', () => {
       res.body.message.should.be.eql(`Event with Id: ${event.insertId}`);
       res.body.data.Name.should.be.eql('House warming');
       res.body.data.should.have.all.keys('CreatorId', 'Name', 'Description', 'EventPicture', 'StartDate',
-        'EndDate', 'Location', 'Latitude', 'Longitude', 'StreamerDevice', 'IsPrivate', 'Id', 'Tracks');
+        'EndDate', 'Location', 'Latitude', 'Longitude', 'StreamerDevice', 'IsPrivate', 'Id', 'Tracks', 'CurrentTrack', 'TrackHistory');
     });
 
     it('should not GET an event with unknown id', async () => {
