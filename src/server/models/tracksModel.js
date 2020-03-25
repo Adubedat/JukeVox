@@ -51,8 +51,11 @@ Tracks.getTracksForEvent = function getTracksForEvent(eventId, userId) {
       (SELECT vote FROM Votes WHERE TrackId = Tracks.Id AND UserId = ?) as UserVote \
     FROM \
       Tracks  \
+      LEFT JOIN TrackHistory th ON Tracks.Id = th.TrackId \
       LEFT JOIN Votes ON Tracks.Id = Votes.TrackId \
-    WHERE Tracks.EventId = ? \
+    WHERE \
+      th.TrackId IS NULL \
+      AND Tracks.EventId = ? \
     GROUP BY Tracks.Id \
     ORDER BY VotesSum DESC, AddedAt';
 

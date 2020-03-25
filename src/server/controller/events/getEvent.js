@@ -22,7 +22,6 @@ export default async function getEvent(req, res, next) {
 
     const trackHistory = await Tracks.getTrackHistoryForEvent(eventId);
 
-    // TODO: Check query does not crash if there are no songs in Track history
     const currentTrack = await Tracks.getCurrentTrackForEvent(eventId);
 
     event[0].Tracks = tracks;
