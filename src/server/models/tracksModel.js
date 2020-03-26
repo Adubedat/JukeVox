@@ -70,9 +70,11 @@ Tracks.getNextTrackToPlay = function getNextTrackToPlay(eventId) {
       SUM(Votes.Vote) as VotesSum \
     FROM \
       Tracks \
+      LEFT JOIN TrackHistory th ON Tracks.Id = th.TrackId \
       LEFT JOIN Votes ON Tracks.Id = Votes.TrackId \
     WHERE \
-      Tracks.EventId = ? \
+      th.TrackId IS NULL \
+      AND Tracks.EventId = ? \
     GROUP BY Tracks.Id \
     ORDER BY VotesSum DESC, AddedAt \
     LIMIT 1;';
