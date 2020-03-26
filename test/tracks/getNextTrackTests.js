@@ -418,5 +418,26 @@ describe('Events', () => {
 
       tracksHistory.should.have.lengthOf(5);
     });
+
+    it('should not GET the next track if there are no tracks', async () => {
+      const user = await addUserProfile('user1');
+      const user2 = await addUserProfile('user2');
+      const jwt = generateJwt(user.insertId);
+      const event = await addEvent(user.insertId);
+
+
+      await addEventGuest(event.insertId, user.insertId, 'Going');
+      await addEventGuest(event.insertId, user2.insertId, 'Going');
+
+      const res = await chai.request(server)
+        .get(`/api/events/${event.insertId}/tracks/nextTrack`)
+        .set({ Authorization: `Bearer ${jwt}` });
+
+      res.should.have.status(404);
+      res.body.should.be.a('object');
+      res.body.should.have.property('statusCode');
+      res.body.should.have.property('message');
+      res.body.message.should.be.eql('No tracks left to play');
+    });
   });
 });
