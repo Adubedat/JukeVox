@@ -245,5 +245,178 @@ describe('Events', () => {
       tracksHistory.should.have.lengthOf(4);
       tracksHistory[3].TrackId.should.be.eql(track4.insertId);
     });
+
+    it('should not GET the next track if the event does not exist', async () => {
+      const user = await addUserProfile('user1');
+      const user2 = await addUserProfile('user2');
+      const jwt = generateJwt(user.insertId);
+      const event = await addEvent(user.insertId);
+
+      // Order of dateAdded: Track1, track1bis, track4, track2, track3
+      const track1 = await addTrack(event.insertId, user.insertId, 1);
+      const track1bis = await addTrack(event.insertId, user.insertId, 1);
+      const track2 = await addTrack(event.insertId, user.insertId, 3);
+      const track3 = await addTrack(event.insertId, user.insertId, 30);
+      const track4 = await addTrack(event.insertId, user2.insertId, 2);
+
+      // Order of votes: track2, track1, track1bis... others
+      await addVote(track1.insertId, user.insertId, 1);
+      await addVote(track1.insertId, user2.insertId, 1);
+      await addVote(track1bis.insertId, user.insertId, 1);
+      await addVote(track1bis.insertId, user2.insertId, 1);
+      await addVote(track2.insertId, user2.insertId, 5);
+
+      await addTrackToHistory(track2.insertId, event.insertId, '10');
+      await addTrackToHistory(track1.insertId, event.insertId, '11');
+      await addTrackToHistory(track1bis.insertId, event.insertId, '12');
+
+
+      await addEventGuest(event.insertId, user.insertId, 'Going');
+
+      const res = await chai.request(server)
+        .get(`/api/events/${event.insertId + 1}/tracks/nextTrack`)
+        .set({ Authorization: `Bearer ${jwt}` });
+
+      res.should.have.status(404);
+      res.body.should.be.a('object');
+      res.body.should.have.property('statusCode');
+      res.body.should.have.property('message');
+      res.body.message.should.be.eql('No event with this ID');
+
+      const tracksHistory = await sql.query('SELECT * FROM TrackHistory');
+
+      tracksHistory.should.have.lengthOf(3);
+    });
+
+    it('should not GET the next track if user != creator of event', async () => {
+      const user = await addUserProfile('user1');
+      const user2 = await addUserProfile('user2');
+      const jwt = generateJwt(user2.insertId);
+      const event = await addEvent(user.insertId);
+
+      // Order of dateAdded: Track1, track1bis, track4, track2, track3
+      const track1 = await addTrack(event.insertId, user.insertId, 1);
+      const track1bis = await addTrack(event.insertId, user.insertId, 1);
+      const track2 = await addTrack(event.insertId, user.insertId, 3);
+      const track3 = await addTrack(event.insertId, user.insertId, 30);
+      const track4 = await addTrack(event.insertId, user2.insertId, 2);
+
+      // Order of votes: track2, track1, track1bis... others
+      await addVote(track1.insertId, user.insertId, 1);
+      await addVote(track1.insertId, user2.insertId, 1);
+      await addVote(track1bis.insertId, user.insertId, 1);
+      await addVote(track1bis.insertId, user2.insertId, 1);
+      await addVote(track2.insertId, user2.insertId, 5);
+
+      await addTrackToHistory(track2.insertId, event.insertId, '10');
+      await addTrackToHistory(track1.insertId, event.insertId, '11');
+      await addTrackToHistory(track1bis.insertId, event.insertId, '12');
+
+
+      await addEventGuest(event.insertId, user.insertId, 'Going');
+      await addEventGuest(event.insertId, user2.insertId, 'Going');
+
+      const res = await chai.request(server)
+        .get(`/api/events/${event.insertId}/tracks/nextTrack`)
+        .set({ Authorization: `Bearer ${jwt}` });
+
+      res.should.have.status(403);
+      res.body.should.be.a('object');
+      res.body.should.have.property('statusCode');
+      res.body.should.have.property('message');
+      res.body.message.should.be.eql('Forbidden');
+
+      const tracksHistory = await sql.query('SELECT * FROM TrackHistory');
+
+      tracksHistory.should.have.lengthOf(3);
+    });
+
+    it('should not GET the next track if the JWT is invalid', async () => {
+      const user = await addUserProfile('user1');
+      const user2 = await addUserProfile('user2');
+      const jwt = generateJwt(user.insertId);
+      const event = await addEvent(user.insertId);
+
+      // Order of dateAdded: Track1, track1bis, track4, track2, track3
+      const track1 = await addTrack(event.insertId, user.insertId, 1);
+      const track1bis = await addTrack(event.insertId, user.insertId, 1);
+      const track2 = await addTrack(event.insertId, user.insertId, 3);
+      const track3 = await addTrack(event.insertId, user.insertId, 30);
+      const track4 = await addTrack(event.insertId, user2.insertId, 2);
+
+      // Order of votes: track2, track1, track1bis... others
+      await addVote(track1.insertId, user.insertId, 1);
+      await addVote(track1.insertId, user2.insertId, 1);
+      await addVote(track1bis.insertId, user.insertId, 1);
+      await addVote(track1bis.insertId, user2.insertId, 1);
+      await addVote(track2.insertId, user2.insertId, 5);
+
+      await addTrackToHistory(track2.insertId, event.insertId, '10');
+      await addTrackToHistory(track1.insertId, event.insertId, '11');
+      await addTrackToHistory(track1bis.insertId, event.insertId, '12');
+
+
+      await addEventGuest(event.insertId, user.insertId, 'Going');
+      await addEventGuest(event.insertId, user2.insertId, 'Going');
+
+      const res = await chai.request(server)
+        .get(`/api/events/${event.insertId}/tracks/nextTrack`)
+        .set({ Authorization: `Bearer ${jwt}a` });
+
+      res.should.have.status(401);
+      res.body.should.be.a('object');
+      res.body.should.have.property('statusCode');
+      res.body.should.have.property('message');
+      res.body.message.should.be.eql('Invalid authorization token');
+
+      const tracksHistory = await sql.query('SELECT * FROM TrackHistory');
+
+      tracksHistory.should.have.lengthOf(3);
+    });
+
+    it('should not GET the next track if there are no more tracks to play', async () => {
+      const user = await addUserProfile('user1');
+      const user2 = await addUserProfile('user2');
+      const jwt = generateJwt(user.insertId);
+      const event = await addEvent(user.insertId);
+
+      // Order of dateAdded: Track1, track1bis, track4, track2, track3
+      const track1 = await addTrack(event.insertId, user.insertId, 1);
+      const track1bis = await addTrack(event.insertId, user.insertId, 1);
+      const track2 = await addTrack(event.insertId, user.insertId, 3);
+      const track3 = await addTrack(event.insertId, user.insertId, 30);
+      const track4 = await addTrack(event.insertId, user2.insertId, 2);
+
+      // Order of votes: track2, track1, track1bis... others
+      await addVote(track1.insertId, user.insertId, 1);
+      await addVote(track1.insertId, user2.insertId, 1);
+      await addVote(track1bis.insertId, user.insertId, 1);
+      await addVote(track1bis.insertId, user2.insertId, 1);
+      await addVote(track2.insertId, user2.insertId, 5);
+
+      await addTrackToHistory(track2.insertId, event.insertId, '10');
+      await addTrackToHistory(track1.insertId, event.insertId, '11');
+      await addTrackToHistory(track1bis.insertId, event.insertId, '12');
+      await addTrackToHistory(track4.insertId, event.insertId, '12');
+      await addTrackToHistory(track3.insertId, event.insertId, '12');
+
+
+      await addEventGuest(event.insertId, user.insertId, 'Going');
+      await addEventGuest(event.insertId, user2.insertId, 'Going');
+
+      const res = await chai.request(server)
+        .get(`/api/events/${event.insertId}/tracks/nextTrack`)
+        .set({ Authorization: `Bearer ${jwt}` });
+
+      res.should.have.status(404);
+      res.body.should.be.a('object');
+      res.body.should.have.property('statusCode');
+      res.body.should.have.property('message');
+      res.body.message.should.be.eql('No tracks left to play');
+
+      const tracksHistory = await sql.query('SELECT * FROM TrackHistory');
+
+      tracksHistory.should.have.lengthOf(5);
+    });
   });
 });
