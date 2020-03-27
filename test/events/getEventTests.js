@@ -60,7 +60,7 @@ describe('Events', () => {
     return track;
   }
 
-  async function addEvent(creatorId) {
+  async function addEvent(creatorId, isPrivate = true) {
     const startDate = moment().add(3, 'd').format(DATETIME_FORMAT);
     const endDate = moment().add(4, 'd').format(DATETIME_FORMAT);
 
@@ -73,7 +73,7 @@ describe('Events', () => {
       latitude: 48.8915482,
       longitude: 2.3170656,
       streamerDevice: 'abcd',
-      isPrivate: true,
+      isPrivate,
       eventPicture: 'defaultPicture1',
     };
 
@@ -138,6 +138,35 @@ describe('Events', () => {
       res.body.data.Tracks[0].UserVote.should.eql(1);
       res.body.data.Tracks[0].Title.should.eql('Song title');
       expect(res.body.data.Tracks[1].VotesSum).to.equal(null);
+    });
+
+    it('should GET an event if the event is public and user not attending', async () => {
+      const user = await addUserProfile('user1');
+      const user2 = await addUserProfile('user2');
+      const jwt = generateJwt(user2.insertId);
+      const event = await addEvent(user.insertId, false);
+      const track1 = await addTrack(event.insertId, user.insertId);
+      await addVote(track1.insertId, user.insertId, 1);
+
+      await addEventGuest(event.insertId, user.insertId, 'Going');
+
+      const res = await chai.request(server)
+        .get(`/api/events/${event.insertId}`)
+        .set({ Authorization: `Bearer ${jwt}` });
+
+      res.should.have.status(200);
+      res.body.should.be.a('object');
+      res.body.should.have.property('statusCode');
+      res.body.should.have.property('message');
+      res.body.should.have.property('data');
+      res.body.data.should.have.property('Id');
+      res.body.message.should.be.eql(`Event with Id: ${event.insertId}`);
+      res.body.data.Name.should.be.eql('House warming');
+      res.body.data.should.have.all.keys('CreatorId', 'Name', 'Description', 'EventPicture', 'StartDate',
+        'EndDate', 'Location', 'Latitude', 'Longitude', 'StreamerDevice', 'IsPrivate', 'Id', 'Tracks');
+      res.body.data.Tracks[0].should.have.all.keys('Id', 'EventId', 'UserId', 'DeezerSongId', 'Title', 'Duration',
+        'ArtistName', 'PictureSmall', 'PictureBig', 'AddedAt', 'VotesSum', 'UserVote');
+      res.body.data.Tracks.should.have.lengthOf(1);
     });
 
     it('should not GET an event with invalid jwt', async () => {
