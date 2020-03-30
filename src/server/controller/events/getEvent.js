@@ -13,9 +13,11 @@ export default async function getEvent(req, res, next) {
       throw new ErrorResponseHandler(404, 'No event found with this ID');
     }
 
-    const guestStatusResponse = await Event.getGuestStatusForEvent(userId, eventId);
-    if (guestStatusResponse[0] == null) {
-      throw new ErrorResponseHandler(403, 'Forbidden');
+    if (event[0].IsPrivate) {
+      const guestStatusResponse = await Event.getGuestStatusForEvent(userId, eventId);
+      if (guestStatusResponse[0] == null) {
+        throw new ErrorResponseHandler(403, 'Forbidden');
+      }
     }
 
     const tracks = await Tracks.getTracksForEvent(eventId, userId);
