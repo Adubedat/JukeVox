@@ -14,7 +14,7 @@ export default async function deleteEventGuest(req, res, next) {
       throw new ErrorResponseHandler(404, 'Event not found');
     }
 
-    if (userId !== Event.CreatorId) {
+    if (userId !== event[0].CreatorId) {
       throw new ErrorResponseHandler(403, 'Forbidden');
     }
 
@@ -23,14 +23,13 @@ export default async function deleteEventGuest(req, res, next) {
       throw new ErrorResponseHandler(403, 'Forbidden');
     }
 
-    const response = Event.deleteEventGuest(eventId, guestId);
-
+    const response = await Event.deleteEventGuest(eventId, guestId);
     if (response.affectedRows !== 1) {
       throw new ErrorResponseHandler(500, 'Internal server error');
     }
 
     res.status(200).send({
-      message: 'Guest deleted',
+      message: 'Guest deleted successfully',
       statusCode: 200,
     });
   } catch (err) {
