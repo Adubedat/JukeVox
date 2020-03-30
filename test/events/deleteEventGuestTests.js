@@ -88,6 +88,102 @@ describe('Events', () => {
   }
 
   describe('DELETE /api/events/:eventId/guests/:guestId', () => {
+    it('should DELETE a user', async () => {
+      const user1 = await addUserProfile(1);
+      const user2 = await addUserProfile(2);
+      const user3 = await addUserProfile(3);
+      const event1 = await addEvent(1, user1.insertId);
+      const event2 = await addEvent(2, user1.insertId);
+      const event3 = await addEvent(3, user2.insertId);
+      await populateTables(user1, user2, user3, event1, event2, event3);
+
+      const jwt = generateJwt(user1.insertId);
+      const res = await chai.request(server)
+        .delete(`/api/events/${event1.insertId}/guests/${user2.insertId}`)
+        .set({ Authorization: `Bearer ${jwt}` });
+
+      res.should.have.status(200);
+      res.body.should.be.a('object');
+      res.body.should.have.property('statusCode');
+      res.body.should.have.property('message');
+      res.body.message.should.be.eql('Guest deleted successfully');
+
+      const eventGuests = await sql.query('SELECT * FROM EventGuests;');
+      eventGuests.should.have.lengthOf(5);
+    });
+
+    it('should not DELETE a user if guest is unknown', async () => {
+      const user1 = await addUserProfile(1);
+      const user2 = await addUserProfile(2);
+      const user3 = await addUserProfile(3);
+      const event1 = await addEvent(1, user1.insertId);
+      const event2 = await addEvent(2, user1.insertId);
+      const event3 = await addEvent(3, user2.insertId);
+      await populateTables(user1, user2, user3, event1, event2, event3);
+
+      const jwt = generateJwt(user1.insertId);
+      const res = await chai.request(server)
+        .delete(`/api/events/${event1.insertId}/guests/${user2.insertId + 111}`)
+        .set({ Authorization: `Bearer ${jwt}` });
+
+      res.should.have.status(403);
+      res.body.should.be.a('object');
+      res.body.should.have.property('statusCode');
+      res.body.should.have.property('message');
+      res.body.message.should.be.eql('Forbidden');
+
+      const eventGuests = await sql.query('SELECT * FROM EventGuests;');
+      eventGuests.should.have.lengthOf(6);
+    });
+
+    it('should not DELETE a user if guest is not in event', async () => {
+      const user1 = await addUserProfile(1);
+      const user2 = await addUserProfile(2);
+      const user3 = await addUserProfile(3);
+      const event1 = await addEvent(1, user1.insertId);
+      const event2 = await addEvent(2, user1.insertId);
+      const event3 = await addEvent(3, user2.insertId);
+      await populateTables(user1, user2, user3, event1, event2, event3);
+
+      const jwt = generateJwt(user1.insertId);
+      const res = await chai.request(server)
+        .delete(`/api/events/${event2.insertId}/guests/${user3.insertId}`)
+        .set({ Authorization: `Bearer ${jwt}` });
+
+      res.should.have.status(403);
+      res.body.should.be.a('object');
+      res.body.should.have.property('statusCode');
+      res.body.should.have.property('message');
+      res.body.message.should.be.eql('Forbidden');
+
+      const eventGuests = await sql.query('SELECT * FROM EventGuests;');
+      eventGuests.should.have.lengthOf(6);
+    });
+
+    it('should not DELETE a user if the user id is not the creator id', async () => {
+      const user1 = await addUserProfile(1);
+      const user2 = await addUserProfile(2);
+      const user3 = await addUserProfile(3);
+      const event1 = await addEvent(1, user1.insertId);
+      const event2 = await addEvent(2, user1.insertId);
+      const event3 = await addEvent(3, user2.insertId);
+      await populateTables(user1, user2, user3, event1, event2, event3);
+
+      const jwt = generateJwt(user2.insertId);
+      const res = await chai.request(server)
+        .delete(`/api/events/${event1.insertId}/guests/${user2.insertId}`)
+        .set({ Authorization: `Bearer ${jwt}` });
+
+      res.should.have.status(403);
+      res.body.should.be.a('object');
+      res.body.should.have.property('statusCode');
+      res.body.should.have.property('message');
+      res.body.message.should.be.eql('Forbidden');
+
+      const eventGuests = await sql.query('SELECT * FROM EventGuests;');
+      eventGuests.should.have.lengthOf(6);
+    });
+
     it('should not DELETE a user if the event is unknown', async () => {
       const user1 = await addUserProfile(1);
       const user2 = await addUserProfile(2);
