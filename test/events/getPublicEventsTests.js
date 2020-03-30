@@ -60,6 +60,14 @@ describe('Events', () => {
     return userProfile;
   }
 
+  async function addEventGuest(eventId, guestId, guestStatus) {
+    const eventGuestQuery = 'insert into EventGuests (EventId, GuestId, HasPlayerControl, GuestStatus) VALUES ?';
+    const eventGuestValues = [[eventId, guestId, false, guestStatus]];
+    const eventGuest = await sql.query(eventGuestQuery, [eventGuestValues])
+      .catch((err) => console.log(err));
+    return eventGuest;
+  }
+
   describe('GET /api/events/', () => {
     it('should GET an event', async () => {
       const user = await addUserProfile();
@@ -81,7 +89,7 @@ describe('Events', () => {
       res.body.message.should.be.eql('The public events are: ');
       res.body.data[0].Name.should.be.eql('House warming3');
       res.body.data[0].should.have.all.keys('CreatorId', 'Name', 'Description', 'EventPicture', 'StartDate',
-        'EndDate', 'Location', 'Latitude', 'Longitude', 'StreamerDevice', 'IsPrivate', 'Id');
+        'EndDate', 'Location', 'Latitude', 'Longitude', 'StreamerDevice', 'IsPrivate', 'Id', 'GuestStatus');
       res.body.data[0].Id.should.be.eql(event2.insertId);
       res.body.data.length.should.be.eql(2);
     });
@@ -107,11 +115,45 @@ describe('Events', () => {
       res.body.message.should.be.eql('The public events are: ');
       res.body.data[0].Name.should.be.eql('House warming1');
       res.body.data[0].should.have.all.keys('CreatorId', 'Name', 'Description', 'EventPicture', 'StartDate',
-        'EndDate', 'Location', 'Latitude', 'Longitude', 'StreamerDevice', 'IsPrivate', 'Id');
+        'EndDate', 'Location', 'Latitude', 'Longitude', 'StreamerDevice', 'IsPrivate', 'Id', 'GuestStatus');
       res.body.data.length.should.be.eql(3);
       res.body.data[0].Id.should.be.eql(event2.insertId);
       res.body.data[1].Id.should.be.eql(event4.insertId);
       res.body.data[2].Id.should.be.eql(event3.insertId);
+    });
+
+    it('should GET events in chronological order (check for guestStatus)', async () => {
+      const user = await addUserProfile();
+      const jwt = generateJwt(user.insertId);
+      const event = await addEvent(user.insertId, true);
+      const event2 = await addEvent(user.insertId, false, 1);
+      const event3 = await addEvent(user.insertId, false, 3);
+      const event4 = await addEvent(user.insertId, false, 2);
+
+      await addEventGuest(event.insertId, user.insertId, 'Going');
+      await addEventGuest(event2.insertId, user.insertId, 'Invited');
+      await addEventGuest(event3.insertId, user.insertId, 'NotGoing');
+
+      const res = await chai.request(server)
+        .get('/api/events')
+        .set({ Authorization: `Bearer ${jwt}` });
+
+      res.should.have.status(200);
+      res.body.should.be.a('object');
+      res.body.should.have.property('statusCode');
+      res.body.should.have.property('message');
+      res.body.should.have.property('data');
+      res.body.data[0].should.have.property('Id');
+      res.body.message.should.be.eql('The public events are: ');
+      res.body.data[0].Name.should.be.eql('House warming1');
+      res.body.data[0].should.have.all.keys('CreatorId', 'Name', 'Description', 'EventPicture', 'StartDate',
+        'EndDate', 'Location', 'Latitude', 'Longitude', 'StreamerDevice', 'IsPrivate', 'Id', 'GuestStatus');
+      res.body.data.length.should.be.eql(3);
+      res.body.data[0].Id.should.be.eql(event2.insertId);
+      res.body.data[0].GuestStatus.should.be.eql('Invited');
+      res.body.data[1].Id.should.be.eql(event4.insertId);
+      res.body.data[2].Id.should.be.eql(event3.insertId);
+      res.body.data[2].GuestStatus.should.be.eql('NotGoing');
     });
 
     it('should not GET an event with an invalid jwt', async () => {

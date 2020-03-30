@@ -51,9 +51,13 @@ Tracks.getTracksForEvent = function getTracksForEvent(eventId, userId) {
       (SELECT vote FROM Votes WHERE TrackId = Tracks.Id AND UserId = ?) as UserVote \
     FROM \
       Tracks  \
+      LEFT JOIN TrackHistory th ON Tracks.Id = th.TrackId \
       LEFT JOIN Votes ON Tracks.Id = Votes.TrackId \
-    WHERE Tracks.EventId = ? \
-    GROUP BY Tracks.Id';
+    WHERE \
+      th.TrackId IS NULL \
+      AND Tracks.EventId = ? \
+    GROUP BY Tracks.Id \
+    ORDER BY VotesSum DESC, AddedAt';
 
     const values = [userId, eventId];
 
@@ -79,6 +83,20 @@ Tracks.getNextTrackToPlay = function getNextTrackToPlay(eventId) {
     ORDER BY VotesSum DESC, AddedAt \
     LIMIT 1;';
 
+
+    sql.query(query, eventId)
+      .then((res) => resolve(res))
+      .catch((err) => reject(err));
+  });
+};
+
+
+Tracks.getTrackHistoryForEvent = function getTrackHistoryForEvent(eventId) {
+  return new Promise((resolve, reject) => {
+    const query = 'SELECT * FROM TrackHistory \
+    WHERE EventId = ? \
+    ORDER BY PlayedAt DESC;';
+
     sql.query(query, eventId)
       .then((res) => resolve(res))
       .catch((err) => reject(err));
@@ -94,6 +112,22 @@ Tracks.addTrackToHistory = function addTrackToHistory(trackId, eventId) {
     const values = [[trackId, eventId, playedAt]];
 
     sql.query(query, [values])
+      .then((res) => resolve(res))
+      .catch((err) => reject(err));
+  });
+};
+
+
+Tracks.getCurrentTrackForEvent = function getCurrentTrackForEvent(eventId) {
+  return new Promise((resolve, reject) => {
+    const query = ' SELECT * FROM Tracks \
+    WHERE Id = \
+    (SELECT TrackId FROM TrackHistory \
+    WHERE EventId = ? \
+    ORDER BY PlayedAt DESC \
+    LIMIT 1);';
+
+    sql.query(query, eventId)
       .then((res) => resolve(res))
       .catch((err) => reject(err));
   });
