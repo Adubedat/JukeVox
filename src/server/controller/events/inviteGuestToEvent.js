@@ -5,12 +5,15 @@ import { validateType } from './helpers/validation';
 import User from '../../models/userModel';
 
 function checkIfForbidden(isPrivate, event, userId, guestId) {
-  if (isPrivate) {
-    if (event[0].CreatorId !== userId) {
-      throw new ErrorResponseHandler(403, 'Forbidden');
-    }
-  } else if (userId !== guestId) {
+  if (isPrivate && event[0].CreatorId !== userId) {
     throw new ErrorResponseHandler(403, 'Forbidden');
+  }
+  if (!isPrivate) {
+    if (event[0].CreatorId !== userId) {
+      if (userId !== guestId) {
+        throw new ErrorResponseHandler(403, 'Forbidden');
+      }
+    }
   }
 }
 
@@ -38,7 +41,7 @@ export default async function inviteGuestToEvent(req, res, next) {
       throw new ErrorResponseHandler(404, 'No user with this ID');
     }
 
-    const status = isPrivate ? 'Invited' : 'Going';
+    const status = (isPrivate || event[0].CreatorId === userId) ? 'Invited' : 'Going';
     await Event.addGuest(eventId, guestId, false, status);
 
     res.status(200).send({

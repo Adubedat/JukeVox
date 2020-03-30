@@ -13,15 +13,12 @@ const port = process.env.PORT || params.port;
 
 const app = express();
 
-const http = require('http').createServer(app);
-const socketio = require('socket.io')(http);
+const server = require('http').createServer(app);
+const socketio = require('socket.io').listen(server);
 
 initListeners(socketio);
 
-// TODO: Make port into env or params port
-socketio.listen(5001);
-
-app.listen(port);
+server.listen(port);
 
 app.use((req, res, next) => {
   req.io = socketio;
