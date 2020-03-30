@@ -28,6 +28,9 @@ export default async function deleteTrack(req, res, next) {
     if (response.affectedRows !== 1) {
       throw new ErrorResponseHandler(500, 'Internal server error');
     }
+
+    req.io.to(eventId).emit('delete_track', { track: trackId });
+
     res.status(200).send({
       message: 'Track successfully deleted',
       statusCode: 200,

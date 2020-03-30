@@ -53,10 +53,15 @@ Event.getEvent = function getEvent(eventId) {
   });
 };
 
-Event.getPublicEvents = function getPublicEvents() {
+Event.getPublicEvents = function getPublicEvents(userId) {
   return new Promise((resolve, reject) => {
-    const query = 'SELECT * FROM Events WHERE IsPrivate = false ORDER BY StartDate;';
-    sql.query(query)
+    const query = 'SELECT \
+      Events.*, \
+      (SELECT GuestStatus FROM EventGuests WHERE EventId = Events.Id AND GuestId = ?) as GuestStatus \
+    FROM \
+      Events \
+    WHERE IsPrivate = false ORDER BY StartDate;';
+    sql.query(query, userId)
       .then((res) => resolve(res))
       .catch((err) => reject(err));
   });
