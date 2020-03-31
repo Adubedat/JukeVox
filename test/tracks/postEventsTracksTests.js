@@ -49,15 +49,16 @@ describe('Tracks', () => {
       res.body.message.should.eql('Track successfully added to the event');
       res.should.have.status(201);
       res.body.should.have.property('data');
-      res.body.data.should.have.property('id');
-      res.body.data.should.have.property('eventId');
-      res.body.data.should.have.property('userId');
-      res.body.data.should.have.property('deezerSongId');
-      res.body.data.should.have.property('title');
-      res.body.data.should.have.property('duration');
-      res.body.data.should.have.property('artistName');
-      res.body.data.should.have.property('pictureSmall');
-      res.body.data.should.have.property('pictureBig');
+      res.body.data.should.have.property('Id');
+      res.body.data.should.have.property('EventId');
+      res.body.data.should.have.property('UserId');
+      res.body.data.should.have.property('DeezerSongId');
+      res.body.data.should.have.property('Title');
+      res.body.data.should.have.property('Duration');
+      res.body.data.should.have.property('ArtistName');
+      res.body.data.should.have.property('PictureSmall');
+      res.body.data.should.have.property('PictureBig');
+      res.body.data.should.have.property('AddedAt');
 
       const tracks = await sql.query('SELECT * FROM Tracks');
       tracks.should.have.lengthOf(1);
