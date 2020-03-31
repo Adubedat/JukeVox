@@ -117,8 +117,6 @@ describe('Events', () => {
       res.body.data.length.should.be.eql(4);
       res.body.data[0].should.have.all.keys('CreatorUsername', 'CreatorId', 'Name', 'Description', 'EventPicture', 'StartDate',
         'EndDate', 'Location', 'Latitude', 'Longitude', 'StreamerDevice', 'IsPrivate', 'Id', 'GuestStatus');
-      res.body.data[0].CreatorUsername.should.be.eql('Daniel1');
-      res.body.data[0].CreatorId.should.be.eql(user1.insertId);
     });
 
     it('should GET a list of 4 events that user is attending / invited / not going in chronological order', async () => {
