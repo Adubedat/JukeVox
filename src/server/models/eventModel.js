@@ -199,4 +199,15 @@ Event.getPlayerControllers = function getPlayerControllers(eventId) {
   });
 };
 
+Event.deleteEventGuest = function deleteEventGuest(eventId, guestId) {
+  return new Promise((resolve, reject) => {
+    const query = 'DELETE FROM EventGuests WHERE EventId = ? AND GuestId = ?;';
+    const values = [eventId, guestId];
+
+    sql.query(query, values)
+      .then((res) => resolve(res))
+      .catch((err) => reject(err));
+  });
+};
+
 export default Event;

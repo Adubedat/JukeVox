@@ -9,6 +9,7 @@ import getPublicEvents from '../../controller/events/getPublicEvents';
 import updateGuestStatus from '../../controller/events/updateGuestStatus';
 import updatePlayerControllers from '../../controller/events/updatePlayerControllers';
 import getPlayerControllers from '../../controller/events/getPlayerControllers';
+import deleteEventGuest from '../../controller/events/deleteEventGuest';
 
 const router = express.Router();
 
@@ -25,6 +26,8 @@ router.route('/events/:eventId')
   .patch(updateEvent);
 
 router.get('/events/:eventId/guests', getEventGuests);
+
+router.delete('/events/:eventId/guests/:guestId', deleteEventGuest);
 
 router.post('/events/:eventId/tracks/:trackId/vote', voteForTrack);
 
