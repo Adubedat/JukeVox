@@ -115,8 +115,10 @@ describe('Events', () => {
       res.body.message.should.be.eql(`The events for the user ${user1.insertId}`);
       res.body.data.should.be.a('array');
       res.body.data.length.should.be.eql(4);
-      res.body.data[0].should.have.all.keys('CreatorId', 'Name', 'Description', 'EventPicture', 'StartDate',
+      res.body.data[0].should.have.all.keys('CreatorUsername', 'CreatorId', 'Name', 'Description', 'EventPicture', 'StartDate',
         'EndDate', 'Location', 'Latitude', 'Longitude', 'StreamerDevice', 'IsPrivate', 'Id', 'GuestStatus');
+      res.body.data[0].CreatorUsername.should.be.eql('Daniel1');
+      res.body.data[0].CreatorId.should.be.eql(user1.insertId);
     });
 
     it('should GET a list of 4 events that user is attending / invited / not going in chronological order', async () => {
@@ -154,7 +156,7 @@ describe('Events', () => {
       res.body.message.should.be.eql(`The events for the user ${user1.insertId}`);
       res.body.data.should.be.a('array');
       res.body.data.length.should.be.eql(4);
-      res.body.data[0].should.have.all.keys('CreatorId', 'Name', 'Description', 'EventPicture', 'StartDate',
+      res.body.data[0].should.have.all.keys('CreatorUsername', 'CreatorId', 'Name', 'Description', 'EventPicture', 'StartDate',
         'EndDate', 'Location', 'Latitude', 'Longitude', 'StreamerDevice', 'IsPrivate', 'Id', 'GuestStatus');
       res.body.data[0].Id.should.be.eql(event1.insertId);
       res.body.data[1].Id.should.be.eql(event4.insertId);
@@ -183,7 +185,7 @@ describe('Events', () => {
       res.body.message.should.be.eql(`The events for the user ${user1.insertId}`);
       res.body.data.should.be.a('array');
       res.body.data.length.should.be.eql(2);
-      res.body.data[0].should.have.all.keys('CreatorId', 'Name', 'Description', 'EventPicture', 'StartDate',
+      res.body.data[0].should.have.all.keys('CreatorUsername', 'CreatorId', 'Name', 'Description', 'EventPicture', 'StartDate',
         'EndDate', 'Location', 'Latitude', 'Longitude', 'StreamerDevice', 'IsPrivate', 'Id', 'GuestStatus');
     });
 
@@ -222,7 +224,7 @@ describe('Events', () => {
       res.body.message.should.be.eql(`The events for the user ${user1.insertId}`);
       res.body.data.should.be.a('array');
       res.body.data.length.should.be.eql(2);
-      res.body.data[0].should.have.all.keys('CreatorId', 'Name', 'Description', 'EventPicture', 'StartDate',
+      res.body.data[0].should.have.all.keys('CreatorUsername', 'CreatorId', 'Name', 'Description', 'EventPicture', 'StartDate',
         'EndDate', 'Location', 'Latitude', 'Longitude', 'StreamerDevice', 'IsPrivate', 'Id', 'GuestStatus');
       res.body.data[0].Id.should.be.eql(event2.insertId);
       res.body.data[1].Id.should.be.eql(event1.insertId);
@@ -249,7 +251,7 @@ describe('Events', () => {
       res.body.message.should.be.eql(`The events for the user ${user1.insertId}`);
       res.body.data.should.be.a('array');
       res.body.data.length.should.be.eql(1);
-      res.body.data[0].should.have.all.keys('CreatorId', 'Name', 'Description', 'EventPicture', 'StartDate',
+      res.body.data[0].should.have.all.keys('CreatorUsername', 'CreatorId', 'Name', 'Description', 'EventPicture', 'StartDate',
         'EndDate', 'Location', 'Latitude', 'Longitude', 'StreamerDevice', 'IsPrivate', 'Id', 'GuestStatus');
     });
 
@@ -274,7 +276,7 @@ describe('Events', () => {
       res.body.message.should.be.eql(`The events for the user ${user1.insertId}`);
       res.body.data.should.be.a('array');
       res.body.data.length.should.be.eql(1);
-      res.body.data[0].should.have.all.keys('CreatorId', 'Name', 'Description', 'EventPicture', 'StartDate',
+      res.body.data[0].should.have.all.keys('CreatorUsername', 'CreatorId', 'Name', 'Description', 'EventPicture', 'StartDate',
         'EndDate', 'Location', 'Latitude', 'Longitude', 'StreamerDevice', 'IsPrivate', 'Id', 'GuestStatus');
     });
 
@@ -299,7 +301,7 @@ describe('Events', () => {
       res.body.message.should.be.eql(`The events for the user ${user1.insertId}`);
       res.body.data.should.be.a('array');
       res.body.data.length.should.be.eql(2);
-      res.body.data[0].should.have.all.keys('CreatorId', 'Name', 'Description', 'EventPicture', 'StartDate',
+      res.body.data[0].should.have.all.keys('CreatorUsername', 'CreatorId', 'Name', 'Description', 'EventPicture', 'StartDate',
         'EndDate', 'Location', 'Latitude', 'Longitude', 'StreamerDevice', 'IsPrivate', 'Id', 'GuestStatus');
     });
 
@@ -324,7 +326,7 @@ describe('Events', () => {
       res.body.message.should.be.eql(`The events for the user ${user1.insertId}`);
       res.body.data.should.be.a('array');
       res.body.data.length.should.be.eql(2);
-      res.body.data[0].should.have.all.keys('CreatorId', 'Name', 'Description', 'EventPicture', 'StartDate',
+      res.body.data[0].should.have.all.keys('CreatorUsername', 'CreatorId', 'Name', 'Description', 'EventPicture', 'StartDate',
         'EndDate', 'Location', 'Latitude', 'Longitude', 'StreamerDevice', 'IsPrivate', 'Id', 'GuestStatus');
     });
 
@@ -349,7 +351,7 @@ describe('Events', () => {
       res.body.message.should.be.eql(`The events for the user ${user1.insertId}`);
       res.body.data.should.be.a('array');
       res.body.data.length.should.be.eql(4);
-      res.body.data[0].should.have.all.keys('CreatorId', 'Name', 'Description', 'EventPicture', 'StartDate',
+      res.body.data[0].should.have.all.keys('CreatorUsername', 'CreatorId', 'Name', 'Description', 'EventPicture', 'StartDate',
         'EndDate', 'Location', 'Latitude', 'Longitude', 'StreamerDevice', 'IsPrivate', 'Id', 'GuestStatus');
     });
 
