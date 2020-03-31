@@ -71,10 +71,12 @@ Event.getEventsByUser = function getEventsByUser(userId, filters) {
   return new Promise((resolve, reject) => {
     let query = 'SELECT \
         EventGuests.GuestStatus, \
-        Events.* \
+        Events.*, \
+        UserProfiles.Username as CreatorUsername \
       FROM \
         Events \
         JOIN EventGuests ON Events.Id = EventGuests.EventId \
+        JOIN UserProfiles ON Events.CreatorId = Userprofiles.Id \
       WHERE \
         EventGuests.GuestId = ?';
 
