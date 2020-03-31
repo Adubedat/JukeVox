@@ -57,9 +57,11 @@ Event.getPublicEvents = function getPublicEvents(userId) {
   return new Promise((resolve, reject) => {
     const query = 'SELECT \
       Events.*, \
-      (SELECT GuestStatus FROM EventGuests WHERE EventId = Events.Id AND GuestId = ?) as GuestStatus \
+      (SELECT GuestStatus FROM EventGuests WHERE EventId = Events.Id AND GuestId = ?) as GuestStatus, \
+      UserProfiles.Username as CreatorUsername \
     FROM \
       Events \
+      JOIN UserProfiles ON Events.CreatorId = UserProfiles.Id \
     WHERE IsPrivate = false ORDER BY StartDate;';
     sql.query(query, userId)
       .then((res) => resolve(res))
@@ -76,7 +78,7 @@ Event.getEventsByUser = function getEventsByUser(userId, filters) {
       FROM \
         Events \
         JOIN EventGuests ON Events.Id = EventGuests.EventId \
-        JOIN UserProfiles ON Events.CreatorId = Userprofiles.Id \
+        JOIN UserProfiles ON Events.CreatorId = UserProfiles.Id \
       WHERE \
         EventGuests.GuestId = ?';
 
