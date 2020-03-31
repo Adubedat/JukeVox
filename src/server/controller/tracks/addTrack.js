@@ -1,8 +1,10 @@
 import axios from 'axios';
+import moment from 'moment';
 import { checkUnknownFields } from '../../../helpers/validation';
 import { ErrorResponseHandler } from '../../../helpers/error';
 import Event from '../../models/eventModel';
 import Tracks from '../../models/tracksModel';
+import DATETIME_FORMAT from '../../constants';
 
 async function validateBody(userId, eventId, body) {
   const [event] = await Event.getGuestStatusForEvent(userId, eventId);
@@ -17,17 +19,18 @@ async function validateBody(userId, eventId, body) {
   }
 }
 
-function formatData(trackId, userId, eventId, track) {
+function formatData(trackId, userId, eventId, track, addedAt) {
   return ({
-    id: trackId,
-    eventId,
-    userId,
-    deezerSongId: track.id,
-    title: track.title,
-    duration: track.duration,
-    artistName: track.artist.name,
-    pictureSmall: track.album.cover_small,
-    pictureBig: track.album.cover_big,
+    Id: trackId,
+    EventId: eventId,
+    UserId: userId,
+    DeezerSongId: track.id,
+    Title: track.title,
+    Duration: track.duration,
+    ArtistName: track.artist.name,
+    PictureSmall: track.album.cover_small,
+    PictureBig: track.album.cover_big,
+    AddedAt: addedAt,
   });
 }
 
@@ -46,9 +49,10 @@ export default async function addTrack(req, res, next) {
     if (track.data.error !== undefined) {
       throw new ErrorResponseHandler(400, 'Invalid deezerSongId');
     }
+    const addedAt = moment().format(DATETIME_FORMAT);
 
-    const postTrack = await Tracks.addTrack(userId, eventId, track.data);
-    const data = formatData(postTrack.insertId, userId, eventId, track.data);
+    const postTrack = await Tracks.addTrack(userId, eventId, track.data, addedAt);
+    const data = formatData(postTrack.insertId, userId, eventId, track.data, addedAt);
 
     req.io.to(eventId).emit('new_track', { data });
 

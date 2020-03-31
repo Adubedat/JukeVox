@@ -6,9 +6,8 @@ const Tracks = function () {
 
 };
 
-Tracks.addTrack = function addTrack(userId, eventId, track) {
+Tracks.addTrack = function addTrack(userId, eventId, track, addedAt) {
   return new Promise((resolve, reject) => {
-    const addedAt = moment().format(DATETIME_FORMAT);
     const query = 'INSERT INTO Tracks (EventId, UserId, DeezerSongId, \
       Title, Duration, ArtistName, PictureSmall, PictureBig, AddedAt) \
     VALUES ? ';
