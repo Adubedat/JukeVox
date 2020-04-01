@@ -26,7 +26,7 @@ export default async function getNextTrack(req, res, next) {
 
     await Tracks.addTrackToHistory(nextTrack[0].Id, eventId);
 
-    req.io.to(eventId).emit('next_track', { track: nextTrack[0] });
+    req.io.to(eventId).emit('next_track', { data: { eventId, track: nextTrack[0] } });
 
     res.status(200).send({
       statusCode: 200,
