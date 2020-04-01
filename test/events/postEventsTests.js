@@ -385,6 +385,7 @@ describe('Events', () => {
         streamerDevice: 'abcd',
         isPrivate: true,
         eventPicture: 'defaultPicture1',
+        restrictVotingToEventHours: true,
       };
 
       const user = await addUserProfile();
