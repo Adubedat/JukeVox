@@ -14,7 +14,6 @@ const server = require('../../server');
 const should = chai.should();
 
 chai.use(chaiHttp);
-
 describe('Events', () => {
   beforeEach(async () => {
     await sql.query('DELETE FROM UserAccounts;');
@@ -23,6 +22,7 @@ describe('Events', () => {
     await sql.query('DELETE FROM Events;');
     await sql.query('DELETE FROM UserProfiles;');
   });
+
 
   async function addEvent(creatorId, isPrivate, day = 3) {
     const startDate = moment().add(day, 'd').format(DATETIME_FORMAT);
@@ -70,11 +70,11 @@ describe('Events', () => {
 
   describe('GET /api/events/', () => {
     it('should GET an event', async () => {
-      const user = await addUserProfile();
+      const user = await addUserProfile(1);
       const jwt = generateJwt(user.insertId);
       const event = await addEvent(user.insertId, true);
-      const event2 = await addEvent(user.insertId, false);
-      const event3 = await addEvent(user.insertId, false);
+      const event2 = await addEvent(user.insertId, false, 1);
+      const event3 = await addEvent(user.insertId, false, 2);
 
       const res = await chai.request(server)
         .get('/api/events')
@@ -87,11 +87,13 @@ describe('Events', () => {
       res.body.should.have.property('data');
       res.body.data[0].should.have.property('Id');
       res.body.message.should.be.eql('The public events are: ');
-      res.body.data[0].Name.should.be.eql('House warming3');
-      res.body.data[0].should.have.all.keys('CreatorId', 'Name', 'Description', 'EventPicture', 'StartDate',
+      res.body.data[0].Name.should.be.eql('House warming1');
+      res.body.data[0].should.have.all.keys('CreatorUsername', 'CreatorId', 'Name', 'Description', 'EventPicture', 'StartDate',
         'EndDate', 'Location', 'Latitude', 'Longitude', 'StreamerDevice', 'IsPrivate', 'Id', 'GuestStatus');
       res.body.data[0].Id.should.be.eql(event2.insertId);
       res.body.data.length.should.be.eql(2);
+      res.body.data[0].CreatorUsername.should.be.eql('Daniel1');
+      res.body.data[0].CreatorId.should.be.eql(user.insertId);
     });
 
     it('should GET events in chronological order', async () => {
@@ -114,7 +116,7 @@ describe('Events', () => {
       res.body.data[0].should.have.property('Id');
       res.body.message.should.be.eql('The public events are: ');
       res.body.data[0].Name.should.be.eql('House warming1');
-      res.body.data[0].should.have.all.keys('CreatorId', 'Name', 'Description', 'EventPicture', 'StartDate',
+      res.body.data[0].should.have.all.keys('CreatorUsername', 'CreatorId', 'Name', 'Description', 'EventPicture', 'StartDate',
         'EndDate', 'Location', 'Latitude', 'Longitude', 'StreamerDevice', 'IsPrivate', 'Id', 'GuestStatus');
       res.body.data.length.should.be.eql(3);
       res.body.data[0].Id.should.be.eql(event2.insertId);
@@ -146,7 +148,7 @@ describe('Events', () => {
       res.body.data[0].should.have.property('Id');
       res.body.message.should.be.eql('The public events are: ');
       res.body.data[0].Name.should.be.eql('House warming1');
-      res.body.data[0].should.have.all.keys('CreatorId', 'Name', 'Description', 'EventPicture', 'StartDate',
+      res.body.data[0].should.have.all.keys('CreatorUsername', 'CreatorId', 'Name', 'Description', 'EventPicture', 'StartDate',
         'EndDate', 'Location', 'Latitude', 'Longitude', 'StreamerDevice', 'IsPrivate', 'Id', 'GuestStatus');
       res.body.data.length.should.be.eql(3);
       res.body.data[0].Id.should.be.eql(event2.insertId);

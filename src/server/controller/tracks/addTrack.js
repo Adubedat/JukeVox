@@ -21,16 +21,16 @@ async function validateBody(userId, eventId, body) {
 
 function formatData(trackId, userId, eventId, track, addedAt) {
   return ({
-    id: trackId,
-    eventId,
-    userId,
-    deezerSongId: track.id,
-    title: track.title,
-    duration: track.duration,
-    artistName: track.artist.name,
-    pictureSmall: track.album.cover_small,
-    pictureBig: track.album.cover_big,
-    addedAt,
+    Id: trackId,
+    EventId: eventId,
+    UserId: userId,
+    DeezerSongId: track.id,
+    Title: track.title,
+    Duration: track.duration,
+    ArtistName: track.artist.name,
+    PictureSmall: track.album.cover_small,
+    PictureBig: track.album.cover_big,
+    AddedAt: addedAt,
   });
 }
 
