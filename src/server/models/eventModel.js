@@ -10,10 +10,10 @@ Event.createNewEvent = function createNewEvent(creatorId, content) {
   return new Promise((resolve, reject) => {
     const query = 'INSERT INTO Events (CreatorId, Name, Description, \
             EventPicture, StartDate, EndDate, Location, Latitude, Longitude, \
-            StreamerDevice, IsPrivate) VALUES ?;';
+            StreamerDevice, IsPrivate, RestrictVotingToEventHours) VALUES ?;';
     const values = [[creatorId, content.name, content.description, content.eventPicture,
       content.startDate, content.endDate, content.location, content.latitude, content.longitude,
-      content.streamerDevice, content.isPrivate]];
+      content.streamerDevice, content.isPrivate, content.restrictVotingToEventHours]];
 
     sql.query(query, [values])
       .then((res) => {

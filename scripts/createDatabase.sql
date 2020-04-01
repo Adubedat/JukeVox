@@ -48,6 +48,7 @@ CREATE TABLE IF NOT EXISTS `Events` (
   `Longitude` float NOT NULL,
   `StreamerDevice` varchar(100),
   `IsPrivate` boolean DEFAULT true,
+  `RestrictVotingToEventHours` boolean DEFAULT true,
   FOREIGN KEY (`CreatorId`) REFERENCES `UserProfiles` (`Id`)
 );
 
