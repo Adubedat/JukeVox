@@ -73,8 +73,8 @@ describe('Events', () => {
       const user = await addUserProfile(1);
       const jwt = generateJwt(user.insertId);
       const event = await addEvent(user.insertId, true);
-      const event2 = await addEvent(user.insertId, false);
-      const event3 = await addEvent(user.insertId, false);
+      const event2 = await addEvent(user.insertId, false, 1);
+      const event3 = await addEvent(user.insertId, false, 2);
 
       const res = await chai.request(server)
         .get('/api/events')
@@ -87,7 +87,7 @@ describe('Events', () => {
       res.body.should.have.property('data');
       res.body.data[0].should.have.property('Id');
       res.body.message.should.be.eql('The public events are: ');
-      res.body.data[0].Name.should.be.eql('House warming3');
+      res.body.data[0].Name.should.be.eql('House warming1');
       res.body.data[0].should.have.all.keys('CreatorUsername', 'CreatorId', 'Name', 'Description', 'EventPicture', 'StartDate',
         'EndDate', 'Location', 'Latitude', 'Longitude', 'StreamerDevice', 'IsPrivate', 'Id', 'GuestStatus');
       res.body.data[0].Id.should.be.eql(event2.insertId);
