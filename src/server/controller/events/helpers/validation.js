@@ -38,6 +38,9 @@ export function validateType(fieldName, fieldValue, expectedType) {
 function validatePrivacy(isPrivate) {
   validateType('isPrivate', isPrivate, 'boolean');
 }
+function validateRestrictVotingToEventHours(restrictVotingToEventHours) {
+  validateType('isPrivate', restrictVotingToEventHours, 'boolean');
+}
 
 function validateStreamerDevice(streamerDevice) {
   validateType('streamerDevice', streamerDevice, 'string');
@@ -105,4 +108,5 @@ export default function validateBody(body) {
   validateLocation(body.location, body.latitude, body.longitude);
   validateStreamerDevice(body.streamerDevice);
   validatePrivacy(body.isPrivate);
+  validateRestrictVotingToEventHours(body.restrictVotingToEventHours);
 }

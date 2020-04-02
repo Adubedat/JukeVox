@@ -88,7 +88,7 @@ describe('Events', () => {
       res.body.data[0].should.have.property('Id');
       res.body.message.should.be.eql('The public events are: ');
       res.body.data[0].Name.should.be.eql('House warming1');
-      res.body.data[0].should.have.all.keys('CreatorUsername', 'CreatorId', 'Name', 'Description', 'EventPicture', 'StartDate',
+      res.body.data[0].should.have.all.keys('CreatorUsername', 'RestrictVotingToEventHours', 'CreatorId', 'Name', 'Description', 'EventPicture', 'StartDate',
         'EndDate', 'Location', 'Latitude', 'Longitude', 'StreamerDevice', 'IsPrivate', 'Id', 'GuestStatus');
       res.body.data[0].Id.should.be.eql(event2.insertId);
       res.body.data.length.should.be.eql(2);
@@ -116,7 +116,7 @@ describe('Events', () => {
       res.body.data[0].should.have.property('Id');
       res.body.message.should.be.eql('The public events are: ');
       res.body.data[0].Name.should.be.eql('House warming1');
-      res.body.data[0].should.have.all.keys('CreatorUsername', 'CreatorId', 'Name', 'Description', 'EventPicture', 'StartDate',
+      res.body.data[0].should.have.all.keys('CreatorUsername', 'RestrictVotingToEventHours', 'CreatorId', 'Name', 'Description', 'EventPicture', 'StartDate',
         'EndDate', 'Location', 'Latitude', 'Longitude', 'StreamerDevice', 'IsPrivate', 'Id', 'GuestStatus');
       res.body.data.length.should.be.eql(3);
       res.body.data[0].Id.should.be.eql(event2.insertId);
@@ -148,7 +148,7 @@ describe('Events', () => {
       res.body.data[0].should.have.property('Id');
       res.body.message.should.be.eql('The public events are: ');
       res.body.data[0].Name.should.be.eql('House warming1');
-      res.body.data[0].should.have.all.keys('CreatorUsername', 'CreatorId', 'Name', 'Description', 'EventPicture', 'StartDate',
+      res.body.data[0].should.have.all.keys('CreatorUsername', 'RestrictVotingToEventHours', 'CreatorId', 'Name', 'Description', 'EventPicture', 'StartDate',
         'EndDate', 'Location', 'Latitude', 'Longitude', 'StreamerDevice', 'IsPrivate', 'Id', 'GuestStatus');
       res.body.data.length.should.be.eql(3);
       res.body.data[0].Id.should.be.eql(event2.insertId);

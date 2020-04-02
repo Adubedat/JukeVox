@@ -15,6 +15,7 @@ export default async function createEvent(req, res, next) {
     'longitude',
     'streamerDevice',
     'isPrivate',
+    'restrictVotingToEventHours',
   ];
   try {
     checkUnknownFields(acceptedFields, req.body);
