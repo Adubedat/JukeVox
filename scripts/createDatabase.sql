@@ -72,7 +72,7 @@ CREATE TABLE IF NOT EXISTS `Votes` (
   `UserId` int NOT NULL,
   `Vote` tinyint NOT NULL,
   PRIMARY KEY (`TrackId`, `UserId`),
-  FOREIGN KEY (`TrackId`) REFERENCES `Tracks` (`Id`),
+  FOREIGN KEY (`TrackId`) REFERENCES `Tracks` (`Id`) ON DELETE CASCADE,
   FOREIGN KEY (`UserId`) REFERENCES `UserProfiles` (`Id`)
 );
 

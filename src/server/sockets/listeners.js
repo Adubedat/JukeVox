@@ -24,7 +24,9 @@ export default function initListeners(io) {
       socket.on('join_event', (data) => {
         const { eventId } = data;
         if (eventId === undefined) {
-          socket.emit('exception', { code: 401, message: 'Missing data', event: 'join_event' });
+          socket.emit('exception', {
+            code: 401, message: 'Missing data', event: 'join_event', eventId,
+          });
         } else {
           joinEvent(userId, eventId, socket, io);
         }
@@ -33,7 +35,9 @@ export default function initListeners(io) {
       socket.on('leave_event', (data) => {
         const { eventId } = data;
         if (eventId === undefined) {
-          socket.emit('exception', { code: 401, message: 'Missing data', event: 'leave_event' });
+          socket.emit('exception', {
+            code: 401, message: 'Missing data', event: 'leave_event', eventId,
+          });
         } else {
           leaveEvent(userId, eventId, socket, io);
         }
