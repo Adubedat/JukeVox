@@ -22,6 +22,7 @@ CREATE TABLE IF NOT EXISTS `UserAccounts` (
 CREATE TABLE IF NOT EXISTS `ProviderAccounts` (
   `UserProfileId` int NOT NULL,
   `Provider` ENUM ('Facebook', 'Google', 'Deezer') NOT NULL,
+  `AccessToken` varchar(100),
   `ProviderId` varchar(100) NOT NULL,
   PRIMARY KEY (`UserProfileId`, `Provider`),
   FOREIGN KEY (`UserProfileId`) REFERENCES `UserProfiles` (`Id`)

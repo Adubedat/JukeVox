@@ -46,6 +46,17 @@ User.createProviderAccount = function createProviderAccount(userId, providerId, 
   });
 };
 
+User.linkDeezerAccount = function linkDeezerAccount(userId, providerId, accessToken, provider) {
+  return new Promise((resolve, reject) => {
+    const query = 'INSERT INTO ProviderAccounts (UserProfileId, Provider, AccessToken, ProviderId) VALUES ?';
+    const values = [[userId, provider, accessToken, providerId]];
+
+    sql.query(query, [values])
+      .then((res) => resolve(res))
+      .catch((err) => reject(err));
+  });
+};
+
 User.deleteUserAccount = function deleteUserAccount(userId) {
   return new Promise((resolve, reject) => {
     const query = 'DELETE FROM UserAccounts WHERE UserProfileId = ?';
