@@ -17,6 +17,7 @@ export default async function updateEvent(req, res, next) {
     'longitude',
     'streamerDevice',
     'isPrivate',
+    'restrictVotingToEventHours',
   ];
   try {
     const event = await Event.getEvent(eventId);

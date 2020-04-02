@@ -123,7 +123,7 @@ describe('Vote', () => {
     return event;
   }
 
-  async function addEventInFuture(nameId, creatorId) {
+  async function addEventInFuture(nameId, creatorId, restricted = true) {
     const startDate = moment().add(2, 'd').format(DATETIME_FORMAT);
     const endDate = moment().add(3, 'd').format(DATETIME_FORMAT);
 
@@ -138,14 +138,15 @@ describe('Vote', () => {
       streamerDevice: 'abcd',
       isPrivate: true,
       eventPicture: 'defaultPicture1',
+      restrictVotingToEventHours: restricted,
     };
 
     const eventQuery = 'INSERT INTO Events (CreatorId, Name, Description, \
       EventPicture, StartDate, EndDate, Location, Latitude, Longitude, \
-      StreamerDevice, IsPrivate) VALUES ?;';
+      StreamerDevice, IsPrivate, RestrictVotingToEventHours) VALUES ?;';
     const eventValues = [[creatorId, content.name, content.description, content.eventPicture,
       content.startDate, content.endDate, content.location, content.latitude, content.longitude,
-      content.streamerDevice, content.isPrivate]];
+      content.streamerDevice, content.isPrivate, content.restrictVotingToEventHours]];
     const event = await sql.query(eventQuery, [eventValues])
       .catch((err) => console.log(err));
     return event;
@@ -474,6 +475,44 @@ describe('Vote', () => {
 
       const res = await chai.request(server)
         .post(`/api/events/${ongoingEvent.insertId}/tracks/${track.insertId}/vote`)
+        .set({ Authorization: `Bearer ${jwt}` })
+        .send(body);
+
+      res.should.have.status(200);
+      res.body.should.be.a('object');
+      res.body.should.have.property('statusCode');
+      res.body.should.have.property('message');
+      res.body.message.should.be.eql(`Vote 1 for track ${track.insertId} successfully added`);
+
+      const votes = await sql.query('SELECT * FROM Votes;');
+
+      votes.should.have.lengthOf(1);
+      votes[0].Vote.should.be.eql(1);
+      votes[0].TrackId.should.be.eql(track.insertId);
+      votes[0].UserId.should.be.eql(user1.insertId);
+    });
+
+    it('should vote for a track (event in future but not restricted)', async () => {
+      const user1 = await addUserProfile(1);
+      const user2 = await addUserProfile(2);
+      //   const event1 = await addEvent(1, user1.insertId);
+      // const ongoingEvent = await addOngoingEvent(1, user1.insertId);
+      //   const eventInPast = await addEventInPast(1, user1.insertId);
+      const eventInFuture = await addEventInFuture(1, user1.insertId, false);
+      await addEventGuest(eventInFuture.insertId, user1.insertId, 'Going');
+      await addEventGuest(eventInFuture.insertId, user2.insertId, 'Invited');
+
+
+      const track = await addTrack(user1.insertId, eventInFuture.insertId, 'Rythm of the night');
+
+      const body = {
+        vote: 1,
+      };
+
+      const jwt = generateJwt(user1.insertId);
+
+      const res = await chai.request(server)
+        .post(`/api/events/${eventInFuture.insertId}/tracks/${track.insertId}/vote`)
         .set({ Authorization: `Bearer ${jwt}` })
         .send(body);
 

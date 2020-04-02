@@ -22,6 +22,7 @@ CREATE TABLE IF NOT EXISTS `UserAccounts` (
 CREATE TABLE IF NOT EXISTS `ProviderAccounts` (
   `UserProfileId` int NOT NULL,
   `Provider` ENUM ('Facebook', 'Google', 'Deezer') NOT NULL,
+  `AccessToken` varchar(100),
   `ProviderId` varchar(100) NOT NULL,
   PRIMARY KEY (`UserProfileId`, `Provider`),
   FOREIGN KEY (`UserProfileId`) REFERENCES `UserProfiles` (`Id`)
@@ -48,6 +49,7 @@ CREATE TABLE IF NOT EXISTS `Events` (
   `Longitude` float NOT NULL,
   `StreamerDevice` varchar(100),
   `IsPrivate` boolean DEFAULT true,
+  `RestrictVotingToEventHours` boolean DEFAULT true,
   FOREIGN KEY (`CreatorId`) REFERENCES `UserProfiles` (`Id`)
 );
 
@@ -71,7 +73,7 @@ CREATE TABLE IF NOT EXISTS `Votes` (
   `UserId` int NOT NULL,
   `Vote` tinyint NOT NULL,
   PRIMARY KEY (`TrackId`, `UserId`),
-  FOREIGN KEY (`TrackId`) REFERENCES `Tracks` (`Id`),
+  FOREIGN KEY (`TrackId`) REFERENCES `Tracks` (`Id`) ON DELETE CASCADE,
   FOREIGN KEY (`UserId`) REFERENCES `UserProfiles` (`Id`)
 );
 

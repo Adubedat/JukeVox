@@ -35,9 +35,11 @@ export default async function voteForTrack(req, res, next) {
       throw new ErrorResponseHandler(403, 'Forbidden');
     }
 
-    const timeNow = moment().format(DATETIME_FORMAT);
-    if (moment(timeNow).isBefore(event[0].StartDate) || moment(timeNow).isAfter(event[0].EndDate)) {
-      throw new ErrorResponseHandler(403, 'Forbidden. Event is not ongoing');
+    if (event[0].RestrictVotingToEventHours === 1) {
+      const timeNow = moment().format(DATETIME_FORMAT);
+      if (moment(timeNow).isBefore(event[0].StartDate) || moment(timeNow).isAfter(event[0].EndDate)) {
+        throw new ErrorResponseHandler(403, 'Forbidden. Event is not ongoing');
+      }
     }
 
     await Vote.addVote(trackIdAsInt, userId, vote);
@@ -45,7 +47,7 @@ export default async function voteForTrack(req, res, next) {
 
     const votesSum = await Vote.getVotesSumForTrack(trackIdAsInt);
 
-    req.io.to(eventId).emit('new_vote', { data: { userId, eventId, voteInfo: votesSum } });
+    req.io.to(eventId).emit('new_vote', { data: { userId, eventId, voteInfo: votesSum[0] } });
 
     res.status(200).send({
       statusCode: 200,

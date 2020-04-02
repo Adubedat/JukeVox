@@ -140,7 +140,7 @@ describe('Events', () => {
       res.body.data.should.have.property('Id');
       res.body.message.should.be.eql(`Event with Id: ${event.insertId}`);
       res.body.data.Name.should.be.eql('House warming');
-      res.body.data.should.have.all.keys('CreatorId', 'Name', 'Description', 'EventPicture', 'StartDate',
+      res.body.data.should.have.all.keys('RestrictVotingToEventHours', 'CreatorId', 'Name', 'Description', 'EventPicture', 'StartDate',
         'EndDate', 'Location', 'Latitude', 'Longitude', 'StreamerDevice', 'IsPrivate', 'Id', 'Tracks', 'CurrentTrack', 'TrackHistory');
       res.body.data.Tracks[0].should.have.all.keys('Id', 'EventId', 'UserId', 'DeezerSongId', 'Title', 'Duration',
         'ArtistName', 'PictureSmall', 'PictureBig', 'AddedAt', 'VotesSum', 'UserVote');
@@ -174,7 +174,7 @@ describe('Events', () => {
       res.body.data.should.have.property('Id');
       res.body.message.should.be.eql(`Event with Id: ${event.insertId}`);
       res.body.data.Name.should.be.eql('House warming');
-      res.body.data.should.have.all.keys('CreatorId', 'Name', 'Description', 'EventPicture', 'StartDate',
+      res.body.data.should.have.all.keys('RestrictVotingToEventHours', 'CreatorId', 'Name', 'Description', 'EventPicture', 'StartDate',
         'EndDate', 'Location', 'Latitude', 'Longitude', 'StreamerDevice', 'IsPrivate', 'Id', 'Tracks', 'CurrentTrack', 'TrackHistory');
       res.body.data.Tracks[0].should.have.all.keys('Id', 'EventId', 'UserId', 'DeezerSongId', 'Title', 'Duration',
         'ArtistName', 'PictureSmall', 'PictureBig', 'AddedAt', 'VotesSum', 'UserVote');
@@ -211,7 +211,7 @@ describe('Events', () => {
       res.body.data.should.have.property('Id');
       res.body.message.should.be.eql(`Event with Id: ${event.insertId}`);
       res.body.data.Name.should.be.eql('House warming');
-      res.body.data.should.have.all.keys('CreatorId', 'Name', 'Description', 'EventPicture', 'StartDate',
+      res.body.data.should.have.all.keys('RestrictVotingToEventHours', 'CreatorId', 'Name', 'Description', 'EventPicture', 'StartDate',
         'EndDate', 'Location', 'Latitude', 'Longitude', 'StreamerDevice', 'IsPrivate', 'Id', 'Tracks', 'CurrentTrack', 'TrackHistory');
       res.body.data.Tracks[0].should.have.all.keys('Id', 'EventId', 'UserId', 'DeezerSongId', 'Title', 'Duration',
         'ArtistName', 'PictureSmall', 'PictureBig', 'AddedAt', 'VotesSum', 'UserVote');
@@ -257,7 +257,7 @@ describe('Events', () => {
       res.body.data.should.have.property('Id');
       res.body.message.should.be.eql(`Event with Id: ${event.insertId}`);
       res.body.data.Name.should.be.eql('House warming');
-      res.body.data.should.have.all.keys('CreatorId', 'Name', 'Description', 'EventPicture', 'StartDate',
+      res.body.data.should.have.all.keys('RestrictVotingToEventHours', 'CreatorId', 'Name', 'Description', 'EventPicture', 'StartDate',
         'EndDate', 'Location', 'Latitude', 'Longitude', 'StreamerDevice', 'IsPrivate', 'Id', 'Tracks', 'CurrentTrack', 'TrackHistory');
       res.body.data.Tracks[0].should.have.all.keys('Id', 'EventId', 'UserId', 'DeezerSongId', 'Title', 'Duration',
         'ArtistName', 'PictureSmall', 'PictureBig', 'AddedAt', 'VotesSum', 'UserVote');
@@ -302,7 +302,7 @@ describe('Events', () => {
       res.body.data.should.have.property('Id');
       res.body.message.should.be.eql(`Event with Id: ${event2.insertId}`);
       res.body.data.Name.should.be.eql('House warming');
-      res.body.data.should.have.all.keys('CreatorId', 'Name', 'Description', 'EventPicture', 'StartDate',
+      res.body.data.should.have.all.keys('RestrictVotingToEventHours', 'CreatorId', 'Name', 'Description', 'EventPicture', 'StartDate',
         'EndDate', 'Location', 'Latitude', 'Longitude', 'StreamerDevice', 'IsPrivate', 'Id', 'Tracks', 'CurrentTrack', 'TrackHistory');
       res.body.data.Tracks[0].should.have.all.keys('Id', 'EventId', 'UserId', 'DeezerSongId', 'Title', 'Duration',
         'ArtistName', 'PictureSmall', 'PictureBig', 'AddedAt', 'VotesSum', 'UserVote');
@@ -344,7 +344,7 @@ describe('Events', () => {
       res.body.data.should.have.property('Id');
       res.body.message.should.be.eql(`Event with Id: ${event.insertId}`);
       res.body.data.Name.should.be.eql('House warming');
-      res.body.data.should.have.all.keys('CreatorId', 'Name', 'Description', 'EventPicture', 'StartDate',
+      res.body.data.should.have.all.keys('RestrictVotingToEventHours', 'CreatorId', 'Name', 'Description', 'EventPicture', 'StartDate',
         'EndDate', 'Location', 'Latitude', 'Longitude', 'StreamerDevice', 'IsPrivate', 'Id', 'Tracks', 'CurrentTrack', 'TrackHistory');
       res.body.data.Tracks[0].should.have.all.keys('Id', 'EventId', 'UserId', 'DeezerSongId', 'Title', 'Duration',
         'ArtistName', 'PictureSmall', 'PictureBig', 'AddedAt', 'VotesSum', 'UserVote');
@@ -388,7 +388,7 @@ describe('Events', () => {
       res.body.data.should.have.property('Id');
       res.body.message.should.be.eql(`Event with Id: ${event.insertId}`);
       res.body.data.Name.should.be.eql('House warming');
-      res.body.data.should.have.all.keys('CreatorId', 'Name', 'Description', 'EventPicture', 'StartDate',
+      res.body.data.should.have.all.keys('RestrictVotingToEventHours', 'CreatorId', 'Name', 'Description', 'EventPicture', 'StartDate',
         'EndDate', 'Location', 'Latitude', 'Longitude', 'StreamerDevice', 'IsPrivate', 'Id', 'Tracks', 'CurrentTrack', 'TrackHistory');
       res.body.data.Tracks[0].should.have.all.keys('Id', 'EventId', 'UserId', 'DeezerSongId', 'Title', 'Duration',
         'ArtistName', 'PictureSmall', 'PictureBig', 'AddedAt', 'VotesSum', 'UserVote');
@@ -435,7 +435,7 @@ describe('Events', () => {
       res.body.data.should.have.property('Id');
       res.body.message.should.be.eql(`Event with Id: ${event.insertId}`);
       res.body.data.Name.should.be.eql('House warming');
-      res.body.data.should.have.all.keys('CreatorId', 'Name', 'Description', 'EventPicture', 'StartDate',
+      res.body.data.should.have.all.keys('RestrictVotingToEventHours', 'CreatorId', 'Name', 'Description', 'EventPicture', 'StartDate',
         'EndDate', 'Location', 'Latitude', 'Longitude', 'StreamerDevice', 'IsPrivate', 'Id', 'Tracks', 'CurrentTrack', 'TrackHistory');
       res.body.data.Tracks[0].should.have.all.keys('Id', 'EventId', 'UserId', 'DeezerSongId', 'Title', 'Duration',
         'ArtistName', 'PictureSmall', 'PictureBig', 'AddedAt', 'VotesSum', 'UserVote');
@@ -502,7 +502,7 @@ describe('Events', () => {
       res.body.data.should.have.property('Id');
       res.body.message.should.be.eql(`Event with Id: ${event.insertId}`);
       res.body.data.Name.should.be.eql('House warming');
-      res.body.data.should.have.all.keys('CreatorId', 'Name', 'Description', 'EventPicture', 'StartDate',
+      res.body.data.should.have.all.keys('RestrictVotingToEventHours', 'CreatorId', 'Name', 'Description', 'EventPicture', 'StartDate',
         'EndDate', 'Location', 'Latitude', 'Longitude', 'StreamerDevice', 'IsPrivate', 'Id', 'Tracks', 'CurrentTrack', 'TrackHistory');
       res.body.data.Tracks[0].should.have.all.keys('Id', 'EventId', 'UserId', 'DeezerSongId', 'Title', 'Duration',
         'ArtistName', 'PictureSmall', 'PictureBig', 'AddedAt', 'VotesSum', 'UserVote');
@@ -530,7 +530,7 @@ describe('Events', () => {
       res.body.data.should.have.property('Id');
       res.body.message.should.be.eql(`Event with Id: ${event.insertId}`);
       res.body.data.Name.should.be.eql('House warming');
-      res.body.data.should.have.all.keys('CreatorId', 'Name', 'Description', 'EventPicture', 'StartDate',
+      res.body.data.should.have.all.keys('RestrictVotingToEventHours', 'CreatorId', 'Name', 'Description', 'EventPicture', 'StartDate',
         'EndDate', 'Location', 'Latitude', 'Longitude', 'StreamerDevice', 'IsPrivate', 'Id', 'Tracks', 'CurrentTrack', 'TrackHistory');
     });
 
@@ -552,7 +552,7 @@ describe('Events', () => {
       res.body.data.should.have.property('Id');
       res.body.message.should.be.eql(`Event with Id: ${event.insertId}`);
       res.body.data.Name.should.be.eql('House warming');
-      res.body.data.should.have.all.keys('CreatorId', 'Name', 'Description', 'EventPicture', 'StartDate',
+      res.body.data.should.have.all.keys('RestrictVotingToEventHours', 'CreatorId', 'Name', 'Description', 'EventPicture', 'StartDate',
         'EndDate', 'Location', 'Latitude', 'Longitude', 'StreamerDevice', 'IsPrivate', 'Id', 'Tracks', 'CurrentTrack', 'TrackHistory');
     });
 
