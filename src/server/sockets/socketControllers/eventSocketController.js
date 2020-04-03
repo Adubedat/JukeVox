@@ -34,13 +34,6 @@ export async function joinEvent(userId, eventId, socket, io) {
 
 export async function leaveEvent(userId, eventId, socket, io) {
   try {
-    const guestStatusResponse = await Event.getGuestStatusForEvent(userId, eventId);
-    if (guestStatusResponse[0] == null || guestStatusResponse[0].GuestStatus !== 'Going') {
-      socket.emit('exception', {
-        code: 403, message: 'Forbidden. User not going', event: 'leave_event', eventId,
-      });
-      return;
-    }
     socket.leave(eventId);
     console.log(`User ${userId} just left the event ${eventId}`);
     socket.emit('success', {
