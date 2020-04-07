@@ -1,7 +1,7 @@
 import { ErrorResponseHandler } from '../../../helpers/error';
 import Event from '../../models/eventModel';
 import { checkUnknownFields } from '../../../helpers/validation';
-import validateBody from './helpers/validation';
+import validateEventBody from './helpers/validation';
 
 export default async function updateEvent(req, res, next) {
   const { userId } = req.decoded;
@@ -29,7 +29,7 @@ export default async function updateEvent(req, res, next) {
     }
 
     checkUnknownFields(acceptedFields, req.body);
-    validateBody(req.body);
+    validateEventBody(req.body);
 
     await Event.updateEvent(eventId, req.body);
 
