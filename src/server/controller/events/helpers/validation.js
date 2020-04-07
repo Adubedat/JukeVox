@@ -39,7 +39,7 @@ function validatePrivacy(isPrivate) {
   validateType('isPrivate', isPrivate, 'boolean');
 }
 function validateRestrictVotingToEventHours(restrictVotingToEventHours) {
-  validateType('isPrivate', restrictVotingToEventHours, 'boolean');
+  validateType('restrictVotingToEventHours', restrictVotingToEventHours, 'boolean');
 }
 
 function validateStreamerDevice(streamerDevice) {
@@ -101,7 +101,7 @@ function validateName(name) {
   }
 }
 
-export default function validateBody(body) {
+export default function validateEventBody(body) {
   validateName(body.name);
   validateDescription(body.description);
   validateDates(body.startDate, body.endDate);

@@ -1,6 +1,6 @@
 import Event from '../../models/eventModel';
 import { checkUnknownFields } from '../../../helpers/validation';
-import validateBody from './helpers/validation';
+import validateEventBody from './helpers/validation';
 
 export default async function createEvent(req, res, next) {
   const { userId } = req.decoded;
@@ -20,7 +20,7 @@ export default async function createEvent(req, res, next) {
   try {
     checkUnknownFields(acceptedFields, req.body);
 
-    validateBody(req.body);
+    validateEventBody(req.body);
 
     const eventConfirmation = await Event.createNewEvent(userId, req.body);
 
