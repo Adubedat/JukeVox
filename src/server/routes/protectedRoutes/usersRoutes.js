@@ -6,6 +6,7 @@ import updatePassword from '../../controller/users/updatePassword';
 import linkDeezer from '../../controller/users/linkDeezer';
 import linkFacebook from '../../controller/users/linkFacebook';
 import linkGoogle from '../../controller/users/linkGoogle';
+import getLinkedAccounts from '../../controller/users/getLinkedAccounts';
 
 const router = express.Router();
 
@@ -21,5 +22,7 @@ router.post('/linkDeezer', linkDeezer);
 router.post('/linkGoogle', linkGoogle);
 
 router.post('/linkFacebook', linkFacebook);
+
+router.get('/me/linkedAccounts', getLinkedAccounts);
 
 export default router;
