@@ -9,7 +9,6 @@ async function validateBody(idToken) {
   }
 }
 
-
 export default async function linkGoogle(req, res, next) {
   const { idToken } = req.body;
   const { userId } = req.decoded;
