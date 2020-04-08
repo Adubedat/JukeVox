@@ -18,8 +18,8 @@ router.patch('/me/password', updatePassword);
 
 router.post('/linkDeezer', linkDeezer);
 
-router.post('/me/linkGoogle', linkGoogle);
+router.post('/linkGoogle', linkGoogle);
 
-router.post('/me/linkFacebook', linkFacebook);
+router.post('/linkFacebook', linkFacebook);
 
 export default router;

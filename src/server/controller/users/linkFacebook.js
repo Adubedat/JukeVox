@@ -16,27 +16,25 @@ export default async function linkFacebook(req, res, next) {
   try {
     validateBody(accessToken);
     checkUnknownFields(['accessToken'], req.body);
-    FB.api('me', { fields: 'id,email,first_name,last_name', access_token: accessToken }, async (resp) => {
-      const providerId = resp.id;
+    const resp = await FB.api('me', { fields: 'id,email,first_name,last_name', access_token: accessToken });
+    if (!resp || resp.error) {
+      throw new ErrorResponseHandler(400, 'Invalid facebook access token');
+    }
 
-      if (!resp || resp.error) {
-        throw new ErrorResponseHandler(400, 'Invalid facebook access token');
-      }
+    const providerId = resp.id;
+    const [providerAccount] = await User.getProviderAccounts(['ProviderId', 'Provider'], [providerId, 'Facebook']);
+    if (providerAccount !== undefined) {
+      throw new ErrorResponseHandler(409, 'This facebook account is already linked');
+    }
 
-      const [providerAccount] = await User.getProviderAccounts(['ProviderId', 'Provider'], [providerId, 'Facebook']);
-      if (providerAccount !== undefined) {
-        throw new ErrorResponseHandler(409, 'This facebook account is already linked');
-      }
+    const response = await User.createProviderAccount(userId, providerId, 'Facebook');
+    if (response.affectedRows !== 1) {
+      throw new ErrorResponseHandler(500, 'Internal server error');
+    }
 
-      const response = await User.createProviderAccount(userId, providerId, 'Facebook');
-      if (response.affectedRows !== 1) {
-        throw new ErrorResponseHandler(500, 'Internal server error');
-      }
-
-      res.send({
-        message: 'Facebook account successfully linked',
-        statusCode: 200,
-      });
+    res.send({
+      message: 'Facebook account successfully linked',
+      statusCode: 200,
     });
   } catch (err) {
     next(err);
