@@ -17,11 +17,11 @@ export default async function linkFacebook(req, res, next) {
     validateBody(accessToken);
     checkUnknownFields(['accessToken'], req.body);
     const resp = await FB.api('me', { fields: 'id,email,first_name,last_name', access_token: accessToken });
-    const providerId = resp.id;
     if (!resp || resp.error) {
       throw new ErrorResponseHandler(400, 'Invalid facebook access token');
     }
 
+    const providerId = resp.id;
     const [providerAccount] = await User.getProviderAccounts(['ProviderId', 'Provider'], [providerId, 'Facebook']);
     if (providerAccount !== undefined) {
       throw new ErrorResponseHandler(409, 'This facebook account is already linked');
