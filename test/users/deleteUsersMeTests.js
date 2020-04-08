@@ -93,5 +93,30 @@ describe('Users', () => {
       const userAccounts = await sql.query('SELECT * FROM UserAccounts');
       userAccounts.should.have.lengthOf(1);
     });
+    it('jwt should not be valid anymore after deleting a user account', async () => {
+      const user1 = await sql.query('INSERT INTO UserProfiles (Username, Email, CreatedAt) VALUES (\'user1\', \'test@test.test\', \'2020-12-12 12:12:12\')');
+      await sql.query(`INSERT INTO UserAccounts (UserProfileId, Email) VALUES (${user1.insertId}, 'test@test.test')`);
+      await sql.query(`INSERT INTO ProviderAccounts (UserProfileId, Provider, ProviderId) VALUES (${user1.insertId}, 'Google', 'test')`);
+
+      const jwt = generateJwt(user1.insertId);
+      const res = await chai.request(server)
+        .delete('/api/me')
+        .set({ Authorization: `Bearer ${jwt}` });
+
+      res.should.have.status(200);
+      res.body.should.be.a('object');
+      res.body.should.have.property('statusCode');
+      res.body.should.have.property('message');
+
+      const res2 = await chai.request(server)
+        .delete('/api/me')
+        .set({ Authorization: `Bearer ${jwt}` });
+
+      res2.should.have.status(401);
+      res2.body.should.be.a('object');
+      res2.body.should.have.property('statusCode');
+      res2.body.should.have.property('message');
+      res2.body.message.should.eql('Invalid authorization token');
+    });
   });
 });
