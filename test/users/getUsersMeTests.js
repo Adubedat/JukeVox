@@ -56,11 +56,11 @@ describe('Users', () => {
         .get('/api/me')
         .set({ Authorization: `Bearer ${jwt}` });
 
-      res.should.have.status(404);
+      res.should.have.status(401);
       res.body.should.be.a('object');
       res.body.should.have.property('statusCode');
       res.body.should.have.property('message');
-      res.body.message.should.eql('User not found');
+      res.body.message.should.eql('Invalid authorization token');
     });
   });
 });
