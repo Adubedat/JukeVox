@@ -34,7 +34,6 @@ Event.addGuest = function addGuestToEvent(eventId, guestId, hasPlayerControl, gu
         resolve(res);
       })
       .catch((err) => {
-        // TODO: Check if this is best practice. Also see if useful printing console log in the error handling
         if (err.code === 'ER_DUP_ENTRY') {
           const customError = new ErrorResponseHandler(409, 'Guest already invited or attending');
           reject(customError);
