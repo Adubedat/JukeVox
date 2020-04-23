@@ -76,6 +76,8 @@ describe('Events', () => {
       const createdEvents = await sql.query('SELECT * FROM Events');
       createdEvents.should.have.lengthOf(1);
       createdEvents[0].CreatorId.should.eql(user.insertId);
+      createdEvents[0].should.have.all.keys('RestrictVotingToEventHours', 'CreatorId', 'Name', 'Description', 'EventPicture', 'StartDate',
+        'EndDate', 'Location', 'Latitude', 'Longitude', 'StreamerDevice', 'IsPrivate', 'Id');
 
       const eventGuests = await sql.query('SELECT * FROM EventGuests');
 
@@ -84,7 +86,6 @@ describe('Events', () => {
       eventGuests[0].GuestId.should.eql(user.insertId);
       eventGuests[0].HasPlayerControl.should.eql(1);
       eventGuests[0].GuestStatus.should.eql('Going');
-      // TODO (?): check the rest of the elements are eql
     });
 
     // TODO: Refactor code so that the following 3 tests pass
