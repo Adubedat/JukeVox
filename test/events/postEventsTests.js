@@ -404,10 +404,20 @@ describe('Events', () => {
       res.body.data.should.have.property('Id');
       res.body.message.should.be.eql('Event successfully created!');
 
+
       const createdEvents = await sql.query('SELECT * FROM Events');
       createdEvents.should.have.lengthOf(1);
       createdEvents[0].CreatorId.should.eql(user.insertId);
-      // TODO (?): check the rest of the elements are eql
+      createdEvents[0].should.have.all.keys('RestrictVotingToEventHours', 'CreatorId', 'Name', 'Description', 'EventPicture', 'StartDate',
+        'EndDate', 'Location', 'Latitude', 'Longitude', 'StreamerDevice', 'IsPrivate', 'Id');
+
+      const eventGuests = await sql.query('SELECT * FROM EventGuests');
+
+      eventGuests.should.have.lengthOf(1);
+      eventGuests[0].EventId.should.eql(res.body.data.Id);
+      eventGuests[0].GuestId.should.eql(user.insertId);
+      eventGuests[0].HasPlayerControl.should.eql(1);
+      eventGuests[0].GuestStatus.should.eql('Going');
     });
 
     it('should not POST an event with end date > startDate + 1 week', async () => {
