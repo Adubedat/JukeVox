@@ -46,7 +46,6 @@ describe('Users', () => {
       users.should.have.lengthOf(0);
     });
 
-    // TODO: Write test for username too long
     it('should not POST a user without a username field', async () => {
       const user = {
         email: 'daniel@mail.com',
@@ -62,6 +61,26 @@ describe('Users', () => {
       res.body.should.have.property('statusCode');
       res.body.should.have.property('message');
       res.body.message.should.eql('TypeError username: expected string but received undefined');
+      const users = await sql.query('SELECT * FROM UserProfiles');
+      users.should.have.lengthOf(0);
+    });
+
+    it('should not POST a user with a username field too long', async () => {
+      const user = {
+        username: 'adnmelodsdfsadfsdfadfsdafplsd',
+        email: 'daniel@mail.com',
+        password: 'abcdefghijk',
+      };
+      const res = await chai.request(server)
+        .post('/users')
+        .send(user);
+
+      res.should.have.status(500);
+      res.body.should.be.a('object');
+      res.body.should.have.property('status').eql('error');
+      res.body.should.have.property('statusCode');
+      res.body.should.have.property('message');
+      res.body.message.should.eql('Internal server error');
       const users = await sql.query('SELECT * FROM UserProfiles');
       users.should.have.lengthOf(0);
     });
@@ -194,7 +213,32 @@ describe('Users', () => {
       users.should.have.lengthOf(1);
     });
 
-    // TODO: Actually check that a user was added to the DB and UserAccount was made
+    // TODO: See if we can secure edge case (should never happen in practice)
+    // it('should not POST a user with an existing email in userAccounts', async () => {
+    //   const query = 'INSERT INTO UserProfiles (Username, Email, CreatedAt) VALUES ?';
+    //   const values = [['Daniel', 'fakeemail@mail.com', moment().format(DATETIME_FORMAT)]];
+    //   const user1 = await sql.query(query, [values]).catch((err) => console.log(err));
+    //   const query2 = 'INSERT INTO UserAccounts (UserProfileId, Email) VALUES ?';
+    //   const values2 = [[user1.insertId, 'daniel@mail.com']];
+    //   await sql.query(query2, [values2]).catch((err) => console.log(err));
+
+    //   const user = {
+    //     username: 'Daniel2',
+    //     password: 'abcdefghijk',
+    //     email: 'daniel@mail.com',
+    //   };
+
+    //   const res = await chai.request(server).post('/users').send(user);
+    //   res.should.have.status(500);
+    //   res.body.should.be.a('object');
+    //   res.body.should.have.property('status').eql('error');
+    //   res.body.should.have.property('statusCode');
+    //   res.body.should.have.property('message');
+    //   res.body.message.should.eql('Internal server error');
+    //   const users = await sql.query('SELECT * FROM UserProfiles');
+    //   users.should.have.lengthOf(1);
+    // });
+
     it('should POST a user', async () => {
       const user = {
         username: 'Daniel',
