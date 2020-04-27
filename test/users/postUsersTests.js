@@ -44,6 +44,8 @@ describe('Users', () => {
 
       const users = await sql.query('SELECT * FROM UserProfiles');
       users.should.have.lengthOf(0);
+      const useraccounts = await sql.query('SELECT * FROM UserAccounts');
+      useraccounts.should.have.lengthOf(0);
     });
 
     it('should not POST a user without a username field', async () => {
@@ -63,6 +65,8 @@ describe('Users', () => {
       res.body.message.should.eql('TypeError username: expected string but received undefined');
       const users = await sql.query('SELECT * FROM UserProfiles');
       users.should.have.lengthOf(0);
+      const useraccounts = await sql.query('SELECT * FROM UserAccounts');
+      useraccounts.should.have.lengthOf(0);
     });
 
     it('should not POST a user with a username field too long', async () => {
@@ -83,6 +87,9 @@ describe('Users', () => {
       res.body.message.should.eql('Internal server error');
       const users = await sql.query('SELECT * FROM UserProfiles');
       users.should.have.lengthOf(0);
+
+      const useraccounts = await sql.query('SELECT * FROM UserAccounts');
+      useraccounts.should.have.lengthOf(0);
     });
 
     it('should not POST a user without an email field', async () => {
@@ -103,6 +110,9 @@ describe('Users', () => {
       res.body.message.should.eql('TypeError email: expected string but received undefined');
       const users = await sql.query('SELECT * FROM UserProfiles');
       users.should.have.lengthOf(0);
+
+      const useraccounts = await sql.query('SELECT * FROM UserAccounts');
+      useraccounts.should.have.lengthOf(0);
     });
 
     it('should not POST a user with an invalid username field', async () => {
@@ -124,6 +134,9 @@ describe('Users', () => {
       res.body.message.should.eql('Username must only contain numbers or letters');
       const users = await sql.query('SELECT * FROM UserProfiles');
       users.should.have.lengthOf(0);
+
+      const useraccounts = await sql.query('SELECT * FROM UserAccounts');
+      useraccounts.should.have.lengthOf(0);
     });
 
     it('should not POST a user with an invalid password field', async () => {
@@ -145,6 +158,9 @@ describe('Users', () => {
       res.body.message.should.eql('Your password must have at least 10 characters');
       const users = await sql.query('SELECT * FROM UserProfiles');
       users.should.have.lengthOf(0);
+
+      const useraccounts = await sql.query('SELECT * FROM UserAccounts');
+      useraccounts.should.have.lengthOf(0);
     });
 
     it('should not POST a user with an invalid email field', async () => {
@@ -165,6 +181,9 @@ describe('Users', () => {
       res.body.message.should.eql('Email not correctly formatted');
       const users = await sql.query('SELECT * FROM UserProfiles');
       users.should.have.lengthOf(0);
+
+      const useraccounts = await sql.query('SELECT * FROM UserAccounts');
+      useraccounts.should.have.lengthOf(0);
     });
 
     it('should not POST a user with an existing username', async () => {
@@ -187,10 +206,11 @@ describe('Users', () => {
       res.body.message.should.eql('There already is an account with this username');
       const users = await sql.query('SELECT * FROM UserProfiles');
       users.should.have.lengthOf(1);
+
+      const useraccounts = await sql.query('SELECT * FROM UserAccounts');
+      useraccounts.should.have.lengthOf(0);
     });
 
-    // TODO: Add two extra tests for edge case:
-    // If email exists in useraccounts but not in UserProfiles
     it('should not POST a user with an existing email', async () => {
       const query = 'INSERT INTO UserProfiles (Username, Email, CreatedAt) VALUES ?';
       const values = [['Daniel', 'daniel@mail.com', moment().format(DATETIME_FORMAT)]];
@@ -211,6 +231,9 @@ describe('Users', () => {
       res.body.message.should.eql('There already is an account with this email');
       const users = await sql.query('SELECT * FROM UserProfiles');
       users.should.have.lengthOf(1);
+
+      const useraccounts = await sql.query('SELECT * FROM UserAccounts');
+      useraccounts.should.have.lengthOf(0);
     });
 
     // TODO: See if we can secure edge case (should never happen in practice)
@@ -256,6 +279,10 @@ describe('Users', () => {
       const users = await sql.query('SELECT * FROM UserProfiles');
       users.should.have.lengthOf(1);
       users[0].Username.should.be.eql('Daniel');
+
+      const useraccounts = await sql.query('SELECT * FROM UserAccounts');
+      useraccounts.should.have.lengthOf(1);
+      useraccounts[0].Email.should.be.eql('arthur.dubedat@gmail.com');
     });
   });
 });
