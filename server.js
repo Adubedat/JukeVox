@@ -5,8 +5,6 @@ import params from './params'; // eslint-disable-line
 import { handleError } from './src/helpers/error'; // eslint-disable-line
 import initListeners from './src/server/sockets/listeners';
 
-// TODO: Fix return codes
-
 const express = require('express');
 
 const port = process.env.PORT || params.port;
