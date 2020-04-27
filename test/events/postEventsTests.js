@@ -88,36 +88,34 @@ describe('Events', () => {
       eventGuests[0].GuestStatus.should.eql('Going');
     });
 
-    // TODO: Refactor code so that the following 3 tests pass
+    it('should not POST an event with a jwt that matches no user', async () => {
+      const body = {
+        name: 'House warming',
+        description: 'All come over on wednesday for our housewarming!',
+        startDate,
+        endDate,
+        latitude: 48.8915482,
+        longitude: 2.3170656,
+        streamerDevice: 'abcd',
+        isPrivate: true,
+        eventPicture: 'defaultPicture1',
+      };
 
-    // it('should not POST an event with a jwt that matches no user', async () => {
-    //   const body = {
-    //     name: 'House warming',
-    //     description: 'All come over on wednesday for our housewarming!',
-    //     startDate,
-    //     endDate,
-    //     latitude: 48.8915482,
-    //     longitude: 2.3170656,
-    //     streamerDevice: 'abcd',
-    //     isPrivate: true,
-    //     eventPicture: 'defaultPicture1',
-    //   };
+      const jwt = generateJwt(-1);
 
-    //   const jwt = generateJwt(-1);
+      const res = await chai.request(server)
+        .post('/api/events')
+        .set({ Authorization: `Bearer ${jwt}` })
+        .send(body);
 
-    //   const res = await chai.request(server)
-    //     .post('/api/events')
-    //     .set({ Authorization: `Bearer ${jwt}` })
-    //     .send(body);
-
-    //   res.should.have.status(404);
-    //   res.body.should.be.a('object');
-    //   res.body.should.have.property('statusCode');
-    //   res.body.should.have.property('message');
-    //   res.body.message.should.eql('No account found: Wrong token provided');
-    //   const createdEvents = await sql.query('SELECT * FROM Events');
-    //   createdEvents.should.have.lengthOf(0);
-    // });
+      res.should.have.status(401);
+      res.body.should.be.a('object');
+      res.body.should.have.property('statusCode');
+      res.body.should.have.property('message');
+      res.body.message.should.eql('Invalid authorization token');
+      const createdEvents = await sql.query('SELECT * FROM Events');
+      createdEvents.should.have.lengthOf(0);
+    });
 
     it('should not POST an event without a jwt', async () => {
       const body = {
