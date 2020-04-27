@@ -8,6 +8,7 @@ import forgotPassword from '../../controller/users/forgotPassword';
 import getResetPasswordForm from '../../controller/users/getResetPasswordForm';
 import resetPassword from '../../controller/users/resetPassword';
 import confirmLoaderio from '../../controller/loaderio/confirmLoaderio';
+import { openRoutesRateLimiter } from '../../middlewares/rateLimiters';
 
 const router = express.Router();
 
@@ -15,6 +16,8 @@ router.use((req, res, next) => {
   console.log('%s %s', req.method, req.path);
   next();
 });
+
+router.use(openRoutesRateLimiter);
 
 router.get('/loaderio-93f4e56e9270cfa4d6e5d226b66a9405', confirmLoaderio);
 
