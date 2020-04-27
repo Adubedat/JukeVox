@@ -25,7 +25,6 @@ describe('Users', () => {
     await sql.query('DELETE FROM UserProfiles;');
   });
 
-  // TODO: In all of the 'should NOT POST' check that no user was actually added
   describe('/POST users', () => {
     it('should not POST a user without a password field', async () => {
       const user = {
@@ -42,6 +41,9 @@ describe('Users', () => {
       res.body.should.have.property('statusCode');
       res.body.should.have.property('message');
       res.body.message.should.eql('TypeError password: expected string but received undefined');
+
+      const users = await sql.query('SELECT * FROM UserProfiles');
+      users.should.have.lengthOf(0);
     });
 
     // TODO: Write test for username too long
@@ -60,6 +62,8 @@ describe('Users', () => {
       res.body.should.have.property('statusCode');
       res.body.should.have.property('message');
       res.body.message.should.eql('TypeError username: expected string but received undefined');
+      const users = await sql.query('SELECT * FROM UserProfiles');
+      users.should.have.lengthOf(0);
     });
 
     it('should not POST a user without an email field', async () => {
@@ -78,6 +82,8 @@ describe('Users', () => {
       res.body.should.have.property('statusCode');
       res.body.should.have.property('message');
       res.body.message.should.eql('TypeError email: expected string but received undefined');
+      const users = await sql.query('SELECT * FROM UserProfiles');
+      users.should.have.lengthOf(0);
     });
 
     it('should not POST a user with an invalid username field', async () => {
@@ -97,6 +103,8 @@ describe('Users', () => {
       res.body.should.have.property('statusCode');
       res.body.should.have.property('message');
       res.body.message.should.eql('Username must only contain numbers or letters');
+      const users = await sql.query('SELECT * FROM UserProfiles');
+      users.should.have.lengthOf(0);
     });
 
     it('should not POST a user with an invalid password field', async () => {
@@ -116,6 +124,8 @@ describe('Users', () => {
       res.body.should.have.property('statusCode');
       res.body.should.have.property('message');
       res.body.message.should.eql('Your password must have at least 10 characters');
+      const users = await sql.query('SELECT * FROM UserProfiles');
+      users.should.have.lengthOf(0);
     });
 
     it('should not POST a user with an invalid email field', async () => {
@@ -134,6 +144,8 @@ describe('Users', () => {
       res.body.should.have.property('statusCode');
       res.body.should.have.property('message');
       res.body.message.should.eql('Email not correctly formatted');
+      const users = await sql.query('SELECT * FROM UserProfiles');
+      users.should.have.lengthOf(0);
     });
 
     it('should not POST a user with an existing username', async () => {
@@ -154,6 +166,8 @@ describe('Users', () => {
       res.body.should.have.property('statusCode');
       res.body.should.have.property('message');
       res.body.message.should.eql('There already is an account with this username');
+      const users = await sql.query('SELECT * FROM UserProfiles');
+      users.should.have.lengthOf(1);
     });
 
     // TODO: Add two extra tests for edge case:
@@ -176,6 +190,8 @@ describe('Users', () => {
       res.body.should.have.property('statusCode');
       res.body.should.have.property('message');
       res.body.message.should.eql('There already is an account with this email');
+      const users = await sql.query('SELECT * FROM UserProfiles');
+      users.should.have.lengthOf(1);
     });
 
     // TODO: Actually check that a user was added to the DB and UserAccount was made
@@ -193,6 +209,9 @@ describe('Users', () => {
       res.should.have.status(201);
       res.body.should.be.a('object');
       res.body.should.have.property('message').eql('User created. Please check your mail!');
+      const users = await sql.query('SELECT * FROM UserProfiles');
+      users.should.have.lengthOf(1);
+      users[0].Username.should.be.eql('Daniel');
     });
   });
 });
