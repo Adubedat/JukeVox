@@ -6,10 +6,12 @@ import inviteRoutes from './inviteRoutes';
 import tracksRoutes from './tracksRoutes';
 
 import verifyJwt from '../../middlewares/verifyJwt';
+import { loggedInRateLimiter } from '../../middlewares/rateLimiters';
 
 const router = express.Router();
 
 router.use(verifyJwt);
+router.use(loggedInRateLimiter);
 router.use('/', usersRoutes);
 router.use('/', eventRoutes);
 router.use('/', inviteRoutes);
