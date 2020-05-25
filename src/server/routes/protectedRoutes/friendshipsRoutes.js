@@ -5,7 +5,6 @@ import deleteFriendship from '../../controller/friendships/deleteFriendship';
 
 const router = express.Router();
 
-// TODO: Refactor into meRoutes (?)
 router.post('/me/friendships', createFriendship);
 
 router.delete('/me/friendships/:addresseeId', deleteFriendship);

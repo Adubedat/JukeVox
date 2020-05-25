@@ -20,8 +20,7 @@ export default async function getEventGuests(req, res, next) {
     if (event[0] === undefined) {
       throw new ErrorResponseHandler(404, 'No event with this id');
     }
-    // TODO: Allow invited people to see the event guests too ?
-    // What about the people attending or not going?
+
     if (event[0].CreatorId !== userId) {
       throw new ErrorResponseHandler(403, 'Forbidden');
     }

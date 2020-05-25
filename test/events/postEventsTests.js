@@ -76,6 +76,8 @@ describe('Events', () => {
       const createdEvents = await sql.query('SELECT * FROM Events');
       createdEvents.should.have.lengthOf(1);
       createdEvents[0].CreatorId.should.eql(user.insertId);
+      createdEvents[0].should.have.all.keys('RestrictVotingToEventHours', 'CreatorId', 'Name', 'Description', 'EventPicture', 'StartDate',
+        'EndDate', 'Location', 'Latitude', 'Longitude', 'StreamerDevice', 'IsPrivate', 'Id');
 
       const eventGuests = await sql.query('SELECT * FROM EventGuests');
 
@@ -84,39 +86,36 @@ describe('Events', () => {
       eventGuests[0].GuestId.should.eql(user.insertId);
       eventGuests[0].HasPlayerControl.should.eql(1);
       eventGuests[0].GuestStatus.should.eql('Going');
-      // TODO (?): check the rest of the elements are eql
     });
 
-    // TODO: Refactor code so that the following 3 tests pass
+    it('should not POST an event with a jwt that matches no user', async () => {
+      const body = {
+        name: 'House warming',
+        description: 'All come over on wednesday for our housewarming!',
+        startDate,
+        endDate,
+        latitude: 48.8915482,
+        longitude: 2.3170656,
+        streamerDevice: 'abcd',
+        isPrivate: true,
+        eventPicture: 'defaultPicture1',
+      };
 
-    // it('should not POST an event with a jwt that matches no user', async () => {
-    //   const body = {
-    //     name: 'House warming',
-    //     description: 'All come over on wednesday for our housewarming!',
-    //     startDate,
-    //     endDate,
-    //     latitude: 48.8915482,
-    //     longitude: 2.3170656,
-    //     streamerDevice: 'abcd',
-    //     isPrivate: true,
-    //     eventPicture: 'defaultPicture1',
-    //   };
+      const jwt = generateJwt(-1);
 
-    //   const jwt = generateJwt(-1);
+      const res = await chai.request(server)
+        .post('/api/events')
+        .set({ Authorization: `Bearer ${jwt}` })
+        .send(body);
 
-    //   const res = await chai.request(server)
-    //     .post('/api/events')
-    //     .set({ Authorization: `Bearer ${jwt}` })
-    //     .send(body);
-
-    //   res.should.have.status(404);
-    //   res.body.should.be.a('object');
-    //   res.body.should.have.property('statusCode');
-    //   res.body.should.have.property('message');
-    //   res.body.message.should.eql('No account found: Wrong token provided');
-    //   const createdEvents = await sql.query('SELECT * FROM Events');
-    //   createdEvents.should.have.lengthOf(0);
-    // });
+      res.should.have.status(401);
+      res.body.should.be.a('object');
+      res.body.should.have.property('statusCode');
+      res.body.should.have.property('message');
+      res.body.message.should.eql('Invalid authorization token');
+      const createdEvents = await sql.query('SELECT * FROM Events');
+      createdEvents.should.have.lengthOf(0);
+    });
 
     it('should not POST an event without a jwt', async () => {
       const body = {
@@ -403,10 +402,20 @@ describe('Events', () => {
       res.body.data.should.have.property('Id');
       res.body.message.should.be.eql('Event successfully created!');
 
+
       const createdEvents = await sql.query('SELECT * FROM Events');
       createdEvents.should.have.lengthOf(1);
       createdEvents[0].CreatorId.should.eql(user.insertId);
-      // TODO (?): check the rest of the elements are eql
+      createdEvents[0].should.have.all.keys('RestrictVotingToEventHours', 'CreatorId', 'Name', 'Description', 'EventPicture', 'StartDate',
+        'EndDate', 'Location', 'Latitude', 'Longitude', 'StreamerDevice', 'IsPrivate', 'Id');
+
+      const eventGuests = await sql.query('SELECT * FROM EventGuests');
+
+      eventGuests.should.have.lengthOf(1);
+      eventGuests[0].EventId.should.eql(res.body.data.Id);
+      eventGuests[0].GuestId.should.eql(user.insertId);
+      eventGuests[0].HasPlayerControl.should.eql(1);
+      eventGuests[0].GuestStatus.should.eql('Going');
     });
 
     it('should not POST an event with end date > startDate + 1 week', async () => {
