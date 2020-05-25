@@ -203,6 +203,17 @@ Event.getPlayerControllers = function getPlayerControllers(eventId) {
   });
 };
 
+Event.getPlayerControllerStatus = function getPlayerControllerStatus(eventId, guestId) {
+  return new Promise((resolve, reject) => {
+    const query = 'SELECT * FROM EventGuests \
+    WHERE EventId = ? AND GuestId = ? AND GuestStatus = "Going" AND HasPlayerControl = true';
+
+    sql.query(query, [eventId, guestId])
+      .then((res) => resolve(res))
+      .catch((err) => reject(err));
+  });
+};
+
 Event.deleteEventGuest = function deleteEventGuest(eventId, guestId) {
   return new Promise((resolve, reject) => {
     const query = 'DELETE FROM EventGuests WHERE EventId = ? AND GuestId = ?;';

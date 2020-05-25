@@ -1,5 +1,5 @@
 import jwt from 'jsonwebtoken';
-import { joinEvent, leaveEvent } from './socketControllers/eventSocketController';
+import { joinEvent, leaveEvent, changeStatusOfMusic } from './socketControllers/eventSocketController';
 
 export default function initListeners(io) {
   io.use((socket, next) => {
@@ -33,13 +33,24 @@ export default function initListeners(io) {
       });
 
       socket.on('leave_event', (data) => {
-        const { eventId } = data;
-        if (eventId === undefined) {
+        const { eventId, status } = data;
+        if (eventId === undefined || status === undefined) {
           socket.emit('exception', {
             code: 401, message: 'Missing data', event: 'leave_event', eventId,
           });
         } else {
-          leaveEvent(userId, eventId, socket, io);
+          leaveEvent(userId, eventId, status, socket, io);
+        }
+      });
+
+      socket.on('remote_controller', (data) => {
+        const { eventId } = data;
+        if (eventId === undefined) {
+          socket.emit('exception', {
+            code: 401, message: 'Missing data', event: 'remote_controller', eventId,
+          });
+        } else {
+          changeStatusOfMusic(userId, eventId, socket, io);
         }
       });
 
