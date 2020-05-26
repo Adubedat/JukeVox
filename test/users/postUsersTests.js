@@ -25,124 +25,165 @@ describe('Users', () => {
     await sql.query('DELETE FROM UserProfiles;');
   });
 
-  // TODO: In all of the 'should NOT POST' check that no user was actually added
   describe('/POST users', () => {
-    it('should not POST a user without a password field', (done) => {
+    it('should not POST a user without a password field', async () => {
       const user = {
         username: 'Daniel',
         email: 'daniel@mail.com',
       };
-      chai.request(server)
+      const res = await chai.request(server)
         .post('/users')
-        .send(user)
-        .end((err, res) => {
-          res.should.have.status(400);
-          res.body.should.be.a('object');
-          res.body.should.have.property('status').eql('error');
-          res.body.should.have.property('statusCode');
-          res.body.should.have.property('message');
-          res.body.message.should.eql('TypeError password: expected string but received undefined');
-          done();
-        });
+        .send(user);
+
+      res.should.have.status(400);
+      res.body.should.be.a('object');
+      res.body.should.have.property('status').eql('error');
+      res.body.should.have.property('statusCode');
+      res.body.should.have.property('message');
+      res.body.message.should.eql('TypeError password: expected string but received undefined');
+
+      const users = await sql.query('SELECT * FROM UserProfiles');
+      users.should.have.lengthOf(0);
+      const useraccounts = await sql.query('SELECT * FROM UserAccounts');
+      useraccounts.should.have.lengthOf(0);
     });
 
-    // TODO: Write test for username too long
-    it('should not POST a user without a username field', (done) => {
+    it('should not POST a user without a username field', async () => {
       const user = {
         email: 'daniel@mail.com',
         password: 'abcdefghijk',
       };
-      chai.request(server)
+      const res = await chai.request(server)
         .post('/users')
-        .send(user)
-        .end((err, res) => {
-          res.should.have.status(400);
-          res.body.should.be.a('object');
-          res.body.should.have.property('status').eql('error');
-          res.body.should.have.property('statusCode');
-          res.body.should.have.property('message');
-          res.body.message.should.eql('TypeError username: expected string but received undefined');
-          done();
-        });
+        .send(user);
+
+      res.should.have.status(400);
+      res.body.should.be.a('object');
+      res.body.should.have.property('status').eql('error');
+      res.body.should.have.property('statusCode');
+      res.body.should.have.property('message');
+      res.body.message.should.eql('TypeError username: expected string but received undefined');
+      const users = await sql.query('SELECT * FROM UserProfiles');
+      users.should.have.lengthOf(0);
+      const useraccounts = await sql.query('SELECT * FROM UserAccounts');
+      useraccounts.should.have.lengthOf(0);
     });
 
-    it('should not POST a user without an email field', (done) => {
+    it('should not POST a user with a username field too long', async () => {
+      const user = {
+        username: 'adnmelodsdfsadfsdfadfsdafplsd',
+        email: 'daniel@mail.com',
+        password: 'abcdefghijk',
+      };
+      const res = await chai.request(server)
+        .post('/users')
+        .send(user);
+
+      res.should.have.status(500);
+      res.body.should.be.a('object');
+      res.body.should.have.property('status').eql('error');
+      res.body.should.have.property('statusCode');
+      res.body.should.have.property('message');
+      res.body.message.should.eql('Internal server error');
+      const users = await sql.query('SELECT * FROM UserProfiles');
+      users.should.have.lengthOf(0);
+
+      const useraccounts = await sql.query('SELECT * FROM UserAccounts');
+      useraccounts.should.have.lengthOf(0);
+    });
+
+    it('should not POST a user without an email field', async () => {
       const user = {
         username: 'Daniel',
         password: 'abcdefghijk',
       };
-      chai.request(server)
+
+      const res = await chai.request(server)
         .post('/users')
-        .send(user)
-        .end((err, res) => {
-          res.should.have.status(400);
-          res.body.should.be.a('object');
-          res.body.should.have.property('status').eql('error');
-          res.body.should.have.property('statusCode');
-          res.body.should.have.property('message');
-          res.body.message.should.eql('TypeError email: expected string but received undefined');
-          done();
-        });
+        .send(user);
+
+      res.should.have.status(400);
+      res.body.should.be.a('object');
+      res.body.should.have.property('status').eql('error');
+      res.body.should.have.property('statusCode');
+      res.body.should.have.property('message');
+      res.body.message.should.eql('TypeError email: expected string but received undefined');
+      const users = await sql.query('SELECT * FROM UserProfiles');
+      users.should.have.lengthOf(0);
+
+      const useraccounts = await sql.query('SELECT * FROM UserAccounts');
+      useraccounts.should.have.lengthOf(0);
     });
 
-    it('should not POST a user with an invalid username field', (done) => {
+    it('should not POST a user with an invalid username field', async () => {
       const user = {
         username: 'Daniel&Daniel',
         password: 'abcdefghijk',
         email: 'daniel@mail.com',
       };
-      chai.request(server)
+
+      const res = await chai.request(server)
         .post('/users')
-        .send(user)
-        .end((err, res) => {
-          res.should.have.status(400);
-          res.body.should.be.a('object');
-          res.body.should.have.property('status').eql('error');
-          res.body.should.have.property('statusCode');
-          res.body.should.have.property('message');
-          res.body.message.should.eql('Username must only contain numbers or letters');
-          done();
-        });
+        .send(user);
+
+      res.should.have.status(400);
+      res.body.should.be.a('object');
+      res.body.should.have.property('status').eql('error');
+      res.body.should.have.property('statusCode');
+      res.body.should.have.property('message');
+      res.body.message.should.eql('Username must only contain numbers or letters');
+      const users = await sql.query('SELECT * FROM UserProfiles');
+      users.should.have.lengthOf(0);
+
+      const useraccounts = await sql.query('SELECT * FROM UserAccounts');
+      useraccounts.should.have.lengthOf(0);
     });
 
-    it('should not POST a user with an invalid password field', (done) => {
+    it('should not POST a user with an invalid password field', async () => {
       const user = {
         username: 'Daniel',
         password: 'abc',
         email: 'daniel@mail.com',
       };
-      chai.request(server)
+
+      const res = await chai.request(server)
         .post('/users')
-        .send(user)
-        .end((err, res) => {
-          res.should.have.status(400);
-          res.body.should.be.a('object');
-          res.body.should.have.property('status').eql('error');
-          res.body.should.have.property('statusCode');
-          res.body.should.have.property('message');
-          res.body.message.should.eql('Your password must have at least 10 characters');
-          done();
-        });
+        .send(user);
+
+      res.should.have.status(400);
+      res.body.should.be.a('object');
+      res.body.should.have.property('status').eql('error');
+      res.body.should.have.property('statusCode');
+      res.body.should.have.property('message');
+      res.body.message.should.eql('Your password must have at least 10 characters');
+      const users = await sql.query('SELECT * FROM UserProfiles');
+      users.should.have.lengthOf(0);
+
+      const useraccounts = await sql.query('SELECT * FROM UserAccounts');
+      useraccounts.should.have.lengthOf(0);
     });
 
-    it('should not POST a user with an invalid email field', (done) => {
+    it('should not POST a user with an invalid email field', async () => {
       const user = {
         username: 'Daniel',
         password: 'abcdefghijk',
         email: 'daniel',
       };
-      chai.request(server)
+      const res = await chai.request(server)
         .post('/users')
-        .send(user)
-        .end((err, res) => {
-          res.should.have.status(400);
-          res.body.should.be.a('object');
-          res.body.should.have.property('status').eql('error');
-          res.body.should.have.property('statusCode');
-          res.body.should.have.property('message');
-          res.body.message.should.eql('Email not correctly formatted');
-          done();
-        });
+        .send(user);
+
+      res.should.have.status(400);
+      res.body.should.be.a('object');
+      res.body.should.have.property('status').eql('error');
+      res.body.should.have.property('statusCode');
+      res.body.should.have.property('message');
+      res.body.message.should.eql('Email not correctly formatted');
+      const users = await sql.query('SELECT * FROM UserProfiles');
+      users.should.have.lengthOf(0);
+
+      const useraccounts = await sql.query('SELECT * FROM UserAccounts');
+      useraccounts.should.have.lengthOf(0);
     });
 
     it('should not POST a user with an existing username', async () => {
@@ -163,10 +204,13 @@ describe('Users', () => {
       res.body.should.have.property('statusCode');
       res.body.should.have.property('message');
       res.body.message.should.eql('There already is an account with this username');
+      const users = await sql.query('SELECT * FROM UserProfiles');
+      users.should.have.lengthOf(1);
+
+      const useraccounts = await sql.query('SELECT * FROM UserAccounts');
+      useraccounts.should.have.lengthOf(0);
     });
 
-    // TODO: Add two extra tests for edge case:
-    // If email exists in useraccounts but not in UserProfiles
     it('should not POST a user with an existing email', async () => {
       const query = 'INSERT INTO UserProfiles (Username, Email, CreatedAt) VALUES ?';
       const values = [['Daniel', 'daniel@mail.com', moment().format(DATETIME_FORMAT)]];
@@ -185,24 +229,60 @@ describe('Users', () => {
       res.body.should.have.property('statusCode');
       res.body.should.have.property('message');
       res.body.message.should.eql('There already is an account with this email');
+      const users = await sql.query('SELECT * FROM UserProfiles');
+      users.should.have.lengthOf(1);
+
+      const useraccounts = await sql.query('SELECT * FROM UserAccounts');
+      useraccounts.should.have.lengthOf(0);
     });
 
-    // TODO: Actually check that a user was added to the DB and UserAccount was made
-    it('should POST a user', (done) => {
+    // TODO: See if we can secure edge case (should never happen in practice)
+    // it('should not POST a user with an existing email in userAccounts', async () => {
+    //   const query = 'INSERT INTO UserProfiles (Username, Email, CreatedAt) VALUES ?';
+    //   const values = [['Daniel', 'fakeemail@mail.com', moment().format(DATETIME_FORMAT)]];
+    //   const user1 = await sql.query(query, [values]).catch((err) => console.log(err));
+    //   const query2 = 'INSERT INTO UserAccounts (UserProfileId, Email) VALUES ?';
+    //   const values2 = [[user1.insertId, 'daniel@mail.com']];
+    //   await sql.query(query2, [values2]).catch((err) => console.log(err));
+
+    //   const user = {
+    //     username: 'Daniel2',
+    //     password: 'abcdefghijk',
+    //     email: 'daniel@mail.com',
+    //   };
+
+    //   const res = await chai.request(server).post('/users').send(user);
+    //   res.should.have.status(500);
+    //   res.body.should.be.a('object');
+    //   res.body.should.have.property('status').eql('error');
+    //   res.body.should.have.property('statusCode');
+    //   res.body.should.have.property('message');
+    //   res.body.message.should.eql('Internal server error');
+    //   const users = await sql.query('SELECT * FROM UserProfiles');
+    //   users.should.have.lengthOf(1);
+    // });
+
+    it('should POST a user', async () => {
       const user = {
         username: 'Daniel',
         email: 'arthur.dubedat@gmail.com',
         password: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
       };
-      chai.request(server)
+
+      const res = await chai.request(server)
         .post('/users')
-        .send(user)
-        .end((err, res) => {
-          res.should.have.status(201);
-          res.body.should.be.a('object');
-          res.body.should.have.property('message').eql('User created. Please check your mail!');
-          done();
-        });
+        .send(user);
+
+      res.should.have.status(201);
+      res.body.should.be.a('object');
+      res.body.should.have.property('message').eql('User created. Please check your mail!');
+      const users = await sql.query('SELECT * FROM UserProfiles');
+      users.should.have.lengthOf(1);
+      users[0].Username.should.be.eql('Daniel');
+
+      const useraccounts = await sql.query('SELECT * FROM UserAccounts');
+      useraccounts.should.have.lengthOf(1);
+      useraccounts[0].Email.should.be.eql('arthur.dubedat@gmail.com');
     });
   });
 });
