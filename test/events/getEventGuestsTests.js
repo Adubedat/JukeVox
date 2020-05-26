@@ -111,7 +111,7 @@ describe('Events', () => {
       res.body.message.should.be.eql('The guests for this event');
       res.body.data.should.be.a('array');
       res.body.data.length.should.be.eql(3);
-      res.body.data[0].should.have.all.keys('GuestStatus', 'Id', 'Username', 'ProfilePicture');
+      res.body.data[0].should.have.all.keys('GuestStatus', 'HasPlayerControl', 'Id', 'Username', 'ProfilePicture');
     });
 
     it('should GET a list of 2 users going to the event (filter going = true)', async () => {
@@ -137,7 +137,7 @@ describe('Events', () => {
       res.body.message.should.be.eql('The guests for this event');
       res.body.data.should.be.a('array');
       res.body.data.length.should.be.eql(2);
-      res.body.data[0].should.have.all.keys('GuestStatus', 'Id', 'Username', 'ProfilePicture');
+      res.body.data[0].should.have.all.keys('GuestStatus', 'HasPlayerControl', 'Id', 'Username', 'ProfilePicture');
     });
 
     it('should GET a list of 1 users going to the event (filter invited = true)', async () => {
@@ -163,7 +163,7 @@ describe('Events', () => {
       res.body.message.should.be.eql('The guests for this event');
       res.body.data.should.be.a('array');
       res.body.data.length.should.be.eql(1);
-      res.body.data[0].should.have.all.keys('GuestStatus', 'Id', 'Username', 'ProfilePicture');
+      res.body.data[0].should.have.all.keys('GuestStatus', 'HasPlayerControl', 'Id', 'Username', 'ProfilePicture');
     });
 
     it('should GET a list of NO users going to the event (filter NotGoing = true)', async () => {
@@ -211,7 +211,7 @@ describe('Events', () => {
       res.body.message.should.be.eql('The guests for this event');
       res.body.data.should.be.a('array');
       res.body.data.length.should.be.eql(3);
-      res.body.data[0].should.have.all.keys('GuestStatus', 'Id', 'Username', 'ProfilePicture');
+      res.body.data[0].should.have.all.keys('GuestStatus', 'HasPlayerControl', 'Id', 'Username', 'ProfilePicture');
     });
 
     it('should not GET users with filter wrong type', async () => {
@@ -281,7 +281,7 @@ describe('Events', () => {
       res.body.message.should.be.eql('The guests for this event');
       res.body.data.should.be.a('array');
       res.body.data.length.should.be.eql(1);
-      res.body.data[0].should.have.all.keys('GuestStatus', 'Id', 'Username', 'ProfilePicture');
+      res.body.data[0].should.have.all.keys('GuestStatus', 'HasPlayerControl', 'Id', 'Username', 'ProfilePicture');
       res.body.data[0].Id.should.be.eql(user1.insertId);
       res.body.data[0].GuestStatus.should.be.eql('Invited');
     });
