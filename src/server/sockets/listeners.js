@@ -44,13 +44,13 @@ export default function initListeners(io) {
       });
 
       socket.on('remote_controller', (data) => {
-        const { eventId } = data;
-        if (eventId === undefined) {
+        const { eventId, status } = data;
+        if (eventId === undefined || status === undefined) {
           socket.emit('exception', {
             code: 401, message: 'Missing data', event: 'remote_controller', eventId,
           });
         } else {
-          changeStatusOfMusic(userId, eventId, socket, io);
+          changeStatusOfMusic(userId, eventId, status, socket, io);
         }
       });
 
