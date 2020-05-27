@@ -40,6 +40,9 @@ export default async function changePlayerControllers(req, res, next) {
     if (update.affectedRows !== 1) {
       throw new ErrorResponseHandler(500, 'Unexpected error occured');
     }
+
+    req.io.to(eventId).emit('change_player_controller', { data: { userId: guestId, hasPlayerControl } });
+
     res.status(200).send({
       statusCode: 200,
       message: `Player control for user ${guestId} has been updated`,
