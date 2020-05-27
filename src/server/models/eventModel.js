@@ -128,6 +128,7 @@ Event.getEventGuests = function getEventGuests(eventId, filters) {
   return new Promise((resolve, reject) => {
     let query = 'SELECT \
       EventGuests.GuestStatus, \
+      EventGuests.HasPlayerControl, \
       UserProfiles.Id, \
       UserProfiles.Username, \
       UserProfiles.ProfilePicture \
