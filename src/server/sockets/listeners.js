@@ -1,5 +1,7 @@
 import jwt from 'jsonwebtoken';
-import { joinEvent, leaveEvent, changeStatusOfMusic } from './socketControllers/eventSocketController';
+import {
+  joinEvent, leaveEvent, changeStatusOfMusic, updateStatusOfMusicFromOwner,
+} from './socketControllers/eventSocketController';
 
 export default function initListeners(io) {
   io.use((socket, next) => {
@@ -51,6 +53,17 @@ export default function initListeners(io) {
           });
         } else {
           changeStatusOfMusic(userId, eventId, status, socket, io);
+        }
+      });
+
+      socket.on('owner_music_status_change', (data) => {
+        const { eventId, status } = data;
+        if (eventId === undefined || status === undefined) {
+          socket.emit('exception', {
+            code: 401, message: 'Missing data', event: 'owner_music_status_change', eventId,
+          });
+        } else {
+          updateStatusOfMusicFromOwner(userId, eventId, status, socket, io);
         }
       });
 

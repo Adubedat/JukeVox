@@ -48,7 +48,30 @@ export async function changeStatusOfMusic(userId, eventId, status, socket, io) {
   } catch (err) {
     console.log(err);
     socket.emit('exception', {
-      code: 500, message: 'Internal Server Error', event: 'join_event', eventId,
+      code: 500, message: 'Internal Server Error', event: 'remote_controller', eventId,
+    });
+  }
+}
+
+export async function updateStatusOfMusicFromOwner(userId, eventId, status, socket, io) {
+  try {
+    const event = await Event.getEvent(eventId);
+    if (event[0].CreatorId !== userId) {
+      socket.emit('exception', {
+        code: 403, message: 'Forbidden. User not owner', event: 'owner_music_status_change', eventId,
+      });
+      return;
+    }
+
+    io.to(eventId).emit('update_player_status', { data: { userId, eventId, status } });
+
+    socket.emit('success', {
+      code: 200, message: 'Successfully updated status', event: 'owner_music_status_change', eventId,
+    });
+  } catch (err) {
+    console.log(err);
+    socket.emit('exception', {
+      code: 500, message: 'Internal Server Error', event: 'owner_music_status_change', eventId,
     });
   }
 }
