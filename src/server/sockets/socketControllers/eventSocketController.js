@@ -56,7 +56,7 @@ export async function changeStatusOfMusic(userId, eventId, status, socket, io) {
 export async function updateStatusOfMusicFromOwner(userId, eventId, status, socket, io) {
   try {
     const event = await Event.getEvent(eventId);
-    if (event[0].CreatorId !== userId) {
+    if (event[0] == null || event[0].CreatorId !== userId) {
       socket.emit('exception', {
         code: 403, message: 'Forbidden. User not owner', event: 'owner_music_status_change', eventId,
       });
@@ -72,6 +72,52 @@ export async function updateStatusOfMusicFromOwner(userId, eventId, status, sock
     console.log(err);
     socket.emit('exception', {
       code: 500, message: 'Internal Server Error', event: 'owner_music_status_change', eventId,
+    });
+  }
+}
+
+export async function emitOwnerIsHere(userId, eventId, socket, io) {
+  try {
+    const event = await Event.getEvent(eventId);
+    if (event[0] == null || event[0].CreatorId !== userId) {
+      socket.emit('exception', {
+        code: 403, message: 'Forbidden. User not owner', event: 'owner_is_here', eventId,
+      });
+      return;
+    }
+
+    io.to(eventId).emit('owner_is_in_room', { data: { userId, eventId, status: true } });
+
+    socket.emit('success', {
+      code: 200, message: 'Successfully emited owner_is_in_room', event: 'owner_is_here', eventId,
+    });
+  } catch (err) {
+    console.log(err);
+    socket.emit('exception', {
+      code: 500, message: 'Internal Server Error', event: 'owner_is_here', eventId,
+    });
+  }
+}
+
+export async function pingOwner(userId, eventId, socket, io) {
+  try {
+    const guestStatusResponse = await Event.getGuestStatusForEvent(userId, eventId);
+    if (guestStatusResponse[0] == null || guestStatusResponse[0].GuestStatus !== 'Going') {
+      socket.emit('exception', {
+        code: 403, message: 'Forbidden. User not going', event: 'ping_owner', eventId,
+      });
+      return;
+    }
+
+    io.to(eventId).emit('looking_for_owner', { data: { userId, eventId } });
+
+    socket.emit('success', {
+      code: 200, message: 'Successfully pinged for owner', event: 'ping_owner', eventId,
+    });
+  } catch (err) {
+    console.log(err);
+    socket.emit('exception', {
+      code: 500, message: 'Internal Server Error', event: 'ping_owner', eventId,
     });
   }
 }

@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken';
 import {
-  joinEvent, leaveEvent, changeStatusOfMusic, updateStatusOfMusicFromOwner,
+  joinEvent, leaveEvent, changeStatusOfMusic, updateStatusOfMusicFromOwner, emitOwnerIsHere, pingOwner,
 } from './socketControllers/eventSocketController';
 
 export default function initListeners(io) {
@@ -64,6 +64,28 @@ export default function initListeners(io) {
           });
         } else {
           updateStatusOfMusicFromOwner(userId, eventId, status, socket, io);
+        }
+      });
+
+      socket.on('owner_is_here', (data) => {
+        const { eventId } = data;
+        if (eventId === undefined) {
+          socket.emit('exception', {
+            code: 401, message: 'Missing data', event: 'owner_is_here', eventId,
+          });
+        } else {
+          emitOwnerIsHere(userId, eventId, socket, io);
+        }
+      });
+
+      socket.on('ping_owner', (data) => {
+        const { eventId } = data;
+        if (eventId === undefined) {
+          socket.emit('exception', {
+            code: 401, message: 'Missing data', event: 'ping_owner', eventId,
+          });
+        } else {
+          pingOwner(userId, eventId, socket, io);
         }
       });
 
