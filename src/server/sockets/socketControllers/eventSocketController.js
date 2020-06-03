@@ -76,7 +76,7 @@ export async function updateStatusOfMusicFromOwner(userId, eventId, status, sock
   }
 }
 
-export async function emitOwnerIsHere(userId, eventId, socket, io) {
+export async function emitOwnerIsHere(userId, eventId, status, socket, io) {
   try {
     const event = await Event.getEvent(eventId);
     if (event[0] == null || event[0].CreatorId !== userId) {
@@ -86,7 +86,7 @@ export async function emitOwnerIsHere(userId, eventId, socket, io) {
       return;
     }
 
-    io.to(eventId).emit('owner_is_in_room', { data: { userId, eventId, status: true } });
+    io.to(eventId).emit('owner_is_in_room', { data: { userId, eventId, status } });
 
     socket.emit('success', {
       code: 200, message: 'Successfully emited owner_is_in_room', event: 'owner_is_here', eventId,
