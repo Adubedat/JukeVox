@@ -47,7 +47,11 @@ export default async function voteForTrack(req, res, next) {
 
     const votesSum = await Vote.getVotesSumForTrack(trackIdAsInt);
 
-    req.io.to(eventId).emit('new_vote', { data: { userId, eventId, voteInfo: votesSum[0] } });
+    req.io.to(eventId).emit('new_vote', {
+      data: {
+        userId, vote, eventId, voteInfo: votesSum[0],
+      },
+    });
 
     res.status(200).send({
       statusCode: 200,
