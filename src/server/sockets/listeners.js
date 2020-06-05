@@ -68,13 +68,13 @@ export default function initListeners(io) {
       });
 
       socket.on('owner_is_here', (data) => {
-        const { eventId, status } = data;
-        if (eventId === undefined || status === undefined) {
+        const { eventId, status, playerStatus } = data;
+        if (eventId === undefined || status === undefined || playerStatus === undefined) {
           socket.emit('exception', {
             code: 401, message: 'Missing data', event: 'owner_is_here', eventId,
           });
         } else {
-          emitOwnerIsHere(userId, eventId, status, socket, io);
+          emitOwnerIsHere(userId, eventId, status, playerStatus, socket, io);
         }
       });
 
