@@ -41,7 +41,7 @@ export default async function changePlayerControllers(req, res, next) {
       throw new ErrorResponseHandler(500, 'Unexpected error occured');
     }
 
-    req.io.to(eventId).emit('change_player_controller', { data: { userId: guestId, hasPlayerControl } });
+    req.io.to(eventId).emit('change_player_controller', { data: { userId: guestId, eventId, hasPlayerControl } });
 
     res.status(200).send({
       statusCode: 200,
