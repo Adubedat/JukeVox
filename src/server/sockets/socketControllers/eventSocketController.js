@@ -76,7 +76,7 @@ export async function updateStatusOfMusicFromOwner(userId, eventId, status, sock
   }
 }
 
-export async function emitOwnerIsHere(userId, eventId, status, playerStatus, socket, io) {
+export async function emitOwnerIsHere(userId, eventId, ownerInRoom, ownerDeezerConnected, playerStatus, socket, io) {
   try {
     const event = await Event.getEvent(eventId);
     if (event[0] == null || event[0].CreatorId !== userId) {
@@ -88,7 +88,7 @@ export async function emitOwnerIsHere(userId, eventId, status, playerStatus, soc
 
     io.to(eventId).emit('owner_is_in_room', {
       data: {
-        userId, eventId, status, playerStatus,
+        userId, eventId, ownerInRoom, ownerDeezerConnected, playerStatus,
       },
     });
 
@@ -108,7 +108,7 @@ export async function pingOwner(userId, eventId, socket, io) {
     const guestStatusResponse = await Event.getGuestStatusForEvent(userId, eventId);
     if (guestStatusResponse[0] == null || guestStatusResponse[0].GuestStatus !== 'Going') {
       socket.emit('exception', {
-        code: 403, message: 'Forbidden. User not going', event: 'ping_owner', eventId,
+        code: 403, message: 'Forbidden. User not going', event: 'can_i_play', eventId,
       });
       return;
     }
@@ -116,12 +116,12 @@ export async function pingOwner(userId, eventId, socket, io) {
     io.to(eventId).emit('looking_for_owner', { data: { userId, eventId } });
 
     socket.emit('success', {
-      code: 200, message: 'Successfully pinged for owner', event: 'ping_owner', eventId,
+      code: 200, message: 'Successfully pinged for owner', event: 'can_i_play', eventId,
     });
   } catch (err) {
     console.log(err);
     socket.emit('exception', {
-      code: 500, message: 'Internal Server Error', event: 'ping_owner', eventId,
+      code: 500, message: 'Internal Server Error', event: 'can_i_play', eventId,
     });
   }
 }

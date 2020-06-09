@@ -68,21 +68,23 @@ export default function initListeners(io) {
       });
 
       socket.on('owner_is_here', (data) => {
-        const { eventId, status, playerStatus } = data;
-        if (eventId === undefined || status === undefined || playerStatus === undefined) {
+        const {
+          eventId, ownerInRoom, ownerDeezerConnected, playerStatus,
+        } = data;
+        if (eventId === undefined || ownerInRoom === undefined || ownerDeezerConnected === undefined || playerStatus === undefined) {
           socket.emit('exception', {
             code: 401, message: 'Missing data', event: 'owner_is_here', eventId,
           });
         } else {
-          emitOwnerIsHere(userId, eventId, status, playerStatus, socket, io);
+          emitOwnerIsHere(userId, eventId, ownerInRoom, ownerDeezerConnected, playerStatus, socket, io);
         }
       });
 
-      socket.on('ping_owner', (data) => {
+      socket.on('can_i_play', (data) => {
         const { eventId } = data;
         if (eventId === undefined) {
           socket.emit('exception', {
-            code: 401, message: 'Missing data', event: 'ping_owner', eventId,
+            code: 401, message: 'Missing data', event: 'can_i_play', eventId,
           });
         } else {
           pingOwner(userId, eventId, socket, io);
