@@ -9,11 +9,12 @@ import getResetPasswordForm from '../../controller/users/getResetPasswordForm';
 import resetPassword from '../../controller/users/resetPassword';
 import confirmLoaderio from '../../controller/loaderio/confirmLoaderio';
 import { openRoutesRateLimiter } from '../../middlewares/rateLimiters';
+import logger from '../../../helpers/logger';
 
 const router = express.Router();
 
 router.use((req, res, next) => {
-  console.log('%s %s', req.method, req.path);
+  logger.info('%s %s', req.method, req.path, { userAgent: req.get('user-agent') });
   next();
 });
 

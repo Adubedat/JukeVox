@@ -1,4 +1,5 @@
 import Event from '../../models/eventModel';
+import logger from '../../../helpers/logger';
 
 export async function joinEvent(userId, eventId, socket, io) {
   try {
@@ -23,7 +24,7 @@ export async function joinEvent(userId, eventId, socket, io) {
       code: 200, message: 'Successfully joined event', event: 'join_event', eventId,
     });
   } catch (err) {
-    console.log(err);
+    logger.error(err);
     socket.emit('exception', {
       code: 500, message: 'Internal Server Error', event: 'join_event', eventId,
     });
@@ -46,7 +47,7 @@ export async function changeStatusOfMusic(userId, eventId, status, socket, io) {
       code: 200, message: 'Successfully changed control', event: 'remote_controller', eventId,
     });
   } catch (err) {
-    console.log(err);
+    logger.error(err);
     socket.emit('exception', {
       code: 500, message: 'Internal Server Error', event: 'remote_controller', eventId,
     });
@@ -69,7 +70,7 @@ export async function updateStatusOfMusicFromOwner(userId, eventId, status, sock
       code: 200, message: 'Successfully updated status', event: 'owner_music_status_change', eventId,
     });
   } catch (err) {
-    console.log(err);
+    logger.error(err);
     socket.emit('exception', {
       code: 500, message: 'Internal Server Error', event: 'owner_music_status_change', eventId,
     });
@@ -96,7 +97,7 @@ export async function emitOwnerIsHere(userId, eventId, ownerInRoom, ownerDeezerC
       code: 200, message: 'Successfully emited owner_is_in_room', event: 'owner_is_here', eventId,
     });
   } catch (err) {
-    console.log(err);
+    logger.error(err);
     socket.emit('exception', {
       code: 500, message: 'Internal Server Error', event: 'owner_is_here', eventId,
     });
@@ -119,7 +120,7 @@ export async function pingOwner(userId, eventId, socket, io) {
       code: 200, message: 'Successfully pinged for owner', event: 'can_i_play', eventId,
     });
   } catch (err) {
-    console.log(err);
+    logger.error(err);
     socket.emit('exception', {
       code: 500, message: 'Internal Server Error', event: 'can_i_play', eventId,
     });
@@ -129,12 +130,12 @@ export async function pingOwner(userId, eventId, socket, io) {
 export async function leaveEvent(userId, eventId, socket, io) {
   try {
     socket.leave(eventId);
-    console.log(`User ${userId} just left the event ${eventId}`);
+    logger.info(`User ${userId} just left the event ${eventId}`);
     socket.emit('success', {
       code: 200, message: 'Successfully left event', event: 'leave_event', eventId,
     });
   } catch (err) {
-    console.log(err);
+    logger.error(err);
     socket.emit('exception', {
       code: 500, message: 'Internal Server Error', event: 'leave_event', eventId,
     });

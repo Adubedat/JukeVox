@@ -2,6 +2,7 @@ import jwt from 'jsonwebtoken';
 import {
   joinEvent, leaveEvent, changeStatusOfMusic, updateStatusOfMusicFromOwner, emitOwnerIsHere, pingOwner,
 } from './socketControllers/eventSocketController';
+import logger from '../../helpers/logger';
 
 export default function initListeners(io) {
   io.use((socket, next) => {
@@ -21,7 +22,7 @@ export default function initListeners(io) {
       // connection now authenticated to receive further events
       const { userId } = socket.decoded;
 
-      console.log(`User ${userId} Connected`);
+      logger.info(`User ${userId} Connected`);
 
       socket.on('join_event', (data) => {
         const { eventId } = data;
@@ -92,7 +93,7 @@ export default function initListeners(io) {
       });
 
       socket.on('disconnect', () => {
-        console.log('User disconnected');
+        logger.info('User disconnected');
       });
     });
 }

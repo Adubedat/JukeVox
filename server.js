@@ -4,6 +4,7 @@ import protectedRoutes from './src/server/routes/protectedRoutes'; // eslint-dis
 import params from './params'; // eslint-disable-line
 import { handleError } from './src/helpers/error'; // eslint-disable-line
 import initListeners from './src/server/sockets/listeners';
+import logger from './src/helpers/logger';
 
 const express = require('express');
 
@@ -28,9 +29,9 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/', openRoutes);
 app.use('/api', protectedRoutes);
 app.use((err, req, res, next) => { // eslint-disable-line no-unused-vars
-  handleError(err, res);
+  handleError(err, req, res);
 });
 
 module.exports = app;
 
-console.log(`Music Room RESTful API server started on port: ${port}`);
+logger.info(`Music Room RESTful API server started on port: ${port}`);
