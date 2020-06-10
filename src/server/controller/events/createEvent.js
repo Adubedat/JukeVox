@@ -1,4 +1,5 @@
 import Event from '../../models/eventModel';
+import Logs, { EVENT_CREATED } from '../../models/logsModel';
 import { checkUnknownFields } from '../../../helpers/validation';
 import validateEventBody from './helpers/validation';
 
@@ -27,6 +28,8 @@ export default async function createEvent(req, res, next) {
     await Event.addGuest(eventConfirmation.insertId, userId, true, 'Going');
 
     req.body.Id = eventConfirmation.insertId;
+
+    Logs.addLog(EVENT_CREATED, 'Event created', userId);
 
     res.status(200).send({
       statusCode: 200,

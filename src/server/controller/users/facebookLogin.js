@@ -3,6 +3,7 @@ import { ErrorResponseHandler } from '../../../helpers/error';
 import { checkUnknownFields } from '../../../helpers/validation';
 import { generateJwt, generateUsername } from '../../../helpers/utils';
 import User from '../../models/userModel';
+import Logs, { ACCOUNT_CREATED } from '../../models/logsModel';
 
 async function validateBody(accessToken) {
   if (typeof accessToken !== 'string') {
@@ -37,6 +38,7 @@ export default async function facebookLogin(req, res, next) {
       } else if (providerAccount !== undefined) {
         [userProfile] = await User.getUserProfile(['Id'], [providerAccount.UserProfileId]);
       }
+      Logs.addLog(ACCOUNT_CREATED, 'New user registered', userProfile.Id);
 
       const jwt = generateJwt(userProfile.Id);
       res.send({
