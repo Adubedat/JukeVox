@@ -32,13 +32,13 @@ export default async function facebookLogin(req, res, next) {
         const createResponse = await User.createUserProfile(username, resp.email);
         [userProfile] = await User.getUserProfile(['Id'], [createResponse.insertId]);
         await User.createProviderAccount(userProfile.Id, providerId, 'Facebook');
+        Logs.addLog(ACCOUNT_CREATED, 'New user registered', userProfile.Id);
       } else if (providerAccount === undefined && userProfileByEmail !== undefined) {
         userProfile = userProfileByEmail;
         await User.createProviderAccount(userProfile.Id, providerId, 'Facebook');
       } else if (providerAccount !== undefined) {
         [userProfile] = await User.getUserProfile(['Id'], [providerAccount.UserProfileId]);
       }
-      Logs.addLog(ACCOUNT_CREATED, 'New user registered', userProfile.Id);
 
       const jwt = generateJwt(userProfile.Id);
       res.send({
