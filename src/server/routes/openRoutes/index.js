@@ -14,7 +14,9 @@ import logger from '../../../helpers/logger';
 const router = express.Router();
 
 router.use((req, res, next) => {
-  logger.info('%s %s', req.method, req.path, { userAgent: req.get('user-agent') });
+  const forwarded = req.headers['x-forwarded-for'];
+  const IP = forwarded ? forwarded.split(/, /)[0] : req.connection.remoteAddress;
+  logger.info('%s %s', req.method, req.path, { userAgent: req.get('user-agent'), IP });
   next();
 });
 

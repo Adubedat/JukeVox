@@ -9,7 +9,7 @@ const logger = createLogger({
     format.splat(),
     format.errors({ stack: true }),
     format.colorize({ all: true }),
-    format.printf((info) => `${info.timestamp} [${info.userAgent}] [${info.level}] ${info.message}`),
+    format.printf((info) => `${info.timestamp} [IP: ${info.IP}][User-Agent: ${info.userAgent}] [${info.level}] ${info.message}`),
   ),
   transports: [
     //
