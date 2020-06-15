@@ -18,7 +18,7 @@ router.use((req, res, next) => {
   next();
 });
 
-// router.use(openRoutesRateLimiter);
+router.use(openRoutesRateLimiter);
 
 router.get('/loaderio-93f4e56e9270cfa4d6e5d226b66a9405', confirmLoaderio);
 
