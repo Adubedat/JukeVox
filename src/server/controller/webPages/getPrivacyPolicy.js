@@ -1,6 +1,5 @@
 const path = require('path');
 
-export default async function getPrivacyPolicy(req, res, next) {
-  console.log(path.join(`${__dirname}templates/privacyPolicy.html`));
+export default async function getPrivacyPolicy(req, res) {
   res.sendFile(path.join(`${__dirname}/../../../../templates/privacyPolicy.html`));
 }
