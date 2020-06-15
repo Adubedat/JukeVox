@@ -1,9 +1,10 @@
 import nodemailer from 'nodemailer';
 import ejs from 'ejs';
+import logger from './logger';
 
 function setupTransporter() {
   let transporter;
-  if (process.env.NODE_ENV === 'test') {
+  if (process.env.NODE_ENV !== 'production') {
     transporter = nodemailer.createTransport({
       host: 'smtp.mailtrap.io',
       port: 2525,
@@ -12,7 +13,7 @@ function setupTransporter() {
         pass: process.env.MAILTRAP_PASS,
       },
     });
-  } else if (process.env.NODE_ENV === 'production') {
+  } else {
     transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
@@ -30,7 +31,7 @@ export function sendEmailConfirmationLink(email, username, token) {
     const link = `https://jukevox.herokuapp.com/confirmEmail/${token}`;
     ejs.renderFile(`${__dirname}/../../templates/emailConfirmation.ejs`, { username, link }, (err, data) => {
       if (err) {
-        console.log(err);
+        logger.error(err);
       } else {
         const mainOptions = {
           to: email,
@@ -39,9 +40,10 @@ export function sendEmailConfirmationLink(email, username, token) {
         };
         transporter.sendMail(mainOptions, (error, info) => {
           if (error) {
+            logger.error(error);
             reject(error);
-            console.log(error);
           } else {
+            logger.info(info);
             resolve();
           }
         });
@@ -56,7 +58,7 @@ export function sendResetPasswordLink(email, token) {
     const link = `https://jukevox.herokuapp.com/resetPassword/${token}`;
     ejs.renderFile(`${__dirname}/../../templates/resetPasswordMail.ejs`, { email, link }, (err, data) => {
       if (err) {
-        console.log(err);
+        logger.error(err);
       } else {
         const mainOptions = {
           to: email,
@@ -65,9 +67,10 @@ export function sendResetPasswordLink(email, token) {
         };
         transporter.sendMail(mainOptions, (error, info) => {
           if (error) {
+            logger.error(error);
             reject(error);
-            console.log(error);
           } else {
+            logger.info(info);
             resolve();
           }
         });

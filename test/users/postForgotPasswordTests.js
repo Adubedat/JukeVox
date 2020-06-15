@@ -3,6 +3,7 @@ import 'core-js/stable';
 import 'regenerator-runtime/runtime';
 import moment from 'moment';
 import DATETIME_FORMAT from '../../src/server/constants';
+import logger from '../../src/helpers/logger';
 
 import sql from '../../src/helpers/database';
 
@@ -30,7 +31,7 @@ describe('Users', () => {
     const userProfileQuery = 'INSERT INTO UserProfiles (Username, Email, CreatedAt) VALUES ?';
     const userProfileValues = [['Daniel', email, moment().format(DATETIME_FORMAT)]];
     const userProfile = await sql.query(userProfileQuery,
-      [userProfileValues]).catch((err) => console.log(err));
+      [userProfileValues]).catch((err) => logger.error(err));
     return userProfile;
   }
 
@@ -42,7 +43,7 @@ describe('Users', () => {
     VALUES ?';
     const userAccountValues = [[id, email, password, emailConfirmed]];
     const userAccount = await sql.query(userAccountQuery,
-      [userAccountValues]).catch((err) => console.log(err));
+      [userAccountValues]).catch((err) => logger.error(err));
 
     return userAccount;
   }

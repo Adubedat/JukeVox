@@ -2,6 +2,7 @@ import jwt from 'jsonwebtoken';
 import {
   joinEvent, leaveEvent, changeStatusOfMusic, updateStatusOfMusicFromOwner, emitOwnerIsHere, pingOwner,
 } from './socketControllers/eventSocketController';
+import logger from '../../helpers/logger';
 
 export default function initListeners(io) {
   io.use((socket, next) => {
@@ -11,6 +12,7 @@ export default function initListeners(io) {
           return next(new Error('Authentication error'));
         }
         socket.decoded = decoded;
+
         next();
       });
     } else {
@@ -21,9 +23,12 @@ export default function initListeners(io) {
       // connection now authenticated to receive further events
       const { userId } = socket.decoded;
 
-      console.log(`User ${userId} Connected`);
+      logger.info(`User ${userId} connected to socket`,
+        { userAgent: socket.handshake.headers['user-agent'], IP: socket.handshake.address });
 
       socket.on('join_event', (data) => {
+        logger.info(`User ${userId} called 'join_event' socket event`,
+          { userAgent: socket.handshake.headers['user-agent'], IP: socket.handshake.address });
         const { eventId } = data;
         if (eventId === undefined) {
           socket.emit('exception', {
@@ -35,6 +40,8 @@ export default function initListeners(io) {
       });
 
       socket.on('leave_event', (data) => {
+        logger.info(`User ${userId} called 'leave_event' socket event`,
+          { userAgent: socket.handshake.headers['user-agent'], IP: socket.handshake.address });
         const { eventId, status } = data;
         if (eventId === undefined || status === undefined) {
           socket.emit('exception', {
@@ -46,6 +53,8 @@ export default function initListeners(io) {
       });
 
       socket.on('remote_controller', (data) => {
+        logger.info(`User ${userId} called 'remote_controller' socket event`,
+          { userAgent: socket.handshake.headers['user-agent'], IP: socket.handshake.address });
         const { eventId, status } = data;
         if (eventId === undefined || status === undefined) {
           socket.emit('exception', {
@@ -57,6 +66,8 @@ export default function initListeners(io) {
       });
 
       socket.on('owner_music_status_change', (data) => {
+        logger.info(`User ${userId} called 'owner_music_status_change' socket event`,
+          { userAgent: socket.handshake.headers['user-agent'], IP: socket.handshake.address });
         const { eventId, status } = data;
         if (eventId === undefined || status === undefined) {
           socket.emit('exception', {
@@ -68,6 +79,8 @@ export default function initListeners(io) {
       });
 
       socket.on('owner_is_here', (data) => {
+        logger.info(`User ${userId} called 'owner_is_here' socket event`,
+          { userAgent: socket.handshake.headers['user-agent'], IP: socket.handshake.address });
         const {
           eventId, ownerInRoom, ownerDeezerConnected, playerStatus,
         } = data;
@@ -81,6 +94,8 @@ export default function initListeners(io) {
       });
 
       socket.on('can_i_play', (data) => {
+        logger.info(`User ${userId} called 'can_i_play' socket event`,
+          { userAgent: socket.handshake.headers['user-agent'], IP: socket.handshake.address });
         const { eventId } = data;
         if (eventId === undefined) {
           socket.emit('exception', {
@@ -92,7 +107,8 @@ export default function initListeners(io) {
       });
 
       socket.on('disconnect', () => {
-        console.log('User disconnected');
+        logger.info(`User ${userId} disconnected`,
+          { userAgent: socket.handshake.headers['user-agent'], IP: socket.handshake.address });
       });
     });
 }

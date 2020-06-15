@@ -3,6 +3,7 @@ import 'core-js/stable';
 import 'regenerator-runtime/runtime';
 import moment from 'moment';
 import DATETIME_FORMAT from '../../src/server/constants';
+import logger from '../../src/helpers/logger';
 
 import sql from '../../src/helpers/database';
 
@@ -189,7 +190,7 @@ describe('Users', () => {
     it('should not POST a user with an existing username', async () => {
       const query = 'INSERT INTO UserProfiles (Username, Email, CreatedAt) VALUES ?';
       const values = [['Daniel', 'daniel@mail.com', moment().format(DATETIME_FORMAT)]];
-      await sql.query(query, [values]).catch((err) => console.log(err));
+      await sql.query(query, [values]).catch((err) => logger.error(err));
 
       const user = {
         username: 'Daniel',
@@ -214,7 +215,7 @@ describe('Users', () => {
     it('should not POST a user with an existing email', async () => {
       const query = 'INSERT INTO UserProfiles (Username, Email, CreatedAt) VALUES ?';
       const values = [['Daniel', 'daniel@mail.com', moment().format(DATETIME_FORMAT)]];
-      await sql.query(query, [values]).catch((err) => console.log(err));
+      await sql.query(query, [values]).catch((err) => logger.error(err));
 
       const user = {
         username: 'Daniel2',
@@ -240,10 +241,10 @@ describe('Users', () => {
     // it('should not POST a user with an existing email in userAccounts', async () => {
     //   const query = 'INSERT INTO UserProfiles (Username, Email, CreatedAt) VALUES ?';
     //   const values = [['Daniel', 'fakeemail@mail.com', moment().format(DATETIME_FORMAT)]];
-    //   const user1 = await sql.query(query, [values]).catch((err) => console.log(err));
+    //   const user1 = await sql.query(query, [values]).catch((err) => logger.error(err));
     //   const query2 = 'INSERT INTO UserAccounts (UserProfileId, Email) VALUES ?';
     //   const values2 = [[user1.insertId, 'daniel@mail.com']];
-    //   await sql.query(query2, [values2]).catch((err) => console.log(err));
+    //   await sql.query(query2, [values2]).catch((err) => logger.error(err));
 
     //   const user = {
     //     username: 'Daniel2',
