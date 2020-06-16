@@ -6,6 +6,7 @@ import crypto from 'crypto';
 import DATETIME_FORMAT from '../../src/server/constants';
 
 import sql from '../../src/helpers/database';
+import logger from '../../src/helpers/logger';
 
 const chai = require('chai');
 const chaiHttp = require('chai-http');
@@ -34,7 +35,7 @@ describe('Users', () => {
     async function addUserProfile(email) {
       const userProfileQuery = 'INSERT INTO UserProfiles (Username, Email, CreatedAt) VALUES ?';
       const userProfileValues = [['Daniel', email, moment().format(DATETIME_FORMAT)]];
-      const userProfile = await sql.query(userProfileQuery, [userProfileValues]).catch((err) => console.log(err));
+      const userProfile = await sql.query(userProfileQuery, [userProfileValues]).catch((err) => logger.error(err));
       return userProfile;
     }
 
@@ -46,7 +47,7 @@ describe('Users', () => {
       const userAccountQuery = 'INSERT INTO UserAccounts (UserProfileId, Email, Password, ConfirmationToken, TokenExpiration) \
       VALUES ?';
       const userAccountValues = [[id, email, password, token, expirationDate]];
-      const userAccount = await sql.query(userAccountQuery, [userAccountValues]).catch((err) => console.log(err));
+      const userAccount = await sql.query(userAccountQuery, [userAccountValues]).catch((err) => logger.error(err));
 
       return userAccount;
     }
@@ -55,7 +56,7 @@ describe('Users', () => {
       const providerAccountQuery = 'INSERT INTO ProviderAccounts (UserProfileId, Provider, ProviderId) \
       VALUES ?';
       const providerAccountValues = [[id, type, 'a']];
-      const providerAccount = await sql.query(providerAccountQuery, [providerAccountValues]).catch((err) => console.log(err));
+      const providerAccount = await sql.query(providerAccountQuery, [providerAccountValues]).catch((err) => logger.error(err));
 
       return providerAccount;
     }

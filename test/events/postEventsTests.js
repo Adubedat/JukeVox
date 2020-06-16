@@ -7,6 +7,8 @@ import sql from '../../src/helpers/database';
 
 import { generateJwt } from '../../src/helpers/utils';
 
+import logger from '../../src/helpers/logger';
+
 const chai = require('chai');
 const chaiHttp = require('chai-http');
 const server = require('../../server');
@@ -32,7 +34,7 @@ describe('Events', () => {
     const userProfileQuery = 'INSERT INTO UserProfiles (Username, Email, CreatedAt) VALUES ?';
     const userProfileValues = [['Daniel', 'daniel@mail.com', moment().format(DATETIME_FORMAT)]];
     const userProfile = await sql.query(userProfileQuery, [userProfileValues])
-      .catch((err) => console.log(err));
+      .catch((err) => logger.error(err));
     return userProfile;
   }
 

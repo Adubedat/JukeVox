@@ -8,12 +8,16 @@ import forgotPassword from '../../controller/users/forgotPassword';
 import getResetPasswordForm from '../../controller/users/getResetPasswordForm';
 import resetPassword from '../../controller/users/resetPassword';
 import confirmLoaderio from '../../controller/loaderio/confirmLoaderio';
+import getPrivacyPolicy from '../../controller/webPages/getPrivacyPolicy';
 import { openRoutesRateLimiter } from '../../middlewares/rateLimiters';
+import logger from '../../../helpers/logger';
 
 const router = express.Router();
 
 router.use((req, res, next) => {
-  console.log('%s %s', req.method, req.path);
+  const forwarded = req.headers['x-forwarded-for'];
+  const IP = forwarded ? forwarded.split(/, /)[0] : req.connection.remoteAddress;
+  logger.info('%s %s', req.method, req.path, { userAgent: req.get('user-agent'), IP });
   next();
 });
 
@@ -36,5 +40,7 @@ router.post('/forgotPassword', forgotPassword);
 router.route('/resetPassword/:token')
   .get(getResetPasswordForm)
   .post(resetPassword);
+
+router.get('/privacyPolicy', getPrivacyPolicy);
 
 export default router;

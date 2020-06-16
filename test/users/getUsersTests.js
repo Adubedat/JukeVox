@@ -3,6 +3,7 @@ import 'core-js/stable';
 import 'regenerator-runtime/runtime';
 import moment from 'moment';
 import DATETIME_FORMAT from '../../src/server/constants';
+import logger from '../../src/helpers/logger';
 
 import sql from '../../src/helpers/database';
 
@@ -42,7 +43,7 @@ describe('Users', () => {
     it('should GET all the users', async () => {
       const query = 'INSERT INTO UserProfiles (Username, Email, CreatedAt) VALUES ?';
       const values = [['Daniel', 'daniel@mail.com', moment().format(DATETIME_FORMAT)]];
-      await sql.query(query, [values]).catch((err) => console.log(err));
+      await sql.query(query, [values]).catch((err) => logger.error(err));
       const res = await chai.request(server)
         .get('/users');
       res.should.have.status(200);

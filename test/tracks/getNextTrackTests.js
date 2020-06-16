@@ -4,6 +4,7 @@ import 'regenerator-runtime/runtime';
 import moment from 'moment';
 import DATETIME_FORMAT from '../../src/server/constants';
 import sql from '../../src/helpers/database';
+import logger from '../../src/helpers/logger';
 
 import { generateJwt } from '../../src/helpers/utils';
 
@@ -39,7 +40,7 @@ describe('Events', () => {
     const query = 'INSERT INTO Votes (TrackId, UserId, Vote) VALUES ? ON DUPLICATE KEY UPDATE Vote = ?;';
     const values = [[trackId, userId, vote]];
 
-    const voteInTable = await sql.query(query, [values, vote]).catch((err) => console.log(err));
+    const voteInTable = await sql.query(query, [values, vote]).catch((err) => logger.error(err));
     return voteInTable;
   }
 
@@ -57,7 +58,7 @@ describe('Events', () => {
     const values = [[eventId, userId, content.deezerSongId, content.title,
       content.duration, content.artistName, content.addedAt]];
     const track = await sql.query(query, [values])
-      .catch((err) => console.log(err));
+      .catch((err) => logger.error(err));
 
     return track;
   }
@@ -86,7 +87,7 @@ describe('Events', () => {
       content.startDate, content.endDate, content.location, content.latitude, content.longitude,
       content.streamerDevice, content.isPrivate]];
     const event = await sql.query(eventQuery, [eventValues])
-      .catch((err) => console.log(err));
+      .catch((err) => logger.error(err));
     return event;
   }
 
@@ -94,7 +95,7 @@ describe('Events', () => {
     const eventGuestQuery = 'insert into EventGuests (EventId, GuestId, HasPlayerControl, GuestStatus) VALUES ?';
     const eventGuestValues = [[eventId, guestId, false, guestStatus]];
     const eventGuest = await sql.query(eventGuestQuery, [eventGuestValues])
-      .catch((err) => console.log(err));
+      .catch((err) => logger.error(err));
     return eventGuest;
   }
 
@@ -102,7 +103,7 @@ describe('Events', () => {
     const userProfileQuery = 'INSERT INTO UserProfiles (Username, Email, CreatedAt) VALUES ?';
     const userProfileValues = [[`Daniel${userNumber}`, `${userNumber}daniel@mail.com`, moment().format(DATETIME_FORMAT)]];
     const userProfile = await sql.query(userProfileQuery, [userProfileValues])
-      .catch((err) => console.log(err));
+      .catch((err) => logger.error(err));
     return userProfile;
   }
 
@@ -111,7 +112,7 @@ describe('Events', () => {
     VALUES ?;';
     const trackHistoryValues = [[trackId, eventId, `2031-05-${day} 05:05:05`]];
     const trackInHistory = await sql.query(trackHistoryQuery, [trackHistoryValues])
-      .catch((err) => console.log(err));
+      .catch((err) => logger.error(err));
     return trackInHistory;
   }
 
