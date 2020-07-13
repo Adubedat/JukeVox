@@ -1,5 +1,6 @@
 import ejs from 'ejs';
 import User from '../../models/userModel';
+import Logs, { ACCOUNT_CONFIRMED } from '../../models/logsModel';
 import { ErrorResponseHandler } from '../../../helpers/error';
 
 export default async function confirmEmail(req, res, next) {
@@ -15,6 +16,7 @@ export default async function confirmEmail(req, res, next) {
       ejs.renderFile(`${__dirname}/../../../../templates/emailConfirmed.ejs`, {}, (err, data) => {
         res.send(data);
       });
+      Logs.addLog(ACCOUNT_CONFIRMED, 'Account confirmed', userAccount[0].UserProfileId);
     }
   } catch (err) {
     next(err);

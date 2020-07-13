@@ -3,6 +3,7 @@ import { ErrorResponseHandler } from '../../../helpers/error';
 import { checkUnknownFields } from '../../../helpers/validation';
 import { generateJwt, generateUsername } from '../../../helpers/utils';
 import User from '../../models/userModel';
+import Logs, { ACCOUNT_CREATED, USER_CONNECTED } from '../../models/logsModel';
 
 admin.initializeApp({
   credential: admin.credential.cert(JSON.parse(process.env.GOOGLE_CREDENTIALS)),
@@ -34,6 +35,7 @@ export default async function googleLogin(req, res, next) {
       const createResponse = await User.createUserProfile(username, decodedToken.email);
       [userProfile] = await User.getUserProfile(['Id'], [createResponse.insertId]);
       await User.createProviderAccount(userProfile.Id, providerId, 'Google');
+      Logs.addLog(ACCOUNT_CREATED, 'New user registered', userProfile.Id);
     } else if (providerAccount === undefined && userProfileByEmail !== undefined) {
       userProfile = userProfileByEmail;
       await User.createProviderAccount(userProfile.Id, providerId, 'Google');
