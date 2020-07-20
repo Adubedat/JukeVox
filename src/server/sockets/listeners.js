@@ -27,9 +27,9 @@ export default function initListeners(io) {
         { userAgent: socket.handshake.headers['user-agent'], IP: socket.handshake.address });
 
       socket.on('join_event', (data) => {
-        logger.info(`User ${userId} called 'join_event' socket event`,
-          { userAgent: socket.handshake.headers['user-agent'], IP: socket.handshake.address });
         const { eventId } = data;
+        logger.info(`User ${userId} called 'join_event' socket event with eventId = ${eventId}`,
+          { userAgent: socket.handshake.headers['user-agent'], IP: socket.handshake.address });
         if (eventId === undefined) {
           socket.emit('exception', {
             code: 401, message: 'Missing data', event: 'join_event', eventId,
@@ -40,9 +40,9 @@ export default function initListeners(io) {
       });
 
       socket.on('leave_event', (data) => {
-        logger.info(`User ${userId} called 'leave_event' socket event`,
-          { userAgent: socket.handshake.headers['user-agent'], IP: socket.handshake.address });
         const { eventId, status } = data;
+        logger.info(`User ${userId} called 'leave_event' socket event with eventId = ${eventId}, status = ${status}`,
+          { userAgent: socket.handshake.headers['user-agent'], IP: socket.handshake.address });
         if (eventId === undefined || status === undefined) {
           socket.emit('exception', {
             code: 401, message: 'Missing data', event: 'leave_event', eventId,
@@ -53,9 +53,9 @@ export default function initListeners(io) {
       });
 
       socket.on('remote_controller', (data) => {
-        logger.info(`User ${userId} called 'remote_controller' socket event`,
-          { userAgent: socket.handshake.headers['user-agent'], IP: socket.handshake.address });
         const { eventId, status } = data;
+        logger.info(`User ${userId} called 'remote_controller' socket event with eventId = ${eventId}, status = ${status}`,
+          { userAgent: socket.handshake.headers['user-agent'], IP: socket.handshake.address });
         if (eventId === undefined || status === undefined) {
           socket.emit('exception', {
             code: 401, message: 'Missing data', event: 'remote_controller', eventId,
@@ -66,9 +66,9 @@ export default function initListeners(io) {
       });
 
       socket.on('owner_music_status_change', (data) => {
-        logger.info(`User ${userId} called 'owner_music_status_change' socket event`,
-          { userAgent: socket.handshake.headers['user-agent'], IP: socket.handshake.address });
         const { eventId, status } = data;
+        logger.info(`User ${userId} called 'owner_music_status_change' socket event with eventId = ${eventId}, status = ${status}`,
+          { userAgent: socket.handshake.headers['user-agent'], IP: socket.handshake.address });
         if (eventId === undefined || status === undefined) {
           socket.emit('exception', {
             code: 401, message: 'Missing data', event: 'owner_music_status_change', eventId,
@@ -79,11 +79,12 @@ export default function initListeners(io) {
       });
 
       socket.on('owner_is_here', (data) => {
-        logger.info(`User ${userId} called 'owner_is_here' socket event`,
-          { userAgent: socket.handshake.headers['user-agent'], IP: socket.handshake.address });
         const {
           eventId, ownerInRoom, ownerDeezerConnected, playerStatus,
         } = data;
+        logger.info(`User ${userId} called 'owner_is_here' socket event with eventId = ${eventId}, ownerInRoom = ${ownerInRoom},
+          ownerDeezerConnected = ${ownerDeezerConnected}, playerStatus = ${playerStatus}`,
+        { userAgent: socket.handshake.headers['user-agent'], IP: socket.handshake.address });
         if (eventId === undefined || ownerInRoom === undefined || ownerDeezerConnected === undefined || playerStatus === undefined) {
           socket.emit('exception', {
             code: 401, message: 'Missing data', event: 'owner_is_here', eventId,
@@ -94,9 +95,9 @@ export default function initListeners(io) {
       });
 
       socket.on('can_i_play', (data) => {
-        logger.info(`User ${userId} called 'can_i_play' socket event`,
-          { userAgent: socket.handshake.headers['user-agent'], IP: socket.handshake.address });
         const { eventId } = data;
+        logger.info(`User ${userId} called 'can_i_play' socket event with eventId = ${eventId}`,
+          { userAgent: socket.handshake.headers['user-agent'], IP: socket.handshake.address });
         if (eventId === undefined) {
           socket.emit('exception', {
             code: 401, message: 'Missing data', event: 'can_i_play', eventId,
