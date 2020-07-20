@@ -23,6 +23,9 @@ export async function joinEvent(userId, eventId, socket, io) {
     socket.emit('success', {
       code: 200, message: 'Successfully joined event', event: 'join_event', eventId,
     });
+
+    logger.info(`User ${userId} successfully joined event ${eventId}`,
+      { userAgent: socket.handshake.headers['user-agent'], IP: socket.handshake.address });
   } catch (err) {
     logger.error(err);
     socket.emit('exception', {
@@ -46,6 +49,9 @@ export async function changeStatusOfMusic(userId, eventId, status, socket, io) {
     socket.emit('success', {
       code: 200, message: 'Successfully changed control', event: 'remote_controller', eventId,
     });
+
+    logger.info(`User ${userId} successfully emited 'music_status_changed' with eventId = ${eventId}, status = ${status}`,
+      { userAgent: socket.handshake.headers['user-agent'], IP: socket.handshake.address });
   } catch (err) {
     logger.error(err);
     socket.emit('exception', {
@@ -69,6 +75,9 @@ export async function updateStatusOfMusicFromOwner(userId, eventId, status, sock
     socket.emit('success', {
       code: 200, message: 'Successfully updated status', event: 'owner_music_status_change', eventId,
     });
+
+    logger.info(`User ${userId} successfully emited 'update_player_status' with eventId = ${eventId}, status = ${status}`,
+      { userAgent: socket.handshake.headers['user-agent'], IP: socket.handshake.address });
   } catch (err) {
     logger.error(err);
     socket.emit('exception', {
@@ -96,6 +105,10 @@ export async function emitOwnerIsHere(userId, eventId, ownerInRoom, ownerDeezerC
     socket.emit('success', {
       code: 200, message: 'Successfully emited owner_is_in_room', event: 'owner_is_here', eventId,
     });
+
+    logger.info(`User ${userId} successfully emited 'owner_is_in_room' with eventId = ${eventId}, ownerInRoom = ${ownerInRoom},
+    ownerDeezerConnected = ${ownerDeezerConnected}, playerStatus = ${playerStatus}`,
+    { userAgent: socket.handshake.headers['user-agent'], IP: socket.handshake.address });
   } catch (err) {
     logger.error(err);
     socket.emit('exception', {
@@ -119,6 +132,9 @@ export async function pingOwner(userId, eventId, socket, io) {
     socket.emit('success', {
       code: 200, message: 'Successfully pinged for owner', event: 'can_i_play', eventId,
     });
+
+    logger.info(`User ${userId} successfully emited 'looking_for_owner' with eventId = ${eventId}`,
+      { userAgent: socket.handshake.headers['user-agent'], IP: socket.handshake.address });
   } catch (err) {
     logger.error(err);
     socket.emit('exception', {
@@ -130,7 +146,7 @@ export async function pingOwner(userId, eventId, socket, io) {
 export async function leaveEvent(userId, eventId, socket, io) {
   try {
     socket.leave(eventId);
-    logger.info(`User ${userId} just left the event ${eventId}`);
+    logger.info(`User ${userId} successfully left the event ${eventId}`);
     socket.emit('success', {
       code: 200, message: 'Successfully left event', event: 'leave_event', eventId,
     });
